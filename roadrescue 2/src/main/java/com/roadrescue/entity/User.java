@@ -51,6 +51,9 @@ public class User {
     @Column(name = "is_deleted")
     private boolean deleted = false;
 
+    @Column(name = "two_factor_enabled" ,nullable = false)
+    private boolean twoFactorEnabled = false;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
