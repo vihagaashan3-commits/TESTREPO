@@ -18,6 +18,7 @@ public class EmailService {
     public void sendWelcomeEmail(String to, String name) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("nadeeshakalhara685@gmail.com");
             message.setTo(to);
             message.setSubject("Welcome to RoadRescue!");
             message.setText("Dear " + name + ",\n\nWelcome to RoadRescue! " +
@@ -26,7 +27,7 @@ public class EmailService {
             mailSender.send(message);
             log.info("Welcome email sent to {}", to);
         } catch (Exception e) {
-            log.error("Failed to send welcome email to {}: {}", to, e.getMessage());
+            log.error("Failed to send OTP email to {}", to, e);
         }
     }
 
@@ -34,6 +35,7 @@ public class EmailService {
     public void sendRequestAcceptedEmail(String to, String userName, String garageName) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("nadeeshakalhara685@gmail.com");
             message.setTo(to);
             message.setSubject("Your Breakdown Request Has Been Accepted");
             message.setText("Dear " + userName + ",\n\n" +
@@ -42,7 +44,7 @@ public class EmailService {
                     "Please keep your phone available.\n\nThe RoadRescue Team");
             mailSender.send(message);
         } catch (Exception e) {
-            log.error("Failed to send request accepted email: {}", e.getMessage());
+            log.error("Failed to send OTP email to {}", to, e);
         }
     }
 
@@ -50,6 +52,7 @@ public class EmailService {
     public void sendRequestCompletedEmail(String to, String userName) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("nadeeshakalhara685@gmail.com");
             message.setTo(to);
             message.setSubject("Your Breakdown Request Has Been Completed");
             message.setText("Dear " + userName + ",\n\n" +
@@ -57,8 +60,31 @@ public class EmailService {
                     "We hope you're back on the road!\n\n" +
                     "Please take a moment to rate your experience.\n\nThe RoadRescue Team");
             mailSender.send(message);
-        } catch (Exception e) {
-            log.error("Failed to send completion email: {}", e.getMessage());
+        }catch (Exception e) {
+            log.error("Failed to send OTP email to {}", to, e);
+        }
+    }
+    @Async
+    public void sendOtpEmail(String to, String otp) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("nadeeshakalhara685@gmail.com");
+            message.setTo(to);
+            message.setSubject("RoadRescue Admin Verification Code");
+
+            message.setText(
+                    "RoadRescue Admin Login Verification\n\n" +
+                            "Your OTP Code is: " + otp + "\n\n" +
+                            "This code will expire in 5 minutes.\n\n" +
+                            "If you did not request this login, please ignore this email."
+            );
+
+            mailSender.send(message);
+
+            log.info("OTP email sent to {}", to);
+
+        }catch (Exception e) {
+            log.error("Failed to send OTP email to {}", to, e);
         }
     }
 }
