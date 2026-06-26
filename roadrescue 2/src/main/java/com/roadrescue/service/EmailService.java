@@ -82,6 +82,7 @@ public class EmailService {
             String html = """
                     <!DOCTYPE html>
                     <html>
+                    
                     <body style="margin:0;padding:0;background:#f4f6f9;font-family:Arial,sans-serif;">
 
                     <table width="100%%" cellpadding="0" cellspacing="0" style="padding:40px 0;">
