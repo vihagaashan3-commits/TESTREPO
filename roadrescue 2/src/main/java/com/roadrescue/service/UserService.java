@@ -83,6 +83,29 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
+    @Transactional
+    public User saveUser(RegisterDTO dto) {
+
+        Role role;
+
+        if ("GARAGE_OWNER".equalsIgnoreCase(dto.getRole())) {
+            role = Role.ROLE_GARAGE_OWNER;
+        } else {
+            role = Role.ROLE_USER;
+        }
+
+        User user = User.builder()
+                .fullName(dto.getFullName())
+                .email(dto.getEmail())
+                .phone(dto.getPhone())
+                .password(passwordEncoder.encode(dto.getPassword()))
+                .role(role)
+                .active(true)
+                .deleted(false)
+                .build();
+
+        return userRepository.save(user);
+    }
 
     @Transactional
     public void softDelete(Long id) {
@@ -101,5 +124,8 @@ public class UserService {
 
     public long countByRole(Role role) {
         return userRepository.countByRoleAndDeletedFalse(role);
+    }
+    public boolean emailExists(String email) {
+        return userRepository.existsByEmail(email);
     }
 }

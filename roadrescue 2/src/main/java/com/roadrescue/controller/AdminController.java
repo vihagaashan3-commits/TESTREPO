@@ -42,6 +42,10 @@ public class AdminController {
         ra.addFlashAttribute("success", "User deleted.");
         return "redirect:/admin/users";
     }
+    @GetMapping("/dashboard")
+    public String dashboard() {
+        return "admin/dashboard";
+    }
 
     @GetMapping("/garages")
     public String manageGarages(@RequestParam(defaultValue = "0") int page,

@@ -36,21 +36,44 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(@Valid @ModelAttribute("registerDTO") RegisterDTO dto,
-                           BindingResult result,
-                           Model model,
-                           RedirectAttributes redirectAttributes) {
+    public String register(
+            @Valid @ModelAttribute("registerDTO") RegisterDTO dto,
+            BindingResult result,
+            Model model,
+            HttpSession session) {
+
         if (result.hasErrors()) {
             return "auth/register";
         }
+
         try {
-            User user = userService.register(dto);
-            emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
-            redirectAttributes.addFlashAttribute("success", "Registration successful! Please log in.");
-            return "redirect:/auth/login";
-        } catch (IllegalArgumentException e) {
-            // ✅ Show error on form (covers wrong admin code, duplicate email, etc.)
+
+            if (userService.emailExists(dto.getEmail())) {
+                model.addAttribute("error", "Email already exists.");
+                return "auth/register";
+            }
+
+            if (!dto.getPassword().equals(dto.getConfirmPassword())) {
+                model.addAttribute("error", "Passwords do not match.");
+                return "auth/register";
+            }
+
+            // Generate OTP
+            String otp = otpService.generateOtp(dto.getEmail());
+
+            // Send OTP Email
+            emailService.sendOtpEmail(dto.getEmail(), otp);
+
+            // Save registration details temporarily in Session
+            session.setAttribute("registerDTO", dto);
+
+            // Go to OTP Page
+            return "redirect:/auth/verify-registration-otp";
+
+        } catch (Exception e) {
+
             model.addAttribute("error", e.getMessage());
+
             return "auth/register";
         }
     }
@@ -60,6 +83,14 @@ public class AuthController {
         model.addAttribute("otpDTO", new OtpDTO());
 
         return "auth/verify-otp";
+    }
+
+    @GetMapping("/verify-registration-otp")
+    public String registrationOtpPage(Model model) {
+
+        model.addAttribute("otpDTO", new OtpDTO());
+
+        return "auth/verify-registration-otp";
     }
 
     @PostMapping("/verify-otp")
