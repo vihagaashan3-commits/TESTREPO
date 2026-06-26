@@ -120,4 +120,30 @@ public class AuthController {
 
         return "redirect:/admin/dashboard";
     }
+    @PostMapping("/verify-registration-otp")
+    public String verifyRegistrationOtp(
+            @ModelAttribute OtpDTO otpDTO,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        RegisterDTO registerDTO = (RegisterDTO) session.getAttribute("registerDTO");
+
+        if (registerDTO == null) {
+            return "redirect:/auth/register";
+        }
+
+        boolean verified = otpService.verifyOtp(registerDTO.getEmail(), otpDTO.getOtp());
+
+        if (!verified) {
+            redirectAttributes.addFlashAttribute("error", "Invalid or Expired OTP");
+            return "redirect:/auth/verify-registration-otp";
+        }
+
+        userService.saveUser(registerDTO);
+
+        session.removeAttribute("registerDTO");
+
+        return "redirect:/auth/login?registered";
+    }
+
 }
