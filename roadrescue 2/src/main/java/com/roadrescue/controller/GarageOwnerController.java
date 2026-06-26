@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Controller
@@ -45,13 +46,19 @@ public class GarageOwnerController {
                                @RequestParam(defaultValue = "0") int page,
                                @RequestParam(defaultValue = "10") int size,
                                Model model) {
-        User owner = userService.findByEmail(userDetails.getUsername());
         List<Garage> myGarages = garageService.getOwnerGarages(userDetails.getUsername());
 
         if (!myGarages.isEmpty()) {
             Long garageId = myGarages.get(0).getId();
-            Page<BreakdownRequest> requests = requestService.getRequestsByGarage(garageId, page, size);
-            model.addAttribute("requests", requests);
+
+            // Requests assigned to this garage
+            Page<BreakdownRequest> myRequests = requestService.getRequestsByGarage(garageId, page, size);
+
+            // All pending requests (not yet assigned to any garage)
+            Page<BreakdownRequest> allPending = requestService.getAllRequests(page, 50, RequestStatus.PENDING, null);
+
+            model.addAttribute("requests", myRequests);
+            model.addAttribute("pendingRequests", allPending);
             model.addAttribute("garage", myGarages.get(0));
             model.addAttribute("myGarages", myGarages);
             model.addAttribute("currentPage", page);
@@ -71,7 +78,6 @@ public class GarageOwnerController {
         Garage garage = garages.get(0);
         BreakdownRequest req = requestService.acceptRequest(id, garage.getId());
 
-        // Send email notification
         emailService.sendRequestAcceptedEmail(
                 req.getUser().getEmail(),
                 req.getUser().getFullName(),
@@ -82,10 +88,33 @@ public class GarageOwnerController {
         return "redirect:/garage-owner/requests";
     }
 
+    @PostMapping("/requests/{id}/decline")
+    public String declineRequest(@PathVariable Long id,
+                                 @AuthenticationPrincipal UserDetails userDetails,
+                                 RedirectAttributes ra) {
+        List<Garage> garages = garageService.getOwnerGarages(userDetails.getUsername());
+        if (garages.isEmpty()) {
+            ra.addFlashAttribute("error", "You don't have a registered garage.");
+            return "redirect:/dashboard";
+        }
+        requestService.declineRequest(id, garages.get(0).getId());
+        ra.addFlashAttribute("error", "Request #" + id + " declined. User has been notified.");
+        return "redirect:/garage-owner/requests";
+    }
+
     @PostMapping("/requests/{id}/in-progress")
     public String markInProgress(@PathVariable Long id, RedirectAttributes ra) {
         requestService.updateStatus(id, RequestStatus.IN_PROGRESS);
         ra.addFlashAttribute("success", "Request marked as In Progress.");
+        return "redirect:/garage-owner/requests";
+    }
+
+    @PostMapping("/requests/{id}/set-final-amount")
+    public String setFinalAmount(@PathVariable Long id,
+                                 @RequestParam BigDecimal finalAmount,
+                                 RedirectAttributes ra) {
+        requestService.setFinalAmount(id, finalAmount);
+        ra.addFlashAttribute("success", "Final amount set. Customer has been notified.");
         return "redirect:/garage-owner/requests";
     }
 

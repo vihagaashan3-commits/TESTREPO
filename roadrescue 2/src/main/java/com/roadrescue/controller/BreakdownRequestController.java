@@ -17,6 +17,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Controller
@@ -59,11 +60,13 @@ public class BreakdownRequestController {
                                 Model model) {
         if (result.hasErrors()) {
             model.addAttribute("serviceTypes", ServiceType.values());
+            model.addAttribute("userVehicles", vehicleService.getUserVehicles(
+                    userService.findByEmail(userDetails.getUsername()).getId()));
             return "request/create";
         }
         try {
             BreakdownRequest request = requestService.createRequest(dto, userDetails.getUsername());
-            redirectAttributes.addFlashAttribute("success", "Request submitted! Finding nearby garages...");
+            redirectAttributes.addFlashAttribute("success", "Request submitted successfully!");
             return "redirect:/requests/" + request.getId();
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -81,11 +84,7 @@ public class BreakdownRequestController {
         List<Garage> nearbyGarages = requestService.findNearbyGarages(
                 request.getLatitude(), request.getLongitude(), request.getServiceType());
 
-        // Safely load payment — null if none exists yet
-        Payment payment = null;
-        try {
-            payment = paymentService.findByRequestId(id);
-        } catch (Exception ignored) {}
+        Payment payment = paymentService.findByRequestId(id);
 
         model.addAttribute("request", request);
         model.addAttribute("nearbyGarages", nearbyGarages);
