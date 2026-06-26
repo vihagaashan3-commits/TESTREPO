@@ -18,9 +18,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // ✅ Change this secret code to anything your team decides
-    private static final String ADMIN_SECRET_CODE = "ROADRESCUE@ADMIN2024";
-
     @Transactional
     public User register(RegisterDTO dto) {
         if (userRepository.existsByEmail(dto.getEmail())) {
@@ -32,13 +29,7 @@ public class UserService {
 
         Role role;
 
-        if ("ADMIN".equalsIgnoreCase(dto.getRole())) {
-            // ✅ Validate admin secret code
-            if (dto.getAdminCode() == null || !ADMIN_SECRET_CODE.equals(dto.getAdminCode())) {
-                throw new IllegalArgumentException("Invalid admin secret code");
-            }
-            role = Role.ROLE_ADMIN;
-        } else if ("GARAGE_OWNER".equalsIgnoreCase(dto.getRole())) {
+        if ("GARAGE_OWNER".equalsIgnoreCase(dto.getRole())) {
             role = Role.ROLE_GARAGE_OWNER;
         } else {
             role = Role.ROLE_USER;
