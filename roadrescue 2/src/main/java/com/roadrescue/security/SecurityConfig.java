@@ -20,11 +20,9 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
+    private final CustomLoginSuccessHandler customLoginSuccessHandler;
+    private final AdminAuthenticationSuccessHandler successHandler;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -34,63 +32,63 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // CSRF protection with cookie-based token
-            .csrf(csrf -> csrf
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringRequestMatchers("/api/ws/**") // WebSocket exempt
-            )
+                // CSRF protection with cookie-based token
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .ignoringRequestMatchers("/api/ws/**") // WebSocket exempt
+                )
 
-            // Authorization rules
-            .authorizeHttpRequests(auth -> auth
-                // Public endpoints
-                .requestMatchers("/", "/auth/**", "/css/**", "/js/**", "/images/**",
-                                 "/error", "/garages/public/**").permitAll()
-                // Admin only
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                // Garage owner
-                .requestMatchers("/garage-owner/**").hasRole("GARAGE_OWNER")
-                // Technician
-                .requestMatchers("/technician/**").hasRole("TECHNICIAN")
-                // Authenticated users
-                .anyRequest().authenticated()
-            )
+                // Authorization rules
+                .authorizeHttpRequests(auth -> auth
+                        // Public endpoints
+                        .requestMatchers("/", "/auth/**", "/css/**", "/js/**", "/images/**",
+                                "/error", "/garages/public/**").permitAll()
+                        // Admin only
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        // Garage owner
+                        .requestMatchers("/garage-owner/**").hasRole("GARAGE_OWNER")
+                        // Technician
+                        .requestMatchers("/technician/**").hasRole("TECHNICIAN")
+                        // Authenticated users
+                        .anyRequest().authenticated()
+                )
 
-            // Form login
-            .formLogin(form -> form
-                .loginPage("/auth/login")
-                .loginProcessingUrl("/auth/login")
-                .defaultSuccessUrl("/dashboard", true)
-                .failureUrl("/auth/login?error=true")
-                .usernameParameter("email")
-                .passwordParameter("password")
-                .permitAll()
-            )
+                // Form login
+                .formLogin(form -> form
+                        .loginPage("/auth/login")
+                        .loginProcessingUrl("/auth/login")
+                        .successHandler(successHandler)
+                        .failureUrl("/auth/login?error=true")
+                        .usernameParameter("email")
+                        .passwordParameter("password")
+                        .permitAll()
+                )
 
-            // Logout
-            .logout(logout -> logout
-                .logoutUrl("/auth/logout")
-                .logoutSuccessUrl("/auth/login?logout=true")
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID", "XSRF-TOKEN")
-                .permitAll()
-            )
+                // Logout
+                .logout(logout -> logout
+                        .logoutUrl("/auth/logout")
+                        .logoutSuccessUrl("/auth/login?logout=true")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID", "XSRF-TOKEN")
+                        .permitAll()
+                )
 
-            // Session management
-            .sessionManagement(session -> session
-                .maximumSessions(1)
-                .expiredUrl("/auth/login?expired=true")
-            )
+                // Session management
+                .sessionManagement(session -> session
+                        .maximumSessions(1)
+                        .expiredUrl("/auth/login?expired=true")
+                )
 
-            // Remember me
-            .rememberMe(remember -> remember
-                .key("roadrescue-remember-me-key")
-                .tokenValiditySeconds(7 * 24 * 60 * 60) // 7 days
-            )
+                // Remember me
+                .rememberMe(remember -> remember
+                        .key("roadrescue-remember-me-key")
+                        .tokenValiditySeconds(7 * 24 * 60 * 60) // 7 days
+                )
 
-            // Exception handling
-            .exceptionHandling(ex -> ex
-                .accessDeniedPage("/error/403")
-            );
+                // Exception handling
+                .exceptionHandling(ex -> ex
+                        .accessDeniedPage("/error/403")
+                );
 
         return http.build();
     }

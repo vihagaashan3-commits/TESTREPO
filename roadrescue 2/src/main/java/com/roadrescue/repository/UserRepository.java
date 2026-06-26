@@ -24,9 +24,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findByRoleAndDeletedFalse(Role role, Pageable pageable);
 
     @Query("SELECT u FROM User u WHERE u.deleted = false AND " +
-           "(LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-           "LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+            "(LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<User> searchUsers(String keyword, Pageable pageable);
 
     long countByRoleAndDeletedFalse(Role role);
+    boolean existsByRole(Role role);
 }
