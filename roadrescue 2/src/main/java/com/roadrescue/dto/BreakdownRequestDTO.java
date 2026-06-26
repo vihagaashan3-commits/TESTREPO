@@ -25,4 +25,6 @@ public class BreakdownRequestDTO {
     private String locationAddress;
 
     private Long vehicleId;
+
+    private Long garageId;
 }

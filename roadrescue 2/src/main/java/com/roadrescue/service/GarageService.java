@@ -51,6 +51,10 @@ public class GarageService {
                 .orElseThrow(() -> new ResourceNotFoundException("Garage not found"));
     }
 
+    public List<Garage> findNearbyGarages(Double lat, Double lng, Double radiusKm) {
+        return garageRepository.findNearbyGarages(lat, lng, radiusKm);
+    }
+
     @Cacheable("garages")
     public Page<Garage> getAllGarages(int page, int size, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("garageName").ascending());

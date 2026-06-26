@@ -65,6 +65,10 @@ public class PaymentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
     }
 
+    public Payment findByRequestId(Long requestId) {
+        return paymentRepository.findByBreakdownRequestId(requestId).orElse(null);
+    }
+
     public Page<Payment> getUserPayments(Long userId, int page, int size) {
         return paymentRepository.findByUserId(userId,
                 PageRequest.of(page, size, Sort.by("createdAt").descending()));

@@ -12,6 +12,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -47,17 +48,33 @@ public class BreakdownRequestService {
             request.setVehicle(vehicle);
         }
 
+        // If user chose a specific garage, assign it directly
+        if (dto.getGarageId() != null) {
+            Garage garage = garageRepository.findById(dto.getGarageId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Garage not found"));
+            request.setGarage(garage);
+        }
+
         BreakdownRequest saved = requestRepository.save(request);
 
-        // Notify nearby garage owners via WebSocket
-        List<Garage> nearbyGarages = garageRepository.findNearbyGarages(
-                dto.getLatitude(), dto.getLongitude(), 10.0);
-        for (Garage garage : nearbyGarages) {
+        // Notify the specific garage owner or all nearby garage owners
+        if (dto.getGarageId() != null) {
+            Garage garage = saved.getGarage();
             messagingTemplate.convertAndSendToUser(
                     garage.getOwner().getEmail(),
                     "/queue/new-request",
-                    "New breakdown request nearby! ID: " + saved.getId()
+                    "New breakdown request sent directly to your garage! ID: " + saved.getId()
             );
+        } else {
+            List<Garage> nearbyGarages = garageRepository.findNearbyGarages(
+                    dto.getLatitude(), dto.getLongitude(), 10.0);
+            for (Garage garage : nearbyGarages) {
+                messagingTemplate.convertAndSendToUser(
+                        garage.getOwner().getEmail(),
+                        "/queue/new-request",
+                        "New breakdown request nearby! ID: " + saved.getId()
+                );
+            }
         }
 
         return saved;
@@ -77,20 +94,74 @@ public class BreakdownRequestService {
         request.setGarage(garage);
         BreakdownRequest saved = requestRepository.save(request);
 
-        // Notify user
         notificationService.createNotification(
                 request.getUser(),
                 "Request Accepted",
-                "Your breakdown request has been accepted by " + garage.getGarageName(),
+                "Your breakdown request has been accepted by " + garage.getGarageName() +
+                        ". Minimum charge: Rs. " + request.getServiceType().getMinimumCharge() +
+                        ". Final price may vary after inspection.",
                 "REQUEST_ACCEPTED",
                 request
         );
 
-        // Real-time update to user
         messagingTemplate.convertAndSendToUser(
                 request.getUser().getEmail(),
                 "/queue/request-update",
                 "ACCEPTED:" + garageId
+        );
+
+        return saved;
+    }
+
+    @Transactional
+    public BreakdownRequest declineRequest(Long requestId, Long garageId) {
+        BreakdownRequest request = findById(requestId);
+
+        if (request.getStatus() != RequestStatus.PENDING) {
+            throw new IllegalStateException("Request is no longer pending");
+        }
+
+        // If request was sent to a specific garage and they decline, cancel it
+        request.setStatus(RequestStatus.CANCELLED);
+        request.setNotes("Declined by garage. Please submit a new request.");
+        BreakdownRequest saved = requestRepository.save(request);
+
+        notificationService.createNotification(
+                request.getUser(),
+                "Request Declined",
+                "Your breakdown request was declined by the garage. Please submit a new request.",
+                "REQUEST_DECLINED",
+                request
+        );
+
+        messagingTemplate.convertAndSendToUser(
+                request.getUser().getEmail(),
+                "/queue/request-update",
+                "CANCELLED:" + requestId
+        );
+
+        return saved;
+    }
+
+    @Transactional
+    public BreakdownRequest setFinalAmount(Long requestId, BigDecimal finalAmount) {
+        BreakdownRequest request = findById(requestId);
+        request.setFinalAmount(finalAmount);
+        BreakdownRequest saved = requestRepository.save(request);
+
+        notificationService.createNotification(
+                request.getUser(),
+                "Final Price Set",
+                "The garage has set the final repair cost: Rs. " + finalAmount +
+                        ". Please proceed to payment.",
+                "FINAL_AMOUNT_SET",
+                request
+        );
+
+        messagingTemplate.convertAndSendToUser(
+                request.getUser().getEmail(),
+                "/queue/request-update",
+                "FINAL_AMOUNT:" + requestId
         );
 
         return saved;
@@ -105,7 +176,6 @@ public class BreakdownRequestService {
         }
         BreakdownRequest saved = requestRepository.save(request);
 
-        // Real-time WebSocket update
         messagingTemplate.convertAndSendToUser(
                 request.getUser().getEmail(),
                 "/queue/request-update",

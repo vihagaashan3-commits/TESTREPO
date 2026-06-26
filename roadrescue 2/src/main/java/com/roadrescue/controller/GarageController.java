@@ -16,6 +16,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/garages")
 @RequiredArgsConstructor
@@ -72,6 +74,12 @@ public class GarageController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/garages/new";
         }
+    }
+
+    @GetMapping("/nearby")
+    @ResponseBody
+    public List<Garage> getNearbyGarages(@RequestParam Double lat, @RequestParam Double lng) {
+        return garageService.findNearbyGarages(lat, lng, 15.0);
     }
 
     @GetMapping("/{id}/edit")

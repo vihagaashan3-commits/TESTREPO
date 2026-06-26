@@ -8,6 +8,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -49,6 +50,10 @@ public class BreakdownRequest {
 
     @Column(name = "notes")
     private String notes;
+
+    // Final amount set by garage after job is done
+    @Column(name = "final_amount", precision = 10, scale = 2)
+    private BigDecimal finalAmount;
 
     @Column(name = "is_deleted")
     private boolean deleted = false;
