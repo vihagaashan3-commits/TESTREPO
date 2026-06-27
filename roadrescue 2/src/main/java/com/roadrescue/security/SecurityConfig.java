@@ -41,7 +41,7 @@ public class SecurityConfig {
                 // Authorization rules
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
-                        .requestMatchers("/", "/auth/**", "/css/**", "/js/**", "/images/**",
+                        .requestMatchers("/", "/auth/**", "/css/**", "/js/**", "/images/**","/uploads/**",
                                 "/error", "/garages/public/**").permitAll()
                         // Admin only
                         .requestMatchers("/admin/**").hasRole("ADMIN")

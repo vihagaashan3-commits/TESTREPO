@@ -18,6 +18,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    // ── Register ──────────────────────────────────────────────────
     @Transactional
     public User register(RegisterDTO dto) {
         if (userRepository.existsByEmail(dto.getEmail())) {
@@ -27,13 +28,8 @@ public class UserService {
             throw new IllegalArgumentException("Passwords do not match");
         }
 
-        Role role;
-
-        if ("GARAGE_OWNER".equalsIgnoreCase(dto.getRole())) {
-            role = Role.ROLE_GARAGE_OWNER;
-        } else {
-            role = Role.ROLE_USER;
-        }
+        Role role = "GARAGE_OWNER".equalsIgnoreCase(dto.getRole())
+                ? Role.ROLE_GARAGE_OWNER : Role.ROLE_USER;
 
         User user = User.builder()
                 .fullName(dto.getFullName())
@@ -48,16 +44,38 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    // ── Save user (called by AuthController after OTP) ────────────
+    @Transactional
+    public User saveUser(RegisterDTO dto) {
+        Role role = "GARAGE_OWNER".equalsIgnoreCase(dto.getRole())
+                ? Role.ROLE_GARAGE_OWNER : Role.ROLE_USER;
+
+        User user = User.builder()
+                .fullName(dto.getFullName())
+                .email(dto.getEmail())
+                .phone(dto.getPhone())
+                .password(passwordEncoder.encode(dto.getPassword()))
+                .role(role)
+                .active(true)
+                .deleted(false)
+                .build();
+
+        return userRepository.save(user);
+    }
+
+    // ── Find by email ─────────────────────────────────────────────
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
+    // ── Find by ID ────────────────────────────────────────────────
     public User findById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
+    // ── Get all users (paginated + search) ───────────────────────
     public Page<User> getAllUsers(int page, int size, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         if (keyword != null && !keyword.isBlank()) {
@@ -66,6 +84,7 @@ public class UserService {
         return userRepository.findByDeletedFalse(pageable);
     }
 
+    // ── Update profile (name + phone) ─────────────────────────────
     @Transactional
     public User updateProfile(Long id, User updatedUser) {
         User user = findById(id);
@@ -74,6 +93,15 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    // ── Update profile image path ─────────────────────────────────
+    @Transactional
+    public User updateProfileImage(Long id, String imagePath) {
+        User user = findById(id);
+        user.setProfileImage(imagePath);
+        return userRepository.save(user);
+    }
+
+    // ── Change password ───────────────────────────────────────────
     @Transactional
     public void changePassword(Long id, String oldPassword, String newPassword) {
         User user = findById(id);
@@ -83,30 +111,8 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
-    @Transactional
-    public User saveUser(RegisterDTO dto) {
 
-        Role role;
-
-        if ("GARAGE_OWNER".equalsIgnoreCase(dto.getRole())) {
-            role = Role.ROLE_GARAGE_OWNER;
-        } else {
-            role = Role.ROLE_USER;
-        }
-
-        User user = User.builder()
-                .fullName(dto.getFullName())
-                .email(dto.getEmail())
-                .phone(dto.getPhone())
-                .password(passwordEncoder.encode(dto.getPassword()))
-                .role(role)
-                .active(true)
-                .deleted(false)
-                .build();
-
-        return userRepository.save(user);
-    }
-
+    // ── Soft delete ───────────────────────────────────────────────
     @Transactional
     public void softDelete(Long id) {
         User user = findById(id);
@@ -115,6 +121,7 @@ public class UserService {
         userRepository.save(user);
     }
 
+    // ── Toggle active ─────────────────────────────────────────────
     @Transactional
     public void toggleActive(Long id) {
         User user = findById(id);
@@ -133,9 +140,12 @@ public class UserService {
         userRepository.save(user);
     }
 
+    // ── Count by role ─────────────────────────────────────────────
     public long countByRole(Role role) {
         return userRepository.countByRoleAndDeletedFalse(role);
     }
+
+    // ── Email exists check ────────────────────────────────────────
     public boolean emailExists(String email) {
         return userRepository.existsByEmail(email);
     }

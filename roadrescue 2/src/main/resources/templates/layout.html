@@ -50,8 +50,13 @@
                     </a>
                 </li>
                 <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                        <i class="fas fa-user-circle me-1"></i>
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
+                        <img th:if="${user != null and user.profileImage != null and !#strings.isEmpty(user.profileImage)}"
+                             th:src="${user.profileImage}"
+                             alt="Profile"
+                             style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.6);">
+                        <i th:unless="${user != null and user.profileImage != null and !#strings.isEmpty(user.profileImage)}"
+                           class="fas fa-user-circle"></i>
                         <span sec:authentication="name">User</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
