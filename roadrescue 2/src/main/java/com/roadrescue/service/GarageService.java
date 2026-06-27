@@ -8,6 +8,7 @@ import com.roadrescue.exception.ResourceNotFoundException;
 import com.roadrescue.repository.GarageRepository;
 import com.roadrescue.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class GarageService {
     private final UserService userService;
 
     @Transactional
+    @CacheEvict(value = "garages", allEntries = true)
     public Garage createGarage(GarageDTO dto, String ownerEmail) {
         User owner = userService.findByEmail(ownerEmail);
 
@@ -70,6 +72,7 @@ public class GarageService {
     }
 
     @Transactional
+    @CacheEvict(value = "garages", allEntries = true)
     public Garage updateGarage(Long id, GarageDTO dto, String ownerEmail) {
         Garage garage = findById(id);
         User owner = userService.findByEmail(ownerEmail);
@@ -92,6 +95,7 @@ public class GarageService {
     }
 
     @Transactional
+    @CacheEvict(value = "garages", allEntries = true)
     public void softDelete(Long id) {
         Garage garage = findById(id);
         garage.setDeleted(true);
@@ -99,6 +103,7 @@ public class GarageService {
     }
 
     @Transactional
+    @CacheEvict(value = "garages", allEntries = true)
     public void verifyGarage(Long id) {
         Garage garage = findById(id);
         garage.setVerified(true);
@@ -106,6 +111,7 @@ public class GarageService {
     }
 
     @Transactional
+    @CacheEvict(value = "garages", allEntries = true)
     public void toggleAvailability(Long id) {
         Garage garage = findById(id);
         garage.setAvailable(!garage.isAvailable());
