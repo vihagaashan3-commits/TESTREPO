@@ -121,6 +121,17 @@ public class UserService {
         user.setActive(!user.isActive());
         userRepository.save(user);
     }
+    @Transactional
+    public void resetPassword(String email, String password) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        user.setPassword(passwordEncoder.encode(password));
+
+        userRepository.save(user);
+    }
 
     public long countByRole(Role role) {
         return userRepository.countByRoleAndDeletedFalse(role);
