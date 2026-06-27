@@ -8,139 +8,217 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --primary-modern: #dc3545;
+            --bg-canvas: #f8f9fa;
+        }
+        body {
+            background-color: var(--bg-canvas);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        /* Custom Modern Layout Grid */
+        .dashboard-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar-panel {
+            width: var(--sidebar-width);
+            background: #ffffff;
+            border-right: 1px solid rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+        }
+        /* Sidebar Navigation Styling */
+        .nav-link-modern {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.85rem 1.25rem;
+            color: #5c636a;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .nav-link-modern:hover {
+            background-color: rgba(220, 53, 69, 0.05);
+            color: var(--primary-modern);
+        }
+        .nav-link-modern.active-link {
+            background-color: var(--primary-modern);
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+        }
+        /* Dashboard Card Refinements */
+        .card-modern {
+            background: #ffffff;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02), 0 2px 4px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+        }
+        .icon-box {
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+        }
+        .card-header-modern {
+            background: transparent;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding: 1.25rem 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+        .badge-pill-modern {
+            padding: 0.45em 0.85em;
+            border-radius: 50rem;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
 
 <th:block th:replace="~{layout :: navbar}"></th:block>
 
-<div class="container-fluid my-4">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-2">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush rounded">
-                        <a th:href="@{/dashboard}" class="list-group-item list-group-item-action active bg-danger text-white">
-                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                        </a>
-                        <a th:href="@{/admin/users}" class="list-group-item list-group-item-action">
-                            <i class="fas fa-users me-2"></i>Users
-                        </a>
-                        <a th:href="@{/admin/garages}" class="list-group-item list-group-item-action">
-                            <i class="fas fa-warehouse me-2"></i>Garages
-                        </a>
-                        <a th:href="@{/requests/all}" class="list-group-item list-group-item-action">
-                            <i class="fas fa-clipboard-list me-2"></i>Requests
-                        </a>
+<div class="dashboard-wrapper">
+    <aside class="sidebar-panel p-3 d-none d-md-block">
+        <div class="d-flex flex-column gap-1">
+            <a th:href="@{/dashboard}" class="nav-link-modern active-link">
+                <i class="fas fa-chart-pie fs-5"></i>Dashboard
+            </a>
+            <a th:href="@{/admin/users}" class="nav-link-modern">
+                <i class="fas fa-users fs-5"></i>Users
+            </a>
+            <a th:href="@{/admin/garages}" class="nav-link-modern">
+                <i class="fas fa-warehouse fs-5"></i>Garages
+            </a>
+            <a th:href="@{/requests/all}" class="nav-link-modern">
+                <i class="fas fa-clipboard-list fs-5"></i>Requests
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold tracking-tight mb-1 text-dark">Welcome Back, Admin</h3>
+                <p class="text-muted small mb-0">Here's a quick look at RoadRescue's current live metrics.</p>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="card-modern p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="text-muted text-uppercase fs-7 fw-semibold tracking-wider d-block mb-1">Total Users</span>
+                            <span class="fw-bold fs-2 text-dark" th:text="${totalUsers}">0</span>
+                        </div>
+                        <div class="icon-box bg-danger bg-opacity-10 text-danger">
+                            <i class="fas fa-users fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card-modern p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="text-muted text-uppercase fs-7 fw-semibold tracking-wider d-block mb-1">Garages</span>
+                            <span class="fw-bold fs-2 text-dark" th:text="${totalGarages}">0</span>
+                        </div>
+                        <div class="icon-box bg-warning bg-opacity-10 text-warning">
+                            <i class="fas fa-warehouse fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card-modern p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="text-muted text-uppercase fs-7 fw-semibold tracking-wider d-block mb-1">Total Requests</span>
+                            <span class="fw-bold fs-2 text-dark" th:text="${totalRequests}">0</span>
+                        </div>
+                        <div class="icon-box bg-primary bg-opacity-10 text-primary">
+                            <i class="fas fa-clipboard-list fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card-modern p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="text-muted text-uppercase fs-7 fw-semibold tracking-wider d-block mb-1">Pending</span>
+                            <span class="fw-bold fs-2 text-dark" th:text="${pendingRequests}">0</span>
+                        </div>
+                        <div class="icon-box bg-success bg-opacity-10 text-success">
+                            <i class="fas fa-clock fs-4"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Main Content -->
-        <div class="col-md-10">
-            <h4 class="fw-bold mb-4"><i class="fas fa-tachometer-alt me-2 text-danger"></i>Admin Dashboard</h4>
-
-            <!-- Stats -->
-            <div class="row g-3 mb-4">
-                <div class="col-md-3">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body d-flex align-items-center gap-3">
-                            <div class="rounded-circle bg-danger bg-opacity-10 p-3">
-                                <i class="fas fa-users text-danger fs-4"></i>
-                            </div>
-                            <div>
-                                <div class="fw-bold fs-4" th:text="${totalUsers}">0</div>
-                                <small class="text-muted">Total Users</small>
-                            </div>
-                        </div>
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="card-modern h-100">
+                    <div class="card-header-modern d-flex align-items-center gap-2 text-dark">
+                        <i class="fas fa-bolt text-danger"></i> Quick Console
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body d-flex align-items-center gap-3">
-                            <div class="rounded-circle bg-warning bg-opacity-10 p-3">
-                                <i class="fas fa-warehouse text-warning fs-4"></i>
-                            </div>
-                            <div>
-                                <div class="fw-bold fs-4" th:text="${totalGarages}">0</div>
-                                <small class="text-muted">Garages</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body d-flex align-items-center gap-3">
-                            <div class="rounded-circle bg-primary bg-opacity-10 p-3">
-                                <i class="fas fa-clipboard-list text-primary fs-4"></i>
-                            </div>
-                            <div>
-                                <div class="fw-bold fs-4" th:text="${totalRequests}">0</div>
-                                <small class="text-muted">Total Requests</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body d-flex align-items-center gap-3">
-                            <div class="rounded-circle bg-success bg-opacity-10 p-3">
-                                <i class="fas fa-clock text-success fs-4"></i>
-                            </div>
-                            <div>
-                                <div class="fw-bold fs-4" th:text="${pendingRequests}">0</div>
-                                <small class="text-muted">Pending</small>
-                            </div>
-                        </div>
+                    <div class="card-body p-4 d-flex flex-column gap-3">
+                        <a th:href="@{/admin/users}" class="btn btn-light border py-2.5 text-start d-flex align-items-center justify-content-between text-dark">
+                            <span><i class="fas fa-users me-2 text-muted"></i> Manage Platform Users</span>
+                            <i class="fas fa-chevron-right fs-7 text-muted"></i>
+                        </a>
+                        <a th:href="@{/admin/garages}" class="btn btn-light border py-2.5 text-start d-flex align-items-center justify-content-between text-dark">
+                            <span><i class="fas fa-warehouse me-2 text-muted"></i> Verify Partner Garages</span>
+                            <i class="fas fa-chevron-right fs-7 text-muted"></i>
+                        </a>
+                        <a th:href="@{/requests/all}" class="btn btn-light border py-2.5 text-start d-flex align-items-center justify-content-between text-dark">
+                            <span><i class="fas fa-clipboard-list me-2 text-muted"></i> Review Live Incidents</span>
+                            <i class="fas fa-chevron-right fs-7 text-muted"></i>
+                        </a>
                     </div>
                 </div>
             </div>
-
-            <!-- Quick Actions -->
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-header bg-white fw-bold">
-                            <i class="fas fa-bolt text-danger me-2"></i>Quick Actions
-                        </div>
-                        <div class="card-body d-grid gap-2">
-                            <a th:href="@{/admin/users}" class="btn btn-outline-danger">
-                                <i class="fas fa-users me-2"></i>Manage Users
-                            </a>
-                            <a th:href="@{/admin/garages}" class="btn btn-outline-warning">
-                                <i class="fas fa-warehouse me-2"></i>Verify Garages
-                            </a>
-                            <a th:href="@{/requests/all}" class="btn btn-outline-primary">
-                                <i class="fas fa-clipboard-list me-2"></i>View All Requests
-                            </a>
-                        </div>
+            <div class="col-lg-7">
+                <div class="card-modern h-100">
+                    <div class="card-header-modern d-flex align-items-center gap-2 text-dark">
+                        <i class="fas fa-server text-primary"></i> System Status
                     </div>
-                </div>
-                <div class="col-md-8">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-header bg-white fw-bold">
-                            <i class="fas fa-info-circle text-primary me-2"></i>System Status
+                    <div class="card-body p-4 d-flex flex-column gap-3">
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+                            <span class="text-muted font-medium">Active Users</span>
+                            <span class="badge badge-pill-modern bg-success-subtle text-success border border-success-subtle" th:text="${totalUsers}">0</span>
                         </div>
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span>Active Users</span>
-                                <span class="badge bg-success" th:text="${totalUsers}">0</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span>Verified Garages</span>
-                                <span class="badge bg-primary" th:text="${totalGarages}">0</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span>Pending Requests</span>
-                                <span class="badge bg-warning text-dark" th:text="${pendingRequests}">0</span>
-                            </div>
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+                            <span class="text-muted font-medium">Verified Garages</span>
+                            <span class="badge badge-pill-modern bg-primary-subtle text-primary border border-primary-subtle" th:text="${totalGarages}">0</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center py-2">
+                            <span class="text-muted font-medium">Pending Requests</span>
+                            <span class="badge badge-pill-modern bg-warning-subtle text-warning border border-warning-subtle" th:text="${pendingRequests}">0</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 </div>
 
 <th:block th:replace="~{layout :: footer}"></th:block>
