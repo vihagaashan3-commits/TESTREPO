@@ -32,7 +32,13 @@ public class NotificationController {
         model.addAttribute("user", user);
         return "notification/list";
     }
-
+    @GetMapping("/unread")
+    public String unreadNotifications(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        User user = userService.findByEmail(userDetails.getUsername());
+        model.addAttribute("notifications", notificationService.getUnreadNotifications(user.getId()));
+        model.addAttribute("user", user);
+        return "notification/unread";
+    }
     @PostMapping("/{id}/read")
     @ResponseBody
     public ResponseEntity<?> markRead(@PathVariable Long id) {
