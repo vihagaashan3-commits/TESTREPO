@@ -7,13 +7,18 @@
     <title>Request Help | RoadRescue</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <link th:href="@{/css/style.css}" rel="stylesheet">
     <style>
-        #map { height: 350px; border-radius: 12px; }
-        .service-card { cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+        #map { height: 320px; border-radius: 12px; }
+        .service-card { cursor: pointer; transition: all 0.2s; border: 2px solid #dee2e6; border-radius: 10px; }
         .service-card:hover { border-color: #dc3545; transform: translateY(-2px); }
         .service-card.selected { border-color: #dc3545; background: #fff5f5; }
-        .service-icon { font-size: 2rem; }
+        .service-icon { font-size: 1.8rem; }
+        .garage-card { cursor: pointer; border: 2px solid #dee2e6; border-radius: 10px; transition: all 0.2s; }
+        .garage-card:hover { border-color: #dc3545; }
+        .garage-card.selected { border-color: #dc3545; background: #fff5f5; }
+        #costBox { font-size: 1.3rem; font-weight: 700; color: #dc3545; }
     </style>
 </head>
 <body class="bg-light">
@@ -22,25 +27,26 @@
 
 <div class="container my-4">
     <div class="row justify-content-center">
-        <div class="col-lg-10">
+        <div class="col-lg-11">
 
-            <!-- Header -->
             <div class="rr-hero rounded-3 p-4 mb-4 text-white text-center">
                 <h4><i class="fas fa-exclamation-triangle me-2"></i>Request Emergency Assistance</h4>
-                <p class="mb-0 opacity-75">Tell us what's wrong and we'll find help near you</p>
+                <p class="mb-0 opacity-75">Select your problem, set your location, choose a garage</p>
             </div>
 
-            <form th:action="@{/requests/new}" th:object="${requestDTO}" method="post" novalidate>
+            <form th:action="@{/requests/new}" th:object="${requestDTO}" method="post" novalidate id="reqForm">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" th:field="*{garageId}" id="garageIdInput">
 
                 <div class="row g-4">
-                    <!-- Left: Problem & Vehicle -->
+
+                    <!-- LEFT COLUMN -->
                     <div class="col-lg-5">
 
-                        <!-- Problem Type -->
+                        <!-- Step 1: Problem Type -->
                         <div class="card border-0 shadow-sm mb-4">
                             <div class="card-header bg-white fw-bold">
-                                <i class="fas fa-tools text-danger me-2"></i>What's the Problem?
+                                <span class="badge bg-danger me-2">1</span>What's the Problem?
                             </div>
                             <div class="card-body">
                                 <input type="hidden" th:field="*{serviceType}" id="serviceTypeInput">
@@ -49,32 +55,50 @@
 
                                 <div class="row g-2">
                                     <div class="col-6" th:each="svc : ${serviceTypes}">
-                                        <div class="card service-card text-center p-2"
+                                        <div class="service-card text-center p-2"
                                              th:data-value="${svc.name()}"
+                                             th:data-cost="${svc.minimumCharge}"
+                                             th:data-name="${svc.displayName}"
                                              onclick="selectService(this)">
                                             <div class="service-icon">
                                                 <i th:class="${
-                                                    svc.name() == 'FLAT_TIRE' ? 'fas fa-circle-dot text-danger' :
-                                                    svc.name() == 'BATTERY_JUMP' ? 'fas fa-bolt text-warning' :
+                                                    svc.name() == 'FLAT_TIRE'           ? 'fas fa-circle-dot text-danger' :
+                                                    svc.name() == 'BATTERY_JUMP'        ? 'fas fa-bolt text-warning' :
                                                     svc.name() == 'BATTERY_REPLACEMENT' ? 'fas fa-car-battery text-info' :
-                                                    svc.name() == 'ENGINE_REPAIR' ? 'fas fa-cog text-secondary' :
-                                                    svc.name() == 'FUEL_DELIVERY' ? 'fas fa-gas-pump text-success' :
-                                                    svc.name() == 'TOWING' ? 'fas fa-truck-moving text-primary' :
-                                                    svc.name() == 'BRAKE_REPAIR' ? 'fas fa-stop-circle text-danger' :
-                                                    svc.name() == 'LOCKOUT' ? 'fas fa-key text-warning' :
+                                                    svc.name() == 'ENGINE_REPAIR'       ? 'fas fa-cog text-secondary' :
+                                                    svc.name() == 'FUEL_DELIVERY'       ? 'fas fa-gas-pump text-success' :
+                                                    svc.name() == 'TOWING'              ? 'fas fa-truck-moving text-primary' :
+                                                    svc.name() == 'BRAKE_REPAIR'        ? 'fas fa-stop-circle text-danger' :
+                                                    svc.name() == 'LOCKOUT'             ? 'fas fa-key text-warning' :
+                                                    svc.name() == 'OIL_CHANGE'          ? 'fas fa-oil-can text-success' :
                                                     'fas fa-wrench text-secondary'}"></i>
                                             </div>
-                                            <small th:text="${#strings.replace(svc.name(), '_', ' ')}">Service</small>
+                                            <small class="d-block fw-semibold mt-1"
+                                                   th:text="${svc.displayName}">Service</small>
+                                            <span class="badge bg-danger mt-1"
+                                                  th:text="'From Rs. ' + ${svc.minimumCharge}">Rs.0</span>
                                         </div>
                                     </div>
+                                </div>
+
+                                <!-- Minimum cost display -->
+                                <div id="costAlert" class="alert alert-warning mt-3 mb-0 d-none">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-info-circle me-1"></i>Minimum Estimate:</span>
+                                        <span id="costBox">Rs. 0</span>
+                                    </div>
+                                    <small class="text-muted d-block mt-1">
+                                        <i class="fas fa-exclamation-triangle me-1 text-warning"></i>
+                                        This is the minimum charge. The actual amount may change after the technician inspects your vehicle.
+                                    </small>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Description -->
+                        <!-- Step 2: Description -->
                         <div class="card border-0 shadow-sm mb-4">
                             <div class="card-header bg-white fw-bold">
-                                <i class="fas fa-comment-alt text-danger me-2"></i>Describe the Issue
+                                <span class="badge bg-danger me-2">2</span>Describe the Issue
                             </div>
                             <div class="card-body">
                                 <textarea th:field="*{description}" rows="3" class="form-control"
@@ -85,10 +109,10 @@
                             </div>
                         </div>
 
-                        <!-- Vehicle -->
+                        <!-- Step 3: Vehicle -->
                         <div class="card border-0 shadow-sm">
                             <div class="card-header bg-white fw-bold">
-                                <i class="fas fa-car text-danger me-2"></i>Select Your Vehicle (Optional)
+                                <span class="badge bg-danger me-2">3</span>Select Your Vehicle (Optional)
                             </div>
                             <div class="card-body">
                                 <select th:field="*{vehicleId}" class="form-select">
@@ -106,11 +130,13 @@
                         </div>
                     </div>
 
-                    <!-- Right: Map & Location -->
+                    <!-- RIGHT COLUMN -->
                     <div class="col-lg-7">
-                        <div class="card border-0 shadow-sm">
+
+                        <!-- Step 4: Location -->
+                        <div class="card border-0 shadow-sm mb-4">
                             <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
-                                <span><i class="fas fa-map-marker-alt text-danger me-2"></i>Your Location</span>
+                                <span><span class="badge bg-danger me-2">4</span>Your Location</span>
                                 <button type="button" class="btn btn-sm btn-outline-danger" onclick="getLocation()">
                                     <i class="fas fa-crosshairs me-1"></i>Use My Location
                                 </button>
@@ -121,31 +147,46 @@
                                 <input type="hidden" th:field="*{latitude}" id="latInput">
                                 <input type="hidden" th:field="*{longitude}" id="lngInput">
 
-                                <div class="mb-3">
-                                    <label class="form-label small fw-semibold">Address / Landmark</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
-                                        <input type="text" th:field="*{locationAddress}" class="form-control"
-                                               placeholder="e.g. Near Keells, Galle Road, Colombo 3"
-                                               id="addressInput">
-                                    </div>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
+                                    <input type="text" th:field="*{locationAddress}" class="form-control"
+                                           placeholder="e.g. Near Keells, Galle Road, Colombo 3"
+                                           id="addressInput">
                                 </div>
 
                                 <div th:if="${#fields.hasErrors('latitude')}"
                                      class="alert alert-danger py-2 small">Please share your location.</div>
 
-                                <div class="alert alert-info py-2 small">
+                                <div class="alert alert-info py-2 small mb-0">
                                     <i class="fas fa-info-circle me-1"></i>
-                                    Click "Use My Location" or click on the map to set your position.
-                                </div>
-
-                                <div class="d-grid">
-                                    <button type="submit" class="btn btn-danger btn-lg">
-                                        <i class="fas fa-paper-plane me-2"></i>Send Emergency Request
-                                    </button>
+                                    Click "Use My Location" or click on the map to pin your position.
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Step 5: Choose Garage -->
+                        <div class="card border-0 shadow-sm mb-4" id="garageSection" style="display:none">
+                            <div class="card-header bg-white fw-bold">
+                                <span class="badge bg-danger me-2">5</span>Choose a Garage
+                                <small class="text-muted fw-normal ms-2">near your location</small>
+                            </div>
+                            <div class="card-body p-0">
+                                <div id="garageList" class="p-3">
+                                    <p class="text-muted text-center py-2 mb-0">
+                                        <i class="fas fa-map-marker-alt me-1"></i>
+                                        Set your location first to see nearby garages
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Send Emergency Request
+                            </button>
+                        </div>
+
                     </div>
                 </div>
             </form>
@@ -155,55 +196,92 @@
 
 <th:block th:replace="~{layout :: footer}"></th:block>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- Google Maps -->
 <script>
     let map, marker;
 
-    function initMap() {
-        const defaultPos = { lat: 6.9271, lng: 79.8612 }; // Colombo default
-        map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 13, center: defaultPos,
-            styles: [{ featureType: 'poi', stylers: [{ visibility: 'simplified' }] }]
-        });
-        map.addListener('click', (e) => placeMarker(e.latLng.lat(), e.latLng.lng()));
-        getLocation();
-    }
+    // Init Leaflet map — OpenStreetMap, no API key needed
+    map = L.map('map').setView([6.9271, 79.8612], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    map.on('click', function(e) { placeMarker(e.latlng.lat, e.latlng.lng); });
 
     function getLocation() {
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(pos => {
-                placeMarker(pos.coords.latitude, pos.coords.longitude);
-            }, () => alert('Location access denied. Please click on the map.'));
+            navigator.geolocation.getCurrentPosition(
+                function(pos) { placeMarker(pos.coords.latitude, pos.coords.longitude); },
+                function() { alert('Location access denied. Please click on the map to set your position.'); }
+            );
         }
     }
 
     function placeMarker(lat, lng) {
         document.getElementById('latInput').value = lat;
         document.getElementById('lngInput').value = lng;
-        const pos = { lat, lng };
-        map.setCenter(pos);
-        map.setZoom(15);
-        if (marker) marker.setMap(null);
-        marker = new google.maps.Marker({ position: pos, map, animation: google.maps.Animation.DROP,
-            icon: { url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png' }
+        map.setView([lat, lng], 15);
+        if (marker) marker.remove();
+        marker = L.marker([lat, lng]).addTo(map).bindPopup('You are here').openPopup();
+        loadNearbyGarages(lat, lng);
+    }
+
+    function loadNearbyGarages(lat, lng) {
+        fetch('/garages/nearby?lat=' + lat + '&lng=' + lng)
+            .then(function(r) { return r.json(); })
+            .then(function(garages) { renderGarages(garages); })
+            .catch(function() { renderGarages([]); });
+    }
+
+    function renderGarages(garages) {
+        var section = document.getElementById('garageSection');
+        var list = document.getElementById('garageList');
+        section.style.display = 'block';
+
+        if (!garages || garages.length === 0) {
+            list.innerHTML = '<p class="text-muted text-center py-3 mb-0">' +
+                '<i class="fas fa-warehouse me-1"></i>' +
+                'No garages found nearby. Your request will be broadcast to all garages.</p>';
+            return;
+        }
+
+        var html = '';
+        garages.forEach(function(g) {
+            html += '<div class="garage-card p-3 mb-2 mx-2" data-id="' + g.id + '" onclick="selectGarage(this,' + g.id + ')">' +
+                '<div class="d-flex justify-content-between align-items-start">' +
+                '<div>' +
+                '<div class="fw-semibold"><i class="fas fa-warehouse text-danger me-1"></i>' + g.garageName + '</div>' +
+                '<small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>' + g.address + '</small><br>' +
+                '<small class="text-muted"><i class="fas fa-phone me-1"></i>' + g.phone + '</small>' +
+                '</div>' +
+                '<span class="badge bg-success align-self-center">Available</span>' +
+                '</div></div>';
         });
-        // Reverse geocode
-        const geocoder = new google.maps.Geocoder();
-        geocoder.geocode({ location: pos }, (results, status) => {
-            if (status === 'OK' && results[0]) {
-                document.getElementById('addressInput').value = results[0].formatted_address;
-            }
-        });
+
+        html += '<div class="garage-card p-3 mb-2 mx-2 text-center text-muted" data-id="0" onclick="selectGarage(this,0)">' +
+            '<i class="fas fa-broadcast-tower me-1"></i>Broadcast to all nearby garages' +
+            '</div>';
+
+        list.innerHTML = html;
+    }
+
+    function selectGarage(card, id) {
+        document.querySelectorAll('.garage-card').forEach(function(c) { c.classList.remove('selected'); });
+        card.classList.add('selected');
+        document.getElementById('garageIdInput').value = (id === 0) ? '' : id;
     }
 
     function selectService(card) {
-        document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+        document.querySelectorAll('.service-card').forEach(function(c) { c.classList.remove('selected'); });
         card.classList.add('selected');
         document.getElementById('serviceTypeInput').value = card.dataset.value;
+        var cost = card.dataset.cost;
+        document.getElementById('costBox').textContent = 'Rs. ' + parseInt(cost).toLocaleString();
+        document.getElementById('costAlert').classList.remove('d-none');
     }
+
+    // Auto-get location on load
+    getLocation();
 </script>
-<script th:src="@{'https://maps.googleapis.com/maps/api/js?key=' + ${@environment.getProperty('google.maps.api.key')} + '&callback=initMap'}"
-        async defer></script>
 </body>
 </html>
