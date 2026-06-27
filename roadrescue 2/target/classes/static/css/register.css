@@ -1,388 +1,1358 @@
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/*=========================================================
+                    RESET
+=========================================================*/
 
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            overflow: hidden;
-        }
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-        /* ── LEFT PANEL ── */
-        .left-panel {
-            position: relative;
-            width: 42%;
-            min-height: 100vh;
-            background: #111;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 36px 48px;
-        }
+html,
+body{
+    width:100%;
+    min-height:100vh;
+    font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
+    background:#f5f6fa;
+}
 
-        .left-panel::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80') center/cover no-repeat;
-            opacity: 0.45;
-            z-index: 0;
-        }
+body{
+    display:flex;
+}
 
-        .left-panel::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: -40px;
-            width: 90px;
-            height: 100%;
-            background: #e01e1e;
-            transform: skewX(-4deg);
-            z-index: 1;
-        }
+/*=========================================================
+                    LEFT PANEL
+=========================================================*/
 
-        .left-content { position: relative; z-index: 2; }
+.left-panel{
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #fff;
-            font-size: 1.3rem;
-            font-weight: 700;
-            letter-spacing: -0.3px;
-        }
+    position:relative;
 
-        .brand-icon {
-            width: 38px;
-            height: 38px;
-            background: #e01e1e;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.95rem;
-            color: #fff;
-            position: relative;
-        }
+    width:55%;
 
-        .brand-icon::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 8px;
-            height: 8px;
-            background: #e01e1e;
-            clip-path: polygon(50% 100%, 0 0, 100% 0);
-        }
+    min-height:100vh;
 
-        .hero-text { margin-top: 80px; }
+    overflow:hidden;
 
-        .hero-text h1 {
-            font-size: 2.6rem;
-            font-weight: 800;
-            color: #fff;
-            line-height: 1.15;
-            letter-spacing: -0.5px;
-        }
+    display:flex;
 
-        .hero-text h1 span { color: #e01e1e; }
+    flex-direction:column;
 
-        .hero-divider {
-            width: 44px;
-            height: 3px;
-            background: #e01e1e;
-            margin: 18px 0 20px;
-            border-radius: 2px;
-        }
+    justify-content:space-between;
 
-        .hero-text p {
-            color: rgba(255,255,255,0.75);
-            font-size: 0.95rem;
-            line-height: 1.65;
-            max-width: 280px;
-        }
+    background:#111;
 
-        .features { margin-top: 40px; display: flex; flex-direction: column; gap: 18px; }
+    padding:40px 55px;
 
-        .feature-item { display: flex; align-items: flex-start; gap: 14px; color: #fff; }
+}
 
-        .feature-icon {
-            width: 38px;
-            height: 38px;
-            background: rgba(224, 30, 30, 0.25);
-            border: 1px solid rgba(224, 30, 30, 0.5);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            color: #fff;
-            flex-shrink: 0;
-        }
+.left-panel::before{
 
-        .feature-item h6 { font-size: 0.9rem; font-weight: 700; margin: 0 0 2px; color: #fff; }
-        .feature-item p  { font-size: 0.78rem; color: rgba(255,255,255,0.6); margin: 0; }
+    content:"";
 
-        .left-footer {
-            position: relative;
-            z-index: 2;
-            color: rgba(255,255,255,0.4);
-            font-size: 0.78rem;
-        }
+    position:absolute;
 
-        /* ── RIGHT PANEL ── */
-        .right-panel {
-            width: 58%;
-            min-height: 100vh;
-            background: #f5f6f8;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 32px 24px;
-            overflow-y: auto;
-            position: relative;
-        }
+    inset:0;
 
-        .lang-selector {
-            position: absolute;
-            top: 20px;
-            right: 24px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.82rem;
-            color: #555;
-            cursor: pointer;
-            border: 1px solid #ddd;
-            background: #fff;
-            border-radius: 20px;
-            padding: 5px 12px;
-        }
+    background:
+            url("https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80")
+            center center/cover no-repeat;
 
-        /* Register Card */
-        .register-card {
-            background: #fff;
-            border-radius: 16px;
-            padding: 36px 36px 30px;
-            width: 100%;
-            max-width: 520px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-        }
+    opacity:.45;
 
-        .register-card-icon {
-            width: 64px;
-            height: 64px;
-            background: #e01e1e;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 18px;
-            font-size: 1.5rem;
-            color: #fff;
-        }
+    z-index:0;
 
-        .register-card h4 {
-            text-align: center;
-            font-weight: 800;
-            font-size: 1.25rem;
-            color: #111;
-            margin-bottom: 4px;
-        }
+}
 
-        .register-card .subtitle {
-            text-align: center;
-            color: #888;
-            font-size: 0.83rem;
-            margin-bottom: 26px;
-        }
+.left-panel::after{
 
-        /* Two-column grid */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0 16px;
-        }
+    content:"";
 
-        .form-grid .full-width { grid-column: 1 / -1; }
+    position:absolute;
 
-        .form-label {
-            font-size: 0.83rem;
-            font-weight: 600;
-            color: #222;
-            margin-bottom: 5px;
-            display: block;
-        }
+    inset:0;
 
-        .field-wrap {
-            position: relative;
-            margin-bottom: 16px;
-        }
+    background:
+            linear-gradient(
+                    135deg,
+                    rgba(0,0,0,.75),
+                    rgba(0,0,0,.45)
+            );
 
-        .field-wrap i.prefix {
-            position: absolute;
-            left: 13px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #aaa;
-            font-size: 0.85rem;
-            pointer-events: none;
-        }
+    z-index:1;
 
-        .field-wrap input,
-        .field-wrap select {
-            width: 100%;
-            border: 1.5px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 11px 13px 11px 38px;
-            font-size: 0.88rem;
-            color: #222;
-            outline: none;
-            transition: border-color 0.2s;
-            background: #fff;
-            appearance: none;
-        }
+}
 
-        .field-wrap select { cursor: pointer; }
+.left-content{
 
-        .field-wrap input:focus,
-        .field-wrap select:focus {
-            border-color: #e01e1e;
-            box-shadow: 0 0 0 3px rgba(224,30,30,0.08);
-        }
+    position:relative;
+    z-index:2;
+}
 
-        .field-wrap input.is-invalid,
-        .field-wrap select.is-invalid {
-            border-color: #dc3545;
-        }
+/*=========================================================
+                    BRAND
+=========================================================*/
 
-        .field-wrap .toggle-pw {
-            position: absolute;
-            right: 13px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #bbb;
-            cursor: pointer;
-            font-size: 0.85rem;
-        }
+.brand{
 
-        .field-wrap .select-arrow {
-            position: absolute;
-            right: 13px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #aaa;
-            font-size: 0.75rem;
-            pointer-events: none;
-        }
+    display:flex;
+    align-items:center;
+    gap:14px;
 
-        .error-msg {
-            font-size: 0.75rem;
-            color: #dc3545;
-            margin-top: -10px;
-            margin-bottom: 10px;
-        }
+    color:#fff;
 
-        .alert-error {
-            background: #fff0f0;
-            border: 1px solid #fbbcbc;
-            border-radius: 10px;
-            padding: 11px 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #c0392b;
-            font-size: 0.83rem;
-            margin-bottom: 14px;
-        }
+    font-size:1.4rem;
 
-        /* Password strength bar */
-        .strength-bar {
-            height: 4px;
-            border-radius: 2px;
-            background: #eee;
-            margin-top: -10px;
-            margin-bottom: 14px;
-            overflow: hidden;
-        }
+    font-weight:800;
 
-        .strength-fill {
-            height: 100%;
-            border-radius: 2px;
-            width: 0%;
-            transition: width 0.3s, background 0.3s;
-        }
+    margin-bottom:70px;
 
-        /* Buttons */
-        .btn-create {
-            width: 100%;
-            background: #e01e1e;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            padding: 13px;
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 4px;
-            transition: background 0.2s, transform 0.1s;
-        }
+}
 
-        .btn-create:hover  { background: #c01010; }
-        .btn-create:active { transform: scale(0.98); }
+.brand-icon{
 
-        .signin-text {
-            text-align: center;
-            font-size: 0.82rem;
-            color: #888;
-            margin-top: 18px;
-        }
+    width:48px;
 
-        .signin-text a {
-            color: #e01e1e;
-            font-weight: 700;
-            text-decoration: none;
-        }
+    height:48px;
 
-        .signin-text a:hover { text-decoration: underline; }
+    border-radius:50%;
 
-        /* Trust bar */
-        .trust-bar {
-            display: flex;
-            justify-content: center;
-            gap: 32px;
-            margin-top: 20px;
-        }
+    display:flex;
 
-        .trust-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.75rem;
-            color: #999;
-        }
+    justify-content:center;
 
-        /* Responsive */
-        @media (max-width: 900px) {
-            .form-grid { grid-template-columns: 1fr; }
-            .form-grid .full-width { grid-column: 1; }
-        }
+    align-items:center;
 
-        @media (max-width: 768px) {
-            body { flex-direction: column; overflow: auto; }
-            .left-panel { width: 100%; min-height: 220px; padding: 28px 24px; }
-            .left-panel::after { display: none; }
-            .hero-text { margin-top: 30px; }
-            .hero-text h1 { font-size: 1.8rem; }
-            .features { display: none; }
-            .right-panel { width: 100%; }
-            .register-card { padding: 24px 16px; }
-        }
+    background:#d60000;
+
+    color:#fff;
+
+    font-size:20px;
+
+    box-shadow:
+            0 15px 30px rgba(214,0,0,.35);
+
+    transition:.35s;
+
+}
+
+.brand-icon:hover{
+
+    transform:rotate(-10deg) scale(1.08);
+
+}
+
+/*=========================================================
+                    HERO
+=========================================================*/
+
+.hero-text{
+
+    animation:fadeUp .8s ease;
+
+}
+
+.hero-text h1{
+
+    color:#fff;
+
+    font-size:3.4rem;
+
+    font-weight:800;
+
+    line-height:1.15;
+
+}
+
+.hero-text span{
+
+    color:#ff3838;
+
+}
+
+.hero-divider{
+
+    width:60px;
+
+    height:4px;
+
+    border-radius:20px;
+
+    background:#ff2d2d;
+
+    margin:24px 0;
+
+}
+
+.hero-text p{
+
+    color:rgba(255,255,255,.82);
+
+    font-size:1rem;
+
+    line-height:1.8;
+
+    max-width:390px;
+
+}
+
+/*=========================================================
+                    FEATURES
+=========================================================*/
+
+.features{
+
+    margin-top:55px;
+
+}
+
+.feature-item{
+
+    display:flex;
+
+    align-items:flex-start;
+
+    gap:18px;
+
+    margin-bottom:25px;
+
+}
+
+.feature-icon{
+
+    width:58px;
+
+    height:58px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:rgba(255,255,255,.08);
+
+    backdrop-filter:blur(10px);
+
+    border:1px solid rgba(255,255,255,.12);
+
+    color:#ff3434;
+
+    font-size:22px;
+
+    transition:.35s;
+
+}
+
+.feature-item:hover .feature-icon{
+
+    background:#d60000;
+
+    color:#fff;
+
+    transform:translateY(-4px);
+
+}
+
+.feature-item h6{
+
+    color:#fff;
+
+    margin-bottom:5px;
+
+    font-size:1rem;
+
+    font-weight:700;
+
+}
+
+.feature-item p{
+
+    color:#d3d3d3;
+
+    margin:0;
+
+    font-size:.9rem;
+
+}
+
+/*=========================================================
+                    FOOTER
+=========================================================*/
+
+.left-footer{
+
+    position:relative;
+
+    z-index:2;
+
+    color:#d4d4d4;
+
+    font-size:.9rem;
+
+}
+
+/*=========================================================
+                    RIGHT PANEL
+=========================================================*/
+
+.right-panel{
+
+    width:45%;
+
+    min-height:100vh;
+
+    background:#f7f8fb;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    position:relative;
+
+    padding:40px;
+
+    overflow:hidden;
+
+}
+
+.right-panel::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:350px;
+
+    height:350px;
+
+    border-radius:50%;
+
+    background:rgba(214,0,0,.05);
+
+    top:-140px;
+
+    right:-120px;
+
+}
+
+.right-panel::after{
+
+    content:"";
+
+    position:absolute;
+
+    width:240px;
+
+    height:240px;
+
+    border-radius:50%;
+
+    background:rgba(214,0,0,.04);
+
+    left:-90px;
+
+    bottom:-90px;
+
+}
+
+/*=========================================================
+                    REGISTER CARD
+=========================================================*/
+
+.register-card{
+
+    position:relative;
+
+    z-index:5;
+
+    width:100%;
+
+    max-width:720px;
+
+    background:#fff;
+
+    border-radius:24px;
+
+    padding:40px;
+
+    box-shadow:
+            0 20px 60px rgba(0,0,0,.08);
+
+    animation:fadeUp .8s ease;
+
+    transition:.35s;
+
+}
+
+.register-card:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:
+            0 30px 70px rgba(0,0,0,.12);
+
+}
+
+/*=========================================================
+                REGISTER ICON
+=========================================================*/
+
+.register-card-icon{
+
+    width:75px;
+
+    height:75px;
+
+    border-radius:50%;
+
+    margin:0 auto 22px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:
+            linear-gradient(
+                    135deg,
+                    #ff3a3a,
+                    #b90000);
+
+    color:#fff;
+
+    font-size:30px;
+
+    box-shadow:
+            0 15px 35px rgba(214,0,0,.35);
+
+    animation:float 3s infinite ease-in-out;
+
+}
+
+.register-card h4{
+
+    text-align:center;
+
+    font-size:1.8rem;
+
+    font-weight:800;
+
+    color:#222;
+
+}
+
+.subtitle{
+
+    text-align:center;
+
+    color:#777;
+
+    margin:10px 0 35px;
+
+    font-size:.95rem;
+
+}
+
+/*=========================================================
+                FORM GRID
+=========================================================*/
+
+.form-grid{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:22px;
+
+}
+
+.full-width{
+
+    grid-column:1 / -1;
+
+}
+
+/*=========================================================
+                LABELS
+=========================================================*/
+
+.form-label{
+
+    display:block;
+
+    margin-bottom:8px;
+
+    color:#222;
+
+    font-weight:700;
+
+    font-size:.88rem;
+
+}
+
+/*=========================================================
+                FIELD WRAPPER
+=========================================================*/
+
+.field-wrap{
+
+    position:relative;
+
+}
+
+.prefix{
+
+    position:absolute;
+
+    left:18px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    color:#d60000;
+
+    font-size:17px;
+
+}
+
+/*=========================================================
+                INPUTS
+=========================================================*/
+
+.field-wrap input,
+.field-wrap select{
+
+    width:100%;
+
+    height:56px;
+
+    border:2px solid #ececec;
+
+    border-radius:15px;
+
+    outline:none;
+
+    background:#fff;
+
+    padding-left:52px;
+
+    padding-right:50px;
+
+    font-size:.95rem;
+
+    transition:.35s;
+
+}
+
+.field-wrap input::placeholder{
+
+    color:#aaa;
+
+}
+
+.field-wrap input:hover,
+.field-wrap select:hover{
+
+    border-color:#ff8c8c;
+
+}
+
+.field-wrap input:focus,
+.field-wrap select:focus{
+
+    border-color:#d60000;
+
+    box-shadow:
+            0 0 0 5px rgba(214,0,0,.08);
+
+}
+
+/*=========================================================
+                SELECT
+=========================================================*/
+
+.field-wrap select{
+
+    appearance:none;
+
+    cursor:pointer;
+
+}
+
+.select-arrow{
+
+    position:absolute;
+
+    right:18px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    color:#777;
+
+    pointer-events:none;
+
+}
+
+/*=========================================================
+            PASSWORD TOGGLE
+=========================================================*/
+
+.toggle-pw{
+
+    position:absolute;
+
+    right:18px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    cursor:pointer;
+
+    color:#999;
+
+    transition:.3s;
+
+}
+
+.toggle-pw:hover{
+
+    color:#d60000;
+
+}
+
+/*=========================================================
+            PASSWORD STRENGTH
+=========================================================*/
+
+.strength-bar{
+
+    margin-top:10px;
+
+    height:8px;
+
+    background:#ededed;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+}
+
+.strength-fill{
+
+    width:0;
+
+    height:100%;
+
+    border-radius:20px;
+
+    transition:.4s;
+
+}
+
+/*=========================================================
+                CREATE ACCOUNT BUTTON
+=========================================================*/
+
+.btn-create{
+
+    width:100%;
+
+    height:56px;
+
+    margin-top:28px;
+
+    border:none;
+
+    border-radius:15px;
+
+    background:
+            linear-gradient(
+                    135deg,
+                    #ff4444,
+                    #b90000);
+
+    color:#fff;
+
+    font-size:1rem;
+
+    font-weight:700;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:10px;
+
+    cursor:pointer;
+
+    transition:.35s;
+
+    box-shadow:
+            0 15px 35px rgba(214,0,0,.25);
+
+}
+
+.btn-create:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:
+            0 20px 45px rgba(214,0,0,.40);
+
+}
+
+.btn-create:active{
+
+    transform:scale(.98);
+
+}
+
+.btn-create i{
+
+    transition:.35s;
+
+}
+
+.btn-create:hover i{
+
+    transform:translateX(5px);
+
+}
+
+/*=========================================================
+                VALIDATION
+=========================================================*/
+
+.is-invalid{
+
+    border-color:#dc3545 !important;
+
+}
+
+.is-invalid:focus{
+
+    box-shadow:
+            0 0 0 5px rgba(220,53,69,.12) !important;
+
+}
+
+.error-msg{
+
+    margin-top:8px;
+
+    color:#dc3545;
+
+    font-size:.82rem;
+
+    font-weight:600;
+
+    animation:fadeUp .35s ease;
+
+}
+
+/*=========================================================
+                ALERT
+=========================================================*/
+
+.alert-error{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    background:#fff2f2;
+
+    color:#c60000;
+
+    padding:16px 18px;
+
+    border-left:5px solid #d60000;
+
+    border-radius:15px;
+
+    margin-bottom:25px;
+
+    font-weight:600;
+
+    animation:fadeUp .5s ease;
+
+}
+
+.alert-error i{
+
+    font-size:20px;
+
+}
+
+/*=========================================================
+                SIGN IN TEXT
+=========================================================*/
+
+.signin-text{
+
+    margin-top:28px;
+
+    text-align:center;
+
+    color:#666;
+
+    font-size:.93rem;
+
+}
+
+.signin-text a{
+
+    color:#d60000;
+
+    text-decoration:none;
+
+    font-weight:700;
+
+    transition:.3s;
+
+}
+
+.signin-text a:hover{
+
+    color:#a80000;
+
+    text-decoration:underline;
+
+}
+
+/*=========================================================
+                TRUST BAR
+=========================================================*/
+
+.trust-bar{
+
+    margin-top:30px;
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:18px;
+
+    flex-wrap:wrap;
+
+    position:relative;
+
+    z-index:5;
+
+}
+
+.trust-item{
+
+    background:#fff;
+
+    border-radius:40px;
+
+    padding:10px 18px;
+
+    font-size:.86rem;
+
+    font-weight:600;
+
+    color:#555;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    box-shadow:
+            0 8px 18px rgba(0,0,0,.06);
+
+    transition:.3s;
+
+}
+
+.trust-item i{
+
+    color:#d60000;
+
+}
+
+.trust-item:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:
+            0 15px 25px rgba(0,0,0,.10);
+
+}
+
+/*=========================================================
+                ANIMATIONS
+=========================================================*/
+
+@keyframes float{
+
+    0%{
+
+        transform:translateY(0);
+
+    }
+
+    50%{
+
+        transform:translateY(-10px);
+
+    }
+
+    100%{
+
+        transform:translateY(0);
+
+    }
+
+}
+
+@keyframes fadeUp{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(35px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+/*=========================================================
+                PREMIUM EFFECTS
+=========================================================*/
+
+.register-card,
+.field-wrap input,
+.field-wrap select,
+.btn-create,
+.feature-icon,
+.trust-item{
+
+    transition:.35s ease;
+
+}
+
+.register-card:hover{
+
+    transform:translateY(-6px);
+
+}
+
+.field-wrap input,
+.field-wrap select{
+
+    will-change:transform;
+
+}
+
+.field-wrap input:focus,
+.field-wrap select:focus{
+
+    transform:translateY(-2px);
+
+}
+
+.feature-item:hover .feature-icon{
+
+    transform:scale(1.08);
+
+}
+
+.btn-create{
+
+    will-change:transform;
+
+}
+
+/*=========================================================
+                SCROLLBAR
+=========================================================*/
+
+::-webkit-scrollbar{
+
+    width:8px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#ececec;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#d60000;
+
+    border-radius:20px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:#a80000;
+
+}
+
+/*=========================================================
+                LARGE LAPTOP
+=========================================================*/
+
+@media(max-width:1400px){
+
+    .hero-text h1{
+
+        font-size:3rem;
+
+    }
+
+}
+
+/*=========================================================
+                LAPTOP
+=========================================================*/
+
+@media(max-width:1200px){
+
+    .left-panel{
+
+        padding:35px;
+
+    }
+
+    .register-card{
+
+        max-width:650px;
+
+        padding:35px;
+
+    }
+
+}
+
+/*=========================================================
+                TABLET
+=========================================================*/
+
+@media(max-width:992px){
+
+    html,
+    body{
+
+        overflow:auto;
+
+    }
+
+    body{
+
+        flex-direction:column;
+
+    }
+
+    .left-panel{
+
+        width:100%;
+
+        min-height:360px;
+
+    }
+
+    .right-panel{
+
+        width:100%;
+
+        padding:45px 20px;
+
+    }
+
+    .register-card{
+
+        max-width:700px;
+
+    }
+
+    .form-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .full-width{
+
+        grid-column:auto;
+
+    }
+
+    .hero-text h1{
+
+        font-size:2.5rem;
+
+    }
+
+}
+
+/*=========================================================
+                MOBILE
+=========================================================*/
+
+@media(max-width:768px){
+
+    .left-panel{
+
+        min-height:320px;
+
+        padding:28px 24px;
+
+    }
+
+    .hero-text h1{
+
+        font-size:2.2rem;
+
+    }
+
+    .register-card{
+
+        padding:30px 22px;
+
+        border-radius:20px;
+
+    }
+
+    .register-card-icon{
+
+        width:68px;
+
+        height:68px;
+
+        font-size:28px;
+
+    }
+
+    .register-card h4{
+
+        font-size:1.55rem;
+
+    }
+
+    .btn-create{
+
+        height:54px;
+
+    }
+
+}
+
+/*=========================================================
+                SMALL MOBILE
+=========================================================*/
+
+@media(max-width:576px){
+
+    .left-panel{
+
+        min-height:280px;
+
+        padding:22px 18px;
+
+    }
+
+    .brand{
+
+        font-size:1.3rem;
+
+    }
+
+    .hero-text h1{
+
+        font-size:1.9rem;
+
+    }
+
+    .hero-divider{
+
+        width:45px;
+
+    }
+
+    .hero-text p{
+
+        font-size:.9rem;
+
+    }
+
+    .feature-item{
+
+        gap:12px;
+
+    }
+
+    .feature-icon{
+
+        width:46px;
+
+        height:46px;
+
+        font-size:17px;
+
+    }
+
+    .register-card{
+
+        padding:24px 18px;
+
+    }
+
+    .field-wrap input,
+    .field-wrap select{
+
+        height:50px;
+
+        font-size:.92rem;
+
+    }
+
+    .btn-create{
+
+        height:50px;
+
+        font-size:.95rem;
+
+    }
+
+    .trust-bar{
+
+        gap:10px;
+
+    }
+
+    .trust-item{
+
+        font-size:.8rem;
+
+        padding:8px 14px;
+
+    }
+
+}
+
+/*=========================================================
+                EXTRA SMALL DEVICES
+=========================================================*/
+
+@media(max-width:360px){
+
+    .hero-text h1{
+
+        font-size:1.6rem;
+
+    }
+
+    .register-card{
+
+        padding:18px 14px;
+
+    }
+
+    .register-card h4{
+
+        font-size:1.25rem;
+
+    }
+
+    .subtitle{
+
+        font-size:.8rem;
+
+    }
+
+    .field-wrap input,
+    .field-wrap select{
+
+        height:46px;
+
+        padding-left:46px;
+
+        font-size:.85rem;
+
+    }
+
+    .prefix{
+
+        left:15px;
+
+    }
+
+    .toggle-pw{
+
+        right:15px;
+
+    }
+
+    .btn-create{
+
+        height:46px;
+
+        font-size:.9rem;
+
+    }
+
+}
+
+/*=========================================================
+            LANDSCAPE PHONES
+=========================================================*/
+
+@media(max-height:600px) and (orientation:landscape){
+
+    html,
+    body{
+
+        overflow:auto;
+
+    }
+
+    .left-panel{
+
+        min-height:700px;
+
+    }
+
+    .right-panel{
+
+        padding:40px;
+
+    }
+
+}
