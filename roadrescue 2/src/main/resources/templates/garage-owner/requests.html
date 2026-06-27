@@ -39,55 +39,169 @@
 
         <!-- Main Content -->
         <div class="col-md-10">
-            <h4 class="fw-bold mb-4"><i class="fas fa-clipboard-list me-2 text-danger"></i>Breakdown Requests</h4>
 
+            <!-- Flash messages -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+                <i class="fas fa-check-circle me-2"></i><span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+                <i class="fas fa-exclamation-circle me-2"></i><span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- SECTION 1: New Pending Requests to Accept/Decline -->
+            <div class="card border-0 shadow-sm mb-4"
+                 th:if="${pendingRequests != null and !pendingRequests.isEmpty()}">
+                <div class="card-header bg-warning text-dark fw-bold">
+                    <i class="fas fa-bell me-2"></i>New Requests — Waiting for Your Response
+                    <span class="badge bg-dark ms-2" th:text="${pendingRequests.totalElements}"></span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Customer</th>
+                            <th>Services</th>
+                            <th>Min. Cost</th>
+                            <th>Payment Method</th>
+                            <th>Location</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="req : ${pendingRequests.content}">
+                            <td th:text="${req.id}">—</td>
+                            <td>
+                                <div class="fw-semibold" th:text="${req.user.fullName}">—</div>
+                                <small class="text-muted" th:text="${req.user.phone}">—</small>
+                            </td>
+                            <td>
+                                <span th:if="${req.serviceTypes != null and !req.serviceTypes.isEmpty()}">
+                                    <span th:each="svc : ${req.serviceTypes}"
+                                          class="badge bg-secondary me-1"
+                                          th:text="${#strings.replace(svc.name(), '_', ' ')}"></span>
+                                </span>
+                                <span th:if="${req.serviceTypes == null or req.serviceTypes.isEmpty()}">
+                                    <span class="badge bg-secondary"
+                                          th:text="${req.serviceType != null ? #strings.replace(req.serviceType.name(), '_', ' ') : '—'}"></span>
+                                </span>
+                            </td>
+                            <td>
+                                <strong class="text-danger"
+                                        th:text="${req.minimumAmount != null ? 'Rs. ' + req.minimumAmount :
+                                                  (req.serviceType != null ? 'Rs. ' + req.serviceType.minimumCharge : '—')}">—</strong>
+                                <br><small class="text-muted">minimum</small>
+                            </td>
+                            <td>
+                                <span th:if="${req.preferredPaymentMethod != null}"
+                                      class="badge bg-info text-dark"
+                                      th:text="${req.preferredPaymentMethod}">—</span>
+                                <span th:if="${req.preferredPaymentMethod == null}" class="text-muted small">Not specified</span>
+                            </td>
+                            <td th:text="${req.locationAddress != null ? req.locationAddress : 'GPS Location'}">—</td>
+                            <td th:text="${#temporals.format(req.createdAt, 'dd MMM yyyy, HH:mm')}">—</td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <form th:action="@{/garage-owner/requests/{id}/accept(id=${req.id})}" method="post">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                        <button class="btn btn-sm btn-success">
+                                            <i class="fas fa-check me-1"></i>Accept
+                                        </button>
+                                    </form>
+                                    <form th:action="@{/garage-owner/requests/{id}/decline(id=${req.id})}" method="post"
+                                          onsubmit="return confirm('Decline this request? The customer will be notified.')">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                        <button class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-times me-1"></i>Decline
+                                        </button>
+                                    </form>
+                                    <a th:href="@{/requests/{id}(id=${req.id})}"
+                                       class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SECTION 2: My Active Requests -->
+            <h5 class="fw-bold mb-3">
+                <i class="fas fa-clipboard-list me-2 text-danger"></i>My Active Requests
+            </h5>
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-0">
                     <div th:if="${requests == null or requests.isEmpty()}" class="text-center py-5 text-muted">
                         <i class="fas fa-inbox fs-1 mb-3 d-block"></i>
-                        <p>No requests found.</p>
+                        <p>No active requests found.</p>
                     </div>
                     <div th:unless="${requests == null or requests.isEmpty()}" class="table-responsive">
-                        <table class="table table-hover mb-0">
+                        <table class="table table-hover mb-0 align-middle">
                             <thead class="table-light">
                             <tr>
                                 <th>#</th>
                                 <th>Customer</th>
-                                <th>Service</th>
-                                <th>Location</th>
+                                <th>Services</th>
+                                <th>Min. Cost</th>
+                                <th>Final Amount</th>
+                                <th>Payment Method</th>
                                 <th>Status</th>
-                                <th>Date</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr th:each="req : ${requests}">
                                 <td th:text="${req.id}">#</td>
-                                <td th:text="${req.user.fullName}">Customer</td>
                                 <td>
-                                    <span class="badge bg-secondary"
-                                          th:text="${#strings.replace(req.serviceType.name(), '_', ' ')}">Service</span>
+                                    <div class="fw-semibold" th:text="${req.user.fullName}">Customer</div>
+                                    <small class="text-muted" th:text="${req.user.phone}">—</small>
                                 </td>
-                                <td th:text="${req.locationAddress != null ? req.locationAddress : 'GPS Location'}">Location</td>
+                                <td>
+                                    <span th:if="${req.serviceTypes != null and !req.serviceTypes.isEmpty()}">
+                                        <span th:each="svc : ${req.serviceTypes}"
+                                              class="badge bg-secondary me-1"
+                                              th:text="${#strings.replace(svc.name(), '_', ' ')}"></span>
+                                    </span>
+                                    <span th:if="${req.serviceTypes == null or req.serviceTypes.isEmpty()}">
+                                        <span class="badge bg-secondary"
+                                              th:text="${req.serviceType != null ? #strings.replace(req.serviceType.name(), '_', ' ') : '—'}"></span>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="text-danger fw-semibold"
+                                          th:text="${req.minimumAmount != null ? 'Rs. ' + req.minimumAmount :
+                                                    (req.serviceType != null ? 'Rs. ' + req.serviceType.minimumCharge : '—')}">—</span>
+                                </td>
+                                <td>
+                                    <span th:if="${req.finalAmount != null}"
+                                          class="text-success fw-bold"
+                                          th:text="'Rs. ' + ${req.finalAmount}">—</span>
+                                    <span th:unless="${req.finalAmount != null}"
+                                          class="text-muted small">Not set yet</span>
+                                </td>
+                                <td>
+                                    <span th:if="${req.preferredPaymentMethod != null}"
+                                          class="badge bg-info text-dark"
+                                          th:text="${req.preferredPaymentMethod}">—</span>
+                                    <span th:if="${req.preferredPaymentMethod == null}"
+                                          class="text-muted small">—</span>
+                                </td>
                                 <td>
                                     <span th:class="${'badge ' +
-                                        (req.status.name() == 'PENDING' ? 'bg-warning text-dark' :
-                                         req.status.name() == 'ACCEPTED' ? 'bg-info' :
-                                         req.status.name() == 'IN_PROGRESS' ? 'bg-primary' :
-                                         req.status.name() == 'COMPLETED' ? 'bg-success' : 'bg-danger')}"
+                                        (req.status.name() == 'PENDING'      ? 'bg-warning text-dark' :
+                                         req.status.name() == 'ACCEPTED'     ? 'bg-info' :
+                                         req.status.name() == 'IN_PROGRESS'  ? 'bg-primary' :
+                                         req.status.name() == 'COMPLETED'    ? 'bg-success' : 'bg-danger')}"
                                           th:text="${req.status}">Status</span>
                                 </td>
-                                <td th:text="${#temporals.format(req.createdAt, 'dd MMM yyyy')}">Date</td>
                                 <td>
                                     <div class="d-flex gap-1 flex-wrap">
-                                        <form th:if="${req.status.name() == 'PENDING'}"
-                                              th:action="@{/garage-owner/requests/{id}/accept(id=${req.id})}"
-                                              method="post">
-                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                            <button class="btn btn-sm btn-success">
-                                                <i class="fas fa-check me-1"></i>Accept
-                                            </button>
-                                        </form>
+                                        <!-- Mark In Progress -->
                                         <form th:if="${req.status.name() == 'ACCEPTED'}"
                                               th:action="@{/garage-owner/requests/{id}/in-progress(id=${req.id})}"
                                               method="post">
@@ -96,76 +210,45 @@
                                                 <i class="fas fa-spinner me-1"></i>In Progress
                                             </button>
                                         </form>
-                                        <form th:if="${req.status.name() == 'IN_PROGRESS'}"
+
+                                        <!-- Set Final Price -->
+                                        <button th:if="${req.status.name() == 'IN_PROGRESS' and req.finalAmount == null}"
+                                                class="btn btn-sm btn-warning"
+                                                th:onclick="${'openFinalAmountModal(' + req.id + ',' +
+                                                    (req.minimumAmount != null ? req.minimumAmount :
+                                                    (req.serviceType != null ? req.serviceType.minimumCharge : 0)) + ')'}">
+                                            <i class="fas fa-rupee-sign me-1"></i>Set Final Price
+                                        </button>
+
+                                        <!-- Mark Complete -->
+                                        <form th:if="${req.status.name() == 'IN_PROGRESS' and req.finalAmount != null}"
                                               th:action="@{/garage-owner/requests/{id}/complete(id=${req.id})}"
                                               method="post">
                                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                            <button class="btn btn-sm btn-danger">
+                                            <button class="btn btn-sm btn-success">
                                                 <i class="fas fa-flag-checkered me-1"></i>Complete
                                             </button>
                                         </form>
+
+                                        <!-- Done -->
                                         <span th:if="${req.status.name() == 'COMPLETED'}"
                                               class="badge bg-success p-2">
                                             <i class="fas fa-check-double me-1"></i>Done
                                         </span>
+
+                                        <!-- View -->
+                                        <a th:href="@{/requests/{id}(id=${req.id})}"
+                                           class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>
                             </tbody>
                         </table>
                     </div>
-
-                    <!-- SECTION 2: New unassigned pending requests from users -->
-
-                    <h5 class="fw-bold mb-3 text-warning">
-                        <i class="fas fa-bell me-2"></i>New Incoming Requests
-                    </h5>
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body p-0">
-                            <div th:if="${pendingRequests == null or pendingRequests.isEmpty()}"
-                                 class="text-center py-4 text-muted">
-                                <i class="fas fa-inbox fs-1 mb-3 d-block"></i>
-                                <p>No new pending requests.</p>
-                            </div>
-                            <div th:unless="${pendingRequests == null or pendingRequests.isEmpty()}"
-                                 class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <thead class="table-light">
-                                    <tr>
-                                        <th>#</th><th>Customer</th><th>Service</th>
-                                        <th>Location</th><th>Date</th><th>Actions</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr th:each="req : ${pendingRequests.content}">
-                                        <td th:text="${req.id}">#</td>
-                                        <td th:text="${req.user.fullName}">Customer</td>
-                                        <td>
-                            <span class="badge bg-secondary"
-                                  th:text="${#strings.replace(req.serviceType.name(), '_', ' ')}">
-                            </span>
-                                        </td>
-                                        <td th:text="${req.locationAddress != null ? req.locationAddress : 'GPS Location'}">
-                                        </td>
-                                        <td th:text="${#temporals.format(req.createdAt, 'dd MMM yyyy')}"></td>
-                                        <td>
-                                            <!-- Accept button -->
-                                            <form th:action="@{/garage-owner/requests/{id}/accept(id=${req.id})}"
-                                                  method="post">
-                                                <input type="hidden" th:name="${_csrf.parameterName}"
-                                                       th:value="${_csrf.token}"/>
-                                                <button class="btn btn-sm btn-success">
-                                                    <i class="fas fa-check me-1"></i>Accept
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
                 </div>
+
                 <!-- Pagination -->
                 <div class="card-footer bg-white" th:if="${requests != null and requests.totalPages > 1}">
                     <nav>
@@ -188,7 +271,46 @@
     </div>
 </div>
 
+<!-- Final Amount Modal -->
+<div class="modal fade" id="finalAmountModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h6 class="modal-title fw-bold"><i class="fas fa-rupee-sign me-2"></i>Set Final Price</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="finalAmountForm" method="post">
+                <div class="modal-body">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <label class="form-label fw-semibold">Final Amount (Rs.)</label>
+                    <input type="number" name="finalAmount" id="finalAmountInput"
+                           step="0.01" min="0" class="form-control form-control-lg" required>
+                    <small class="text-muted" id="minNote"></small>
+                    <div class="alert alert-info small mt-2 mb-0">
+                        <i class="fas fa-bell me-1"></i>Customer will be notified immediately.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-warning fw-bold w-100">
+                        <i class="fas fa-check me-2"></i>Confirm &amp; Notify Customer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <th:block th:replace="~{layout :: footer}"></th:block>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function openFinalAmountModal(requestId, minAmount) {
+        document.getElementById('finalAmountForm').action =
+            '/garage-owner/requests/' + requestId + '/set-final-amount';
+        document.getElementById('finalAmountInput').value = minAmount;
+        document.getElementById('finalAmountInput').min = minAmount;
+        document.getElementById('minNote').textContent = 'Minimum charge: Rs. ' + minAmount;
+        new bootstrap.Modal(document.getElementById('finalAmountModal')).show();
+    }
+</script>
 </body>
 </html>

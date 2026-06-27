@@ -18,7 +18,9 @@
         .garage-card { cursor: pointer; border: 2px solid #dee2e6; border-radius: 10px; transition: all 0.2s; }
         .garage-card:hover { border-color: #dc3545; }
         .garage-card.selected { border-color: #dc3545; background: #fff5f5; }
-        #costBox { font-size: 1.3rem; font-weight: 700; color: #dc3545; }
+        .payment-method-card { cursor: pointer; border: 2px solid #dee2e6; border-radius: 10px; transition: all 0.2s; padding: 12px; text-align: center; }
+        .payment-method-card:hover { border-color: #198754; }
+        .payment-method-card.selected { border-color: #198754; background: #f0fff4; }
     </style>
 </head>
 <body class="bg-light">
@@ -31,27 +33,31 @@
 
             <div class="rr-hero rounded-3 p-4 mb-4 text-white text-center">
                 <h4><i class="fas fa-exclamation-triangle me-2"></i>Request Emergency Assistance</h4>
-                <p class="mb-0 opacity-75">Select your problem, set your location, choose a garage</p>
+                <p class="mb-0 opacity-75">Select your problems, set location, choose payment &amp; garage</p>
             </div>
 
-            <form th:action="@{/requests/new}" th:object="${requestDTO}" method="post" novalidate id="reqForm">
+            <form th:action="@{/requests/new}" method="post" novalidate id="reqForm">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                <input type="hidden" th:field="*{garageId}" id="garageIdInput">
+                <input type="hidden" name="garageId" id="garageIdInput">
+                <input type="hidden" name="preferredPaymentMethod" id="paymentMethodInput">
+                <!-- serviceTypes submitted as multiple hidden inputs by JS -->
+                <div id="serviceTypeInputs"></div>
 
                 <div class="row g-4">
 
                     <!-- LEFT COLUMN -->
                     <div class="col-lg-5">
 
-                        <!-- Step 1: Problem Type -->
+                        <!-- Step 1: Problem Types (MULTI SELECT) -->
                         <div class="card border-0 shadow-sm mb-4">
                             <div class="card-header bg-white fw-bold">
                                 <span class="badge bg-danger me-2">1</span>What's the Problem?
+                                <small class="text-muted fw-normal ms-1">Select all that apply</small>
                             </div>
                             <div class="card-body">
-                                <input type="hidden" th:field="*{serviceType}" id="serviceTypeInput">
-                                <div th:if="${#fields.hasErrors('serviceType')}"
-                                     class="alert alert-danger py-2 small" th:errors="*{serviceType}"></div>
+                                <div id="serviceError" class="alert alert-danger py-2 small d-none">
+                                    Please select at least one service type.
+                                </div>
 
                                 <div class="row g-2">
                                     <div class="col-6" th:each="svc : ${serviceTypes}">
@@ -59,7 +65,7 @@
                                              th:data-value="${svc.name()}"
                                              th:data-cost="${svc.minimumCharge}"
                                              th:data-name="${svc.displayName}"
-                                             onclick="selectService(this)">
+                                             onclick="toggleService(this)">
                                             <div class="service-icon">
                                                 <i th:class="${
                                                     svc.name() == 'FLAT_TIRE'           ? 'fas fa-circle-dot text-danger' :
@@ -76,21 +82,29 @@
                                             <small class="d-block fw-semibold mt-1"
                                                    th:text="${svc.displayName}">Service</small>
                                             <span class="badge bg-danger mt-1"
-                                                  th:text="'From Rs. ' + ${svc.minimumCharge}">Rs.0</span>
+                                                  th:text="'Rs. ' + ${svc.minimumCharge}">Rs.0</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Minimum cost display -->
-                                <div id="costAlert" class="alert alert-warning mt-3 mb-0 d-none">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span><i class="fas fa-info-circle me-1"></i>Minimum Estimate:</span>
-                                        <span id="costBox">Rs. 0</span>
+                                <!-- Total minimum cost summary -->
+                                <div id="costSummary" class="mt-3 d-none">
+                                    <div class="alert alert-warning mb-2">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="fw-semibold"><i class="fas fa-list me-1"></i>Selected Services:</span>
+                                        </div>
+                                        <div id="selectedServicesList" class="small mb-2"></div>
+                                        <div class="d-flex justify-content-between align-items-center border-top pt-2">
+                                            <span class="fw-bold">Minimum Total:</span>
+                                            <span class="fw-bold text-danger fs-5" id="totalCostBox">Rs. 0</span>
+                                        </div>
                                     </div>
-                                    <small class="text-muted d-block mt-1">
+                                    <div class="alert alert-info small mb-0">
                                         <i class="fas fa-exclamation-triangle me-1 text-warning"></i>
-                                        This is the minimum charge. The actual amount may change after the technician inspects your vehicle.
-                                    </small>
+                                        <strong>Note:</strong> This is the minimum estimate. The actual amount
+                                        may change after the technician inspects your vehicle. The garage will
+                                        confirm the final price before completing the job.
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -101,21 +115,18 @@
                                 <span class="badge bg-danger me-2">2</span>Describe the Issue
                             </div>
                             <div class="card-body">
-                                <textarea th:field="*{description}" rows="3" class="form-control"
-                                          th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"
-                                          placeholder="e.g. Front left tyre completely flat, can't move..."></textarea>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}"
-                                     th:errors="*{description}"></div>
+                                <textarea name="description" rows="3" class="form-control"
+                                          placeholder="e.g. Front left tyre flat and battery not starting..." required></textarea>
                             </div>
                         </div>
 
                         <!-- Step 3: Vehicle -->
-                        <div class="card border-0 shadow-sm">
+                        <div class="card border-0 shadow-sm mb-4">
                             <div class="card-header bg-white fw-bold">
                                 <span class="badge bg-danger me-2">3</span>Select Your Vehicle (Optional)
                             </div>
                             <div class="card-body">
-                                <select th:field="*{vehicleId}" class="form-select">
+                                <select name="vehicleId" class="form-select">
                                     <option value="">-- Select vehicle --</option>
                                     <option th:each="v : ${userVehicles}"
                                             th:value="${v.id}"
@@ -128,35 +139,65 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Step 4: Payment Method -->
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white fw-bold">
+                                <span class="badge bg-danger me-2">4</span>Preferred Payment Method
+                            </div>
+                            <div class="card-body">
+                                <div id="paymentMethodError" class="alert alert-danger py-2 small d-none">
+                                    Please select a payment method.
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-4">
+                                        <div class="payment-method-card" data-method="CASH" onclick="selectPayment(this)">
+                                            <i class="fas fa-money-bill-wave text-success fs-4 d-block mb-1"></i>
+                                            <small class="fw-semibold">Cash</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="payment-method-card" data-method="CARD" onclick="selectPayment(this)">
+                                            <i class="fas fa-credit-card text-primary fs-4 d-block mb-1"></i>
+                                            <small class="fw-semibold">Card</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="payment-method-card" data-method="ONLINE" onclick="selectPayment(this)">
+                                            <i class="fas fa-mobile-alt text-info fs-4 d-block mb-1"></i>
+                                            <small class="fw-semibold">Online</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <small class="text-muted mt-2 d-block">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    You can pay the final amount using this method after the job is done.
+                                </small>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- RIGHT COLUMN -->
                     <div class="col-lg-7">
 
-                        <!-- Step 4: Location -->
+                        <!-- Step 5: Location -->
                         <div class="card border-0 shadow-sm mb-4">
                             <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
-                                <span><span class="badge bg-danger me-2">4</span>Your Location</span>
+                                <span><span class="badge bg-danger me-2">5</span>Your Location</span>
                                 <button type="button" class="btn btn-sm btn-outline-danger" onclick="getLocation()">
                                     <i class="fas fa-crosshairs me-1"></i>Use My Location
                                 </button>
                             </div>
                             <div class="card-body">
                                 <div id="map" class="mb-3"></div>
-
-                                <input type="hidden" th:field="*{latitude}" id="latInput">
-                                <input type="hidden" th:field="*{longitude}" id="lngInput">
-
+                                <input type="hidden" name="latitude" id="latInput">
+                                <input type="hidden" name="longitude" id="lngInput">
                                 <div class="input-group mb-2">
                                     <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
-                                    <input type="text" th:field="*{locationAddress}" class="form-control"
+                                    <input type="text" name="locationAddress" class="form-control"
                                            placeholder="e.g. Near Keells, Galle Road, Colombo 3"
                                            id="addressInput">
                                 </div>
-
-                                <div th:if="${#fields.hasErrors('latitude')}"
-                                     class="alert alert-danger py-2 small">Please share your location.</div>
-
                                 <div class="alert alert-info py-2 small mb-0">
                                     <i class="fas fa-info-circle me-1"></i>
                                     Click "Use My Location" or click on the map to pin your position.
@@ -164,10 +205,10 @@
                             </div>
                         </div>
 
-                        <!-- Step 5: Choose Garage -->
+                        <!-- Step 6: Choose Garage -->
                         <div class="card border-0 shadow-sm mb-4" id="garageSection" style="display:none">
                             <div class="card-header bg-white fw-bold">
-                                <span class="badge bg-danger me-2">5</span>Choose a Garage
+                                <span class="badge bg-danger me-2">6</span>Choose a Garage
                                 <small class="text-muted fw-normal ms-2">near your location</small>
                             </div>
                             <div class="card-body p-0">
@@ -180,9 +221,41 @@
                             </div>
                         </div>
 
+                        <!-- Final Summary before Submit -->
+                        <div class="card border-0 shadow-sm mb-4" id="summaryCard" style="display:none">
+                            <div class="card-header bg-white fw-bold">
+                                <i class="fas fa-receipt text-danger me-2"></i>Request Summary
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-borderless small mb-0">
+                                    <tr>
+                                        <td class="text-muted fw-semibold">Services</td>
+                                        <td id="summaryServices">—</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted fw-semibold">Minimum Cost</td>
+                                        <td class="text-danger fw-bold" id="summaryMin">—</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted fw-semibold">Payment</td>
+                                        <td id="summaryPayment">—</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted fw-semibold">Garage</td>
+                                        <td id="summaryGarage">Broadcast to all nearby</td>
+                                    </tr>
+                                </table>
+                                <div class="alert alert-warning small mt-2 mb-0">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    Final amount will be confirmed by the technician after inspection.
+                                    Payment is collected after the job is completed.
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Submit -->
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-danger btn-lg">
+                            <button type="button" class="btn btn-danger btn-lg" onclick="submitForm()">
                                 <i class="fas fa-paper-plane me-2"></i>Send Emergency Request
                             </button>
                         </div>
@@ -200,8 +273,10 @@
 
 <script>
     let map, marker;
+    let selectedServices = {}; // { serviceName: cost }
+    let selectedPaymentMethod = '';
 
-    // Init Leaflet map — OpenStreetMap, no API key needed
+    // Init Leaflet map
     map = L.map('map').setView([6.9271, 79.8612], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
@@ -212,7 +287,7 @@
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 function(pos) { placeMarker(pos.coords.latitude, pos.coords.longitude); },
-                function() { alert('Location access denied. Please click on the map to set your position.'); }
+                function() { alert('Location access denied. Please click on the map.'); }
             );
         }
     }
@@ -240,44 +315,143 @@
 
         if (!garages || garages.length === 0) {
             list.innerHTML = '<p class="text-muted text-center py-3 mb-0">' +
-                '<i class="fas fa-warehouse me-1"></i>' +
+                '<i class="fas fa-broadcast-tower me-1"></i>' +
                 'No garages found nearby. Your request will be broadcast to all garages.</p>';
+            updateSummary();
             return;
         }
 
         var html = '';
         garages.forEach(function(g) {
-            html += '<div class="garage-card p-3 mb-2 mx-2" data-id="' + g.id + '" onclick="selectGarage(this,' + g.id + ')">' +
+            html += '<div class="garage-card p-3 mb-2 mx-2" data-id="' + g.id +
+                '" data-name="' + g.garageName + '" onclick="selectGarage(this,' + g.id + ',\'' + g.garageName + '\')">' +
                 '<div class="d-flex justify-content-between align-items-start">' +
-                '<div>' +
-                '<div class="fw-semibold"><i class="fas fa-warehouse text-danger me-1"></i>' + g.garageName + '</div>' +
+                '<div><div class="fw-semibold"><i class="fas fa-warehouse text-danger me-1"></i>' + g.garageName + '</div>' +
                 '<small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>' + g.address + '</small><br>' +
-                '<small class="text-muted"><i class="fas fa-phone me-1"></i>' + g.phone + '</small>' +
-                '</div>' +
+                '<small class="text-muted"><i class="fas fa-phone me-1"></i>' + g.phone + '</small></div>' +
                 '<span class="badge bg-success align-self-center">Available</span>' +
                 '</div></div>';
         });
-
-        html += '<div class="garage-card p-3 mb-2 mx-2 text-center text-muted" data-id="0" onclick="selectGarage(this,0)">' +
-            '<i class="fas fa-broadcast-tower me-1"></i>Broadcast to all nearby garages' +
-            '</div>';
-
+        html += '<div class="garage-card p-3 mb-2 mx-2 text-center text-muted" data-id="0" data-name="Broadcast to all" ' +
+            'onclick="selectGarage(this,0,\'Broadcast to all nearby garages\')">' +
+            '<i class="fas fa-broadcast-tower me-1"></i>Broadcast to all nearby garages</div>';
         list.innerHTML = html;
+        updateSummary();
     }
 
-    function selectGarage(card, id) {
+    function selectGarage(card, id, name) {
         document.querySelectorAll('.garage-card').forEach(function(c) { c.classList.remove('selected'); });
         card.classList.add('selected');
         document.getElementById('garageIdInput').value = (id === 0) ? '' : id;
+        document.getElementById('summaryGarage').textContent = name;
+        updateSummary();
     }
 
-    function selectService(card) {
-        document.querySelectorAll('.service-card').forEach(function(c) { c.classList.remove('selected'); });
+    function toggleService(card) {
+        var value = card.dataset.value;
+        var cost = parseInt(card.dataset.cost);
+        var name = card.dataset.name;
+
+        if (card.classList.contains('selected')) {
+            card.classList.remove('selected');
+            delete selectedServices[value];
+        } else {
+            card.classList.add('selected');
+            selectedServices[value] = { cost: cost, name: name };
+        }
+        updateCostSummary();
+        updateSummary();
+    }
+
+    function updateCostSummary() {
+        var keys = Object.keys(selectedServices);
+        var costSummary = document.getElementById('costSummary');
+        var list = document.getElementById('selectedServicesList');
+        var totalBox = document.getElementById('totalCostBox');
+
+        if (keys.length === 0) {
+            costSummary.classList.add('d-none');
+            return;
+        }
+
+        costSummary.classList.remove('d-none');
+        var total = 0;
+        var html = '';
+        keys.forEach(function(k) {
+            total += selectedServices[k].cost;
+            html += '<div class="d-flex justify-content-between">' +
+                '<span><i class="fas fa-check-circle text-success me-1"></i>' + selectedServices[k].name + '</span>' +
+                '<span class="text-danger">Rs. ' + selectedServices[k].cost.toLocaleString() + '</span>' +
+                '</div>';
+        });
+        list.innerHTML = html;
+        totalBox.textContent = 'Rs. ' + total.toLocaleString();
+    }
+
+    function selectPayment(card) {
+        document.querySelectorAll('.payment-method-card').forEach(function(c) { c.classList.remove('selected'); });
         card.classList.add('selected');
-        document.getElementById('serviceTypeInput').value = card.dataset.value;
-        var cost = card.dataset.cost;
-        document.getElementById('costBox').textContent = 'Rs. ' + parseInt(cost).toLocaleString();
-        document.getElementById('costAlert').classList.remove('d-none');
+        selectedPaymentMethod = card.dataset.method;
+        document.getElementById('paymentMethodInput').value = selectedPaymentMethod;
+        updateSummary();
+    }
+
+    function updateSummary() {
+        var keys = Object.keys(selectedServices);
+        if (keys.length === 0) {
+            document.getElementById('summaryCard').style.display = 'none';
+            return;
+        }
+        document.getElementById('summaryCard').style.display = 'block';
+
+        var names = keys.map(function(k) { return selectedServices[k].name; }).join(', ');
+        var total = keys.reduce(function(sum, k) { return sum + selectedServices[k].cost; }, 0);
+
+        document.getElementById('summaryServices').textContent = names;
+        document.getElementById('summaryMin').textContent = 'Rs. ' + total.toLocaleString();
+        document.getElementById('summaryPayment').textContent = selectedPaymentMethod || 'Not selected';
+    }
+
+    function submitForm() {
+        var valid = true;
+
+        // Validate service selection
+        var keys = Object.keys(selectedServices);
+        if (keys.length === 0) {
+            document.getElementById('serviceError').classList.remove('d-none');
+            valid = false;
+        } else {
+            document.getElementById('serviceError').classList.add('d-none');
+        }
+
+        // Validate payment method
+        if (!selectedPaymentMethod) {
+            document.getElementById('paymentMethodError').classList.remove('d-none');
+            valid = false;
+        } else {
+            document.getElementById('paymentMethodError').classList.add('d-none');
+        }
+
+        // Validate location
+        if (!document.getElementById('latInput').value) {
+            alert('Please set your location on the map.');
+            valid = false;
+        }
+
+        if (!valid) return;
+
+        // Build serviceTypes hidden inputs
+        var container = document.getElementById('serviceTypeInputs');
+        container.innerHTML = '';
+        keys.forEach(function(k) {
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'serviceTypes';
+            input.value = k;
+            container.appendChild(input);
+        });
+
+        document.getElementById('reqForm').submit();
     }
 
     // Auto-get location on load

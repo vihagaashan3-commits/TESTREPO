@@ -32,13 +32,25 @@ public class BreakdownRequestService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+        // Calculate total minimum from all selected services
+        List<ServiceType> selectedServices = dto.getServiceTypes();
+        if (selectedServices == null || selectedServices.isEmpty()) {
+            throw new IllegalArgumentException("Please select at least one service type.");
+        }
+
+        BigDecimal totalMinimum = selectedServices.stream()
+                .map(s -> BigDecimal.valueOf(s.getMinimumCharge()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         BreakdownRequest request = BreakdownRequest.builder()
-                .serviceType(dto.getServiceType())
+                .serviceTypes(selectedServices)
                 .description(dto.getDescription())
                 .latitude(dto.getLatitude())
                 .longitude(dto.getLongitude())
                 .locationAddress(dto.getLocationAddress())
                 .status(RequestStatus.PENDING)
+                .minimumAmount(totalMinimum)
+                .preferredPaymentMethod(dto.getPreferredPaymentMethod())
                 .user(user)
                 .build();
 
@@ -48,7 +60,6 @@ public class BreakdownRequestService {
             request.setVehicle(vehicle);
         }
 
-        // If user chose a specific garage, assign it directly
         if (dto.getGarageId() != null) {
             Garage garage = garageRepository.findById(dto.getGarageId())
                     .orElseThrow(() -> new ResourceNotFoundException("Garage not found"));
@@ -57,13 +68,12 @@ public class BreakdownRequestService {
 
         BreakdownRequest saved = requestRepository.save(request);
 
-        // Notify the specific garage owner or all nearby garage owners
+        // Notify garage(s)
         if (dto.getGarageId() != null) {
-            Garage garage = saved.getGarage();
             messagingTemplate.convertAndSendToUser(
-                    garage.getOwner().getEmail(),
+                    saved.getGarage().getOwner().getEmail(),
                     "/queue/new-request",
-                    "New breakdown request sent directly to your garage! ID: " + saved.getId()
+                    "New request sent directly to your garage! ID: " + saved.getId()
             );
         } else {
             List<Garage> nearbyGarages = garageRepository.findNearbyGarages(
@@ -94,21 +104,22 @@ public class BreakdownRequestService {
         request.setGarage(garage);
         BreakdownRequest saved = requestRepository.save(request);
 
+        String servicesText = request.getServiceTypes() != null
+                ? String.join(", ", request.getServiceTypes().stream()
+                                    .map(s -> s.getDisplayName()).toList())
+                : "Service";
+
         notificationService.createNotification(
                 request.getUser(),
                 "Request Accepted",
-                "Your breakdown request has been accepted by " + garage.getGarageName() +
-                        ". Minimum charge: Rs. " + request.getServiceType().getMinimumCharge() +
+                "Your request for " + servicesText + " has been accepted by " +
+                        garage.getGarageName() + ". Minimum charge: Rs. " + request.getMinimumAmount() +
                         ". Final price may vary after inspection.",
-                "REQUEST_ACCEPTED",
-                request
+                "REQUEST_ACCEPTED", request
         );
 
         messagingTemplate.convertAndSendToUser(
-                request.getUser().getEmail(),
-                "/queue/request-update",
-                "ACCEPTED:" + garageId
-        );
+                request.getUser().getEmail(), "/queue/request-update", "ACCEPTED:" + garageId);
 
         return saved;
     }
@@ -121,7 +132,6 @@ public class BreakdownRequestService {
             throw new IllegalStateException("Request is no longer pending");
         }
 
-        // If request was sent to a specific garage and they decline, cancel it
         request.setStatus(RequestStatus.CANCELLED);
         request.setNotes("Declined by garage. Please submit a new request.");
         BreakdownRequest saved = requestRepository.save(request);
@@ -130,15 +140,11 @@ public class BreakdownRequestService {
                 request.getUser(),
                 "Request Declined",
                 "Your breakdown request was declined by the garage. Please submit a new request.",
-                "REQUEST_DECLINED",
-                request
+                "REQUEST_DECLINED", request
         );
 
         messagingTemplate.convertAndSendToUser(
-                request.getUser().getEmail(),
-                "/queue/request-update",
-                "CANCELLED:" + requestId
-        );
+                request.getUser().getEmail(), "/queue/request-update", "CANCELLED:" + requestId);
 
         return saved;
     }
@@ -151,18 +157,15 @@ public class BreakdownRequestService {
 
         notificationService.createNotification(
                 request.getUser(),
-                "Final Price Set",
-                "The garage has set the final repair cost: Rs. " + finalAmount +
-                        ". Please proceed to payment.",
-                "FINAL_AMOUNT_SET",
-                request
+                "Final Price Confirmed",
+                "The garage has confirmed the final repair cost: Rs. " + finalAmount +
+                        ". Preferred payment method: " + request.getPreferredPaymentMethod() +
+                        ". Please be ready to pay on completion.",
+                "FINAL_AMOUNT_SET", request
         );
 
         messagingTemplate.convertAndSendToUser(
-                request.getUser().getEmail(),
-                "/queue/request-update",
-                "FINAL_AMOUNT:" + requestId
-        );
+                request.getUser().getEmail(), "/queue/request-update", "FINAL_AMOUNT:" + requestId);
 
         return saved;
     }
@@ -178,9 +181,7 @@ public class BreakdownRequestService {
 
         messagingTemplate.convertAndSendToUser(
                 request.getUser().getEmail(),
-                "/queue/request-update",
-                status.name() + ":" + requestId
-        );
+                "/queue/request-update", status.name() + ":" + requestId);
 
         return saved;
     }
