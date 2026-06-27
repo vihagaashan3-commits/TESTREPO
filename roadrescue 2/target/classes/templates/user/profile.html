@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>My Profile | RoadRescue</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
@@ -25,7 +26,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background: url("/product-category-img.jpg") centr/cover no-repeat;
         }
         .hero-car-icon {
             position: absolute;
@@ -604,10 +605,12 @@
                             <label class="form-label">Full Name</label>
                             <div class="input-icon-wrap">
                                 <i class="fas fa-user field-icon"></i>
-                                <input type="text" name="fullName" class="form-control"
-                                       th:value="${user.fullName}" required
-                                       minlength="2" maxlength="100"
-                                       placeholder="Enter your full name">
+                                <label>
+                                    <input type="text" name="fullName" class="form-control"
+                                           th:value="${user.fullName}" required
+                                           minlength="2" maxlength="100"
+                                           placeholder="Enter your full name">
+                                </label>
                             </div>
                         </div>
 
@@ -628,10 +631,12 @@
                             <label class="form-label">Phone Number</label>
                             <div class="input-icon-wrap">
                                 <i class="fas fa-phone field-icon"></i>
-                                <input type="tel" name="phone" class="form-control"
-                                       th:value="${user.phone}" required
-                                       pattern="[0-9]{10,15}"
-                                       placeholder="10–15 digit phone number">
+                                <label>
+                                    <input type="tel" name="phone" class="form-control"
+                                           th:value="${user.phone}" required
+                                           pattern="[0-9]{10,15}"
+                                           placeholder="10–15 digit phone number">
+                                </label>
                             </div>
                         </div>
 
@@ -679,8 +684,10 @@
                             <label class="form-label">Current Password</label>
                             <div class="input-icon-wrap">
                                 <i class="fas fa-lock field-icon"></i>
-                                <input type="password" name="currentPassword" class="form-control"
-                                       required placeholder="Enter current password">
+                                <label>
+                                    <input type="password" name="currentPassword" class="form-control"
+                                           required placeholder="Enter current password">
+                                </label>
                             </div>
                         </div>
 
