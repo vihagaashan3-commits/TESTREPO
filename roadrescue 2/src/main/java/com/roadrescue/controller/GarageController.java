@@ -39,11 +39,19 @@ public class GarageController {
     }
 
     @GetMapping("/{id}")
-    public String viewGarage(@PathVariable Long id, Model model) {
+    public String viewGarage(@PathVariable Long id,
+                             Model model,
+                             @AuthenticationPrincipal UserDetails userDetails) {
         Garage garage = garageService.findById(id);
         Double avgRating = garageService.getAverageRating(id);
+
         model.addAttribute("garage", garage);
         model.addAttribute("avgRating", avgRating != null ? String.format("%.1f", avgRating) : "N/A");
+
+        if (userDetails != null) {
+            model.addAttribute("loggedUserUsername", userDetails.getUsername());
+        }
+
         return "garage/detail";
     }
 

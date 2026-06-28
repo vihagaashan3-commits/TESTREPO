@@ -19,7 +19,10 @@ public class RegisterDTO {
     private String phone;
 
     @NotBlank(message = "Password is required")
-    @Size(min = 6, message = "Password must be at least 6 characters")
+    @Pattern(
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&.#^()_+=-])[A-Za-z\\d@$!%*?&.#^()_+=-]{8,}$",
+            message = "Password must be at least 8 characters and include uppercase, lowercase, number, and special character."
+    )
     private String password;
 
     @NotBlank(message = "Please confirm your password")
@@ -27,5 +30,5 @@ public class RegisterDTO {
 
     private String role; // USER, GARAGE_OWNER, ADMIN
 
-    private String adminCode; // ✅ Only required when role = ADMIN
+    private String adminCode; //  ADMIN
 }

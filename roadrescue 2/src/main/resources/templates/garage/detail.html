@@ -159,7 +159,9 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
                     <span><i class="fas fa-star text-warning me-2"></i>Customer Reviews</span>
-                    <a th:href="@{/reviews/garage/{id}(id=${garage.id})}" class="btn btn-sm btn-outline-warning">
+                    <a th:href="@{/reviews/garage/{id}(id=${garage.id})}"
+                       th:if="${loggedUserUsername != null && loggedUserUsername != garage.user.username}"
+                       class="btn btn-sm btn-outline-warning">
                         Write a Review
                     </a>
                 </div>

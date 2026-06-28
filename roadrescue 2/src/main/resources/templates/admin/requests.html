@@ -108,8 +108,7 @@
                                     <small class="text-muted" th:text="${req.user.email}">email</small>
                                 </td>
                                 <td>
-                                    <span class="badge bg-secondary"
-                                          th:text="${#strings.replace(req.serviceType.name(), '_', ' ')}">Service</span>
+                                    <span th:text="${req.serviceType} ? ${#strings.replace(req.serviceType.name(), '_', ' ')} : 'unknown'"></span>
                                 </td>
                                 <td th:text="${req.locationAddress != null ? req.locationAddress : 'GPS Location'}">Location</td>
                                 <td>
