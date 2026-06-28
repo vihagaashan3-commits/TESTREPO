@@ -107,10 +107,10 @@
                                     <div th:text="${req.user.fullName}">Customer</div>
                                     <small class="text-muted" th:text="${req.user.email}">email</small>
                                 </td>
-                                <td>
+                                <!--<td>
                                     <span class="badge bg-secondary"
                                           th:text="${#strings.replace(req.serviceType.name(), '_', ' ')}">Service</span>
-                                </td>
+                                </td>-->
                                 <td th:text="${req.locationAddress != null ? req.locationAddress : 'GPS Location'}">Location</td>
                                 <td>
                                     <span th:if="${req.garage != null}" th:text="${req.garage.garageName}">Garage</span>
