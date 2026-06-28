@@ -29,6 +29,7 @@ public class BreakdownRequestController {
     private final VehicleService vehicleService;
     private final PaymentService paymentService;
 
+    // ── DRIVER: My request history (own requests only) ────────────────────
     @GetMapping
     public String listRequests(@AuthenticationPrincipal UserDetails userDetails,
                                @RequestParam(defaultValue = "0") int page,
@@ -42,6 +43,7 @@ public class BreakdownRequestController {
         return "request/list";
     }
 
+    // ── DRIVER: New request form ──────────────────────────────────────────
     @GetMapping("/new")
     public String newRequestForm(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         User user = userService.findByEmail(userDetails.getUsername());
@@ -65,7 +67,7 @@ public class BreakdownRequestController {
         }
         try {
             BreakdownRequest request = requestService.createRequest(dto, userDetails.getUsername());
-            redirectAttributes.addFlashAttribute("success", "Request submitted successfully!");
+            redirectAttributes.addFlashAttribute("success", "Emergency request submitted! Waiting for a garage to respond.");
             return "redirect:/requests/" + request.getId();
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -73,6 +75,7 @@ public class BreakdownRequestController {
         }
     }
 
+    // ── DRIVER: View request detail ───────────────────────────────────────
     @GetMapping("/{id}")
     public String viewRequest(@PathVariable Long id,
                               @AuthenticationPrincipal UserDetails userDetails,
@@ -89,38 +92,44 @@ public class BreakdownRequestController {
         model.addAttribute("nearbyGarages", nearbyGarages);
         model.addAttribute("user", user);
         model.addAttribute("payment", payment);
+        model.addAttribute("RequestStatus", RequestStatus.class);
         return "request/detail";
     }
 
-    // ── DRIVER: Approve quote sent by garage ─────────────────────────────
+    // ── STEP 4a: DRIVER approves the garage's quote ───────────────────────
+    // Technician will be dispatched. Amount is now locked.
     @PostMapping("/{id}/approve-quote")
     public String approveQuote(@PathVariable Long id,
                                @AuthenticationPrincipal UserDetails userDetails,
                                RedirectAttributes ra) {
         try {
             requestService.approveQuote(id, userDetails.getUsername());
-            ra.addFlashAttribute("success", "Quote approved! The technician will be dispatched shortly.");
+            ra.addFlashAttribute("success",
+                    "Quote approved! The technician will be heading to your location shortly.");
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/requests/" + id;
     }
 
-    // ── DRIVER: Reject quote — can then submit a new request ─────────────
+    // ── STEP 4b: DRIVER rejects the garage's quote ────────────────────────
+    // Request is cancelled. Driver can submit a new request to another garage.
     @PostMapping("/{id}/reject-quote")
     public String rejectQuote(@PathVariable Long id,
                               @AuthenticationPrincipal UserDetails userDetails,
                               RedirectAttributes ra) {
         try {
             requestService.rejectQuote(id, userDetails.getUsername());
-            ra.addFlashAttribute("info", "Quote rejected. You can submit a new request to another garage.");
+            ra.addFlashAttribute("info",
+                    "Quote rejected. You can submit a new request to another garage.");
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/requests";
     }
 
-    // ── DRIVER: Cancel request (only allowed before QUOTE_APPROVED) ───────
+    // ── DRIVER: Cancel request ────────────────────────────────────────────
+    // Only allowed before QUOTE_APPROVED
     @PostMapping("/{id}/cancel")
     public String cancelRequest(@PathVariable Long id,
                                 @AuthenticationPrincipal UserDetails userDetails,
@@ -134,6 +143,7 @@ public class BreakdownRequestController {
         return "redirect:/requests";
     }
 
+    // ── ADMIN: All requests with filters ──────────────────────────────────
     @GetMapping("/all")
     @PreAuthorize("hasAnyRole('ADMIN', 'GARAGE_OWNER')")
     public String allRequests(@RequestParam(defaultValue = "0") int page,
