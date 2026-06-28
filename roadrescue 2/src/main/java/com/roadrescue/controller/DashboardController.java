@@ -25,6 +25,11 @@ public class DashboardController {
         return "redirect:/dashboard";
     }
 
+    @GetMapping("/About")
+    public String about() {
+        return "about";
+    }
+
     @GetMapping("/dashboard")
     public String dashboard(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         User user = userService.findByEmail(userDetails.getUsername());
@@ -45,6 +50,7 @@ public class DashboardController {
             model.addAttribute("myGarages", garageService.getOwnerGarages(userDetails.getUsername()));
             return "garage-owner/dashboard";
         }
+
 
         // Regular user
         model.addAttribute("myRequests", requestService.getRequestsByUser(user.getId(), 0, 5));
