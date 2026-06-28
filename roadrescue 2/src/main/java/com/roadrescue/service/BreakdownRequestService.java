@@ -128,7 +128,7 @@ public class BreakdownRequestService {
         }
 
         request.setStatus(RequestStatus.CANCELLED);
-        request.setNotes("Declined by garage. Please submit a new request.");
+        request.setNotes("Declined by garage. Please submit a new request!.");
         BreakdownRequest saved = requestRepository.save(request);
 
         notificationService.createNotification(
