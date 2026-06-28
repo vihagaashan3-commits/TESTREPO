@@ -2,6 +2,7 @@ package com.roadrescue.service;
 
 import com.roadrescue.entity.*;
 import com.roadrescue.enums.PaymentStatus;
+import com.roadrescue.enums.RequestStatus;
 import com.roadrescue.exception.ResourceNotFoundException;
 import com.roadrescue.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,9 +39,9 @@ public class PaymentService {
         Payment saved = paymentRepository.save(payment);
 
         notificationService.createNotification(user,
-                "Payment Created",
-                "Payment of Rs. " + amount + " created for Request #" + requestId,
-                "PAYMENT_CREATED", request);
+                "Payment Due",
+                "Job completed. Please pay Rs. " + amount + " via " + method + ".",
+                "PAYMENT_DUE", request);
 
         return saved;
     }
@@ -52,10 +53,14 @@ public class PaymentService {
         payment.setPaidAt(LocalDateTime.now());
         Payment saved = paymentRepository.save(payment);
 
+        // Mark request as PAID
+        BreakdownRequest request = payment.getBreakdownRequest();
+        request.setStatus(RequestStatus.PAID);
+
         notificationService.createNotification(payment.getUser(),
-                "Payment Successful",
-                "Payment of Rs. " + payment.getAmount() + " confirmed.",
-                "PAYMENT_SUCCESS", payment.getBreakdownRequest());
+                "Payment Confirmed",
+                "Payment of Rs. " + payment.getAmount() + " confirmed. Thank you!",
+                "PAYMENT_SUCCESS", request);
 
         return saved;
     }
