@@ -134,11 +134,11 @@
             </h5>
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-0">
-                    <div th:if="${requests == null or requests.isEmpty()}" class="text-center py-5 text-muted">
+                    <div th:if="${requests == null or requests.totalElements == 0}" class="text-center py-5 text-muted">
                         <i class="fas fa-inbox fs-1 mb-3 d-block"></i>
                         <p>No active requests found.</p>
                     </div>
-                    <div th:unless="${requests == null or requests.isEmpty()}" class="table-responsive">
+                    <div th:unless="${requests == null or requests.totalElements == 0}" class="table-responsive">
                         <table class="table table-hover mb-0 align-middle">
                             <thead class="table-light">
                             <tr>
@@ -152,7 +152,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="req : ${requests}">
+                            <tr th:each="req : ${requests.content}">
                                 <td th:text="${req.id}">#</td>
                                 <td>
                                     <div class="fw-semibold" th:text="${req.user.fullName}">Customer</div>
@@ -197,7 +197,8 @@
                                         <!-- ACCEPTED: Send Quote -->
                                         <button th:if="${req.status.name() == 'ACCEPTED'}"
                                                 class="btn btn-sm btn-primary"
-                                                th:onclick="${'openQuoteModal(' + req.id + ')'}">
+                                                th:attr="onclick=${'openQuoteModal(' + req.id + ')'}"
+                                                type="button">
                                             <i class="fas fa-paper-plane me-1"></i>Send Quote
                                         </button>
 
