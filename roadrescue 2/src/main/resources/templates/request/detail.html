@@ -40,9 +40,9 @@
         <h5 class="mb-0 fw-bold">Request #<span th:text="${request.id}"></span></h5>
         <span th:class="${'badge ms-2 ' +
             (request.status.name() == 'PENDING'        ? 'bg-warning text-dark' :
-             request.status.name() == 'ACCEPTED'       ? 'bg-info' :
+             request.status.name() == 'ACCEPTED'       ? 'bg-info text-dark' :
              request.status.name() == 'QUOTED'         ? 'bg-primary' :
-             request.status.name() == 'QUOTE_APPROVED' ? 'bg-info' :
+             request.status.name() == 'QUOTE_APPROVED' ? 'bg-info text-dark' :
              request.status.name() == 'IN_PROGRESS'    ? 'bg-primary' :
              request.status.name() == 'COMPLETED'      ? 'bg-success' :
              request.status.name() == 'PAID'           ? 'bg-success' : 'bg-danger')}"
@@ -53,14 +53,12 @@
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body py-4">
             <div class="status-tracker">
-                <!-- 1. Submitted -->
                 <div class="status-step">
                     <div th:class="${'status-dot ' + (request.status.name() != 'CANCELLED' ? 'done' : '')}">
                         <i class="fas fa-paper-plane"></i>
                     </div>
                     <small class="text-muted">Submitted</small>
                 </div>
-                <!-- 2. Accepted -->
                 <div class="status-step">
                     <div th:class="${'status-dot ' +
                         (request.status.name() == 'ACCEPTED' ? 'active' :
@@ -73,7 +71,6 @@
                     </div>
                     <small class="text-muted">Accepted</small>
                 </div>
-                <!-- 3. Quote Sent -->
                 <div class="status-step">
                     <div th:class="${'status-dot ' +
                         (request.status.name() == 'QUOTED' ? 'active' :
@@ -85,7 +82,6 @@
                     </div>
                     <small class="text-muted">Quote Sent</small>
                 </div>
-                <!-- 4. In Progress -->
                 <div class="status-step">
                     <div th:class="${'status-dot ' +
                         (request.status.name() == 'IN_PROGRESS' ? 'active' :
@@ -95,7 +91,6 @@
                     </div>
                     <small class="text-muted">In Progress</small>
                 </div>
-                <!-- 5. Completed -->
                 <div class="status-step">
                     <div th:class="${'status-dot ' +
                         (request.status.name() == 'COMPLETED' or
@@ -158,12 +153,16 @@
                 </div>
             </div>
 
-            <!-- ── QUOTE SECTION (shown when QUOTED) ── -->
-            <!-- DRIVER sees: approve or reject the quote -->
+            <!-- ══════════════════════════════════════════════════
+                 DRIVER SECTIONS (no sec:authorize — use th:if only)
+                 Garage owner sections below are separately protected
+                 ══════════════════════════════════════════════════ -->
+
+            <!-- DRIVER: Quote received — approve or reject -->
             <div class="card border-0 shadow-sm mb-4"
-                 sec:authorize="hasRole('USER')"
-                 th:if="${request.status.name() == 'QUOTED'}">
-                <div class="card-header bg-white fw-bold text-warning">
+                 th:if="${request.status.name() == 'QUOTED'}"
+                 sec:authorize="!hasRole('GARAGE_OWNER')">
+                <div class="card-header bg-warning text-dark fw-bold">
                     <i class="fas fa-file-invoice-dollar me-2"></i>Payment Quote Received
                 </div>
                 <div class="card-body">
@@ -181,14 +180,14 @@
                     <div class="d-grid gap-2">
                         <form th:action="@{/requests/{id}/approve-quote(id=${request.id})}" method="post">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                            <button class="btn btn-success w-100">
+                            <button type="submit" class="btn btn-success w-100">
                                 <i class="fas fa-check me-2"></i>Approve Quote — Send Technician
                             </button>
                         </form>
                         <form th:action="@{/requests/{id}/reject-quote(id=${request.id})}" method="post"
                               onsubmit="return confirm('Reject this quote? Your request will be cancelled and you can submit a new one.')">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                            <button class="btn btn-outline-danger w-100">
+                            <button type="submit" class="btn btn-outline-danger w-100">
                                 <i class="fas fa-times me-2"></i>Reject Quote
                             </button>
                         </form>
@@ -198,8 +197,8 @@
 
             <!-- DRIVER: Quote approved notice -->
             <div class="card border-0 shadow-sm mb-4"
-                 sec:authorize="hasRole('USER')"
-                 th:if="${request.status.name() == 'QUOTE_APPROVED'}">
+                 th:if="${request.status.name() == 'QUOTE_APPROVED'}"
+                 sec:authorize="!hasRole('GARAGE_OWNER')">
                 <div class="card-body">
                     <div class="alert alert-success mb-0">
                         <i class="fas fa-check-circle me-2"></i>
@@ -211,8 +210,8 @@
 
             <!-- DRIVER: Job in progress notice -->
             <div class="card border-0 shadow-sm mb-4"
-                 sec:authorize="hasRole('USER')"
-                 th:if="${request.status.name() == 'IN_PROGRESS'}">
+                 th:if="${request.status.name() == 'IN_PROGRESS'}"
+                 sec:authorize="!hasRole('GARAGE_OWNER')">
                 <div class="card-body">
                     <div class="alert alert-primary mb-0">
                         <i class="fas fa-tools me-2"></i>
@@ -225,8 +224,8 @@
 
             <!-- DRIVER: Completed — rate garage -->
             <div class="card border-0 shadow-sm mb-4"
-                 sec:authorize="hasRole('USER')"
-                 th:if="${request.status.name() == 'COMPLETED' or request.status.name() == 'PAID'}">
+                 th:if="${request.status.name() == 'COMPLETED' or request.status.name() == 'PAID'}"
+                 sec:authorize="!hasRole('GARAGE_OWNER')">
                 <div class="card-body">
                     <div class="alert alert-success mb-3">
                         <i class="fas fa-flag-checkered me-2"></i>
@@ -242,7 +241,8 @@
 
             <!-- DRIVER: Cancel button (only when PENDING or ACCEPTED) -->
             <div th:if="${request.status.name() == 'PENDING' or request.status.name() == 'ACCEPTED'}"
-                 sec:authorize="hasRole('USER')" class="mb-4">
+                 sec:authorize="!hasRole('GARAGE_OWNER')"
+                 class="mb-4">
                 <form th:action="@{/requests/{id}/cancel(id=${request.id})}" method="post"
                       onsubmit="return confirm('Are you sure you want to cancel this request?')">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
@@ -252,7 +252,9 @@
                 </form>
             </div>
 
-            <!-- ── GARAGE OWNER: Action Buttons ── -->
+            <!-- ══════════════════════════════════════════════════
+                 GARAGE OWNER SECTION
+                 ══════════════════════════════════════════════════ -->
             <div class="card border-0 shadow-sm mb-4"
                  sec:authorize="hasRole('GARAGE_OWNER')"
                  th:if="${request.status.name() != 'COMPLETED' and
@@ -267,7 +269,7 @@
                     <form th:if="${request.status.name() == 'PENDING'}"
                           th:action="@{/garage-owner/requests/{id}/accept(id=${request.id})}" method="post">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                        <button class="btn btn-success w-100">
+                        <button type="submit" class="btn btn-success w-100">
                             <i class="fas fa-check me-2"></i>Accept Request
                         </button>
                     </form>
@@ -275,12 +277,12 @@
                           th:action="@{/garage-owner/requests/{id}/decline(id=${request.id})}" method="post"
                           onsubmit="return confirm('Decline this request?')">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                        <button class="btn btn-outline-danger w-100">
+                        <button type="submit" class="btn btn-outline-danger w-100">
                             <i class="fas fa-times me-2"></i>Decline Request
                         </button>
                     </form>
 
-                    <!-- ACCEPTED: Send Quote to driver -->
+                    <!-- ACCEPTED: Send Quote -->
                     <div th:if="${request.status.name() == 'ACCEPTED'}">
                         <p class="text-muted small mb-2">
                             <i class="fas fa-info-circle me-1"></i>
@@ -296,11 +298,11 @@
                             <div class="mb-2">
                                 <label class="form-label fw-semibold small">Notes (optional)</label>
                                 <textarea name="quoteNotes" class="form-control" rows="2"
-                                          placeholder="e.g. Includes parts and labour for battery replacement"></textarea>
+                                          placeholder="e.g. Includes parts and labour"></textarea>
                             </div>
                             <div class="alert alert-warning small mb-2">
                                 <i class="fas fa-lock me-1"></i>
-                                Once the driver approves, this amount is <strong>locked</strong> and cannot be changed.
+                                Once the driver approves, this amount is <strong>locked</strong>.
                             </div>
                             <button type="submit" class="btn btn-primary w-100">
                                 <i class="fas fa-paper-plane me-2"></i>Send Quote to Driver
@@ -308,38 +310,36 @@
                         </form>
                     </div>
 
-                    <!-- QUOTED: Waiting for driver approval -->
-                    <div th:if="${request.status.name() == 'QUOTED'}"
-                         class="alert alert-info mb-0">
+                    <!-- QUOTED: Waiting -->
+                    <div th:if="${request.status.name() == 'QUOTED'}" class="alert alert-info mb-0">
                         <i class="fas fa-hourglass-half me-2"></i>
                         Quote of <strong>Rs. <span th:text="${request.quoteAmount}"></span></strong> sent.
                         Waiting for driver to approve or reject.
                     </div>
 
-                    <!-- QUOTE_APPROVED: Dispatch technician -->
+                    <!-- QUOTE_APPROVED: Dispatch -->
                     <div th:if="${request.status.name() == 'QUOTE_APPROVED'}">
                         <div class="alert alert-success small mb-2">
                             <i class="fas fa-check-circle me-1"></i>
-                            Driver approved the quote of <strong>Rs. <span th:text="${request.quoteAmount}"></span></strong>.
-                            Dispatch your technician now.
+                            Driver approved Rs. <strong th:text="${request.quoteAmount}"></strong>. Dispatch now.
                         </div>
                         <form th:action="@{/garage-owner/requests/{id}/start-work(id=${request.id})}" method="post">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                            <button class="btn btn-primary w-100">
+                            <button type="submit" class="btn btn-primary w-100">
                                 <i class="fas fa-truck me-2"></i>Dispatch Technician
                             </button>
                         </form>
                     </div>
 
-                    <!-- IN_PROGRESS: Mark complete -->
+                    <!-- IN_PROGRESS: Complete -->
                     <form th:if="${request.status.name() == 'IN_PROGRESS'}"
                           th:action="@{/garage-owner/requests/{id}/complete(id=${request.id})}" method="post">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                         <div class="alert alert-primary small mb-2">
                             <i class="fas fa-lock me-1"></i>
-                            Final amount is locked at <strong>Rs. <span th:text="${request.quoteAmount}"></span></strong>.
+                            Final amount locked at <strong>Rs. <span th:text="${request.quoteAmount}"></span></strong>.
                         </div>
-                        <button class="btn btn-success w-100">
+                        <button type="submit" class="btn btn-success w-100">
                             <i class="fas fa-flag-checkered me-2"></i>Mark Job Completed
                         </button>
                     </form>
@@ -347,7 +347,6 @@
             </div>
 
             <!-- ── PAYMENT SECTION ── -->
-            <!-- Garage: Create payment record after completion -->
             <div class="card border-0 shadow-sm mb-4"
                  sec:authorize="hasAnyRole('GARAGE_OWNER','ADMIN')"
                  th:if="${request.status.name() == 'COMPLETED' and payment == null}">
@@ -425,14 +424,13 @@
                 </div>
             </div>
 
-            <!-- Admin: View only -->
             <div sec:authorize="hasRole('ADMIN')" class="alert alert-secondary">
                 <i class="fas fa-eye me-2"></i>Admin view — read only
             </div>
 
         </div>
 
-        <!-- ── RIGHT COLUMN: Map + Nearby Garages ── -->
+        <!-- ── RIGHT COLUMN ── -->
         <div class="col-lg-7">
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white fw-bold">
@@ -443,7 +441,6 @@
                 </div>
             </div>
 
-            <!-- Nearby Garages (only when PENDING) -->
             <div class="card border-0 shadow-sm"
                  th:if="${request.status.name() == 'PENDING' and nearbyGarages != null and !nearbyGarages.isEmpty()}">
                 <div class="card-header bg-white fw-bold">
@@ -469,7 +466,6 @@
                 </div>
             </div>
 
-            <!-- Real-time update banner -->
             <div id="wsAlert" class="alert alert-info mt-3 d-none">
                 <i class="fas fa-satellite-dish me-2"></i>
                 <span id="wsMessage">Status updated! Refreshing...</span>
