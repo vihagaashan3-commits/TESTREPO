@@ -27,7 +27,9 @@ public class BreakdownRequestService {
     private final NotificationService notificationService;
     private final SimpMessagingTemplate messagingTemplate;
 
-    // ── DRIVER: Submit new request ──────────────────────────────────────
+    // ── STEP 1: DRIVER submits request ───────────────────────────────────
+    // No minimum payment shown or calculated here.
+    // The garage will send a quote separately after accepting.
     @Transactional
     public BreakdownRequest createRequest(BreakdownRequestDTO dto, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
@@ -70,11 +72,11 @@ public class BreakdownRequestService {
                     "/queue/new-request",
                     "New request sent directly to your garage! ID: " + saved.getId());
         } else {
-            List<Garage> nearby = garageRepository.findNearbyGarages(
+            List<Garage> nearbyGarages = garageRepository.findNearbyGarages(
                     dto.getLatitude(), dto.getLongitude(), 10.0);
-            for (Garage g : nearby) {
+            for (Garage garage : nearbyGarages) {
                 messagingTemplate.convertAndSendToUser(
-                        g.getOwner().getEmail(),
+                        garage.getOwner().getEmail(),
                         "/queue/new-request",
                         "New breakdown request nearby! ID: " + saved.getId());
             }
@@ -82,7 +84,8 @@ public class BreakdownRequestService {
         return saved;
     }
 
-    // ── GARAGE: Accept request ──────────────────────────────────────────
+    // ── STEP 2: GARAGE accepts the request (PENDING → ACCEPTED) ──────────
+    // After accepting, garage will send a quote to the driver.
     @Transactional
     public BreakdownRequest acceptRequest(Long requestId, Long garageId) {
         BreakdownRequest request = findById(requestId);
@@ -102,44 +105,50 @@ public class BreakdownRequestService {
                                     .map(ServiceType::getDisplayName).toList())
                 : "Service";
 
-        notificationService.createNotification(request.getUser(),
+        notificationService.createNotification(
+                request.getUser(),
                 "Request Accepted",
                 "Your request for " + servicesText + " has been accepted by " +
-                        garage.getGarageName() + ". You will receive a quote shortly.",
+                        garage.getGarageName() + ". You will receive a payment quote shortly.",
                 "REQUEST_ACCEPTED", request);
 
         messagingTemplate.convertAndSendToUser(
                 request.getUser().getEmail(), "/queue/request-update", "ACCEPTED:" + garageId);
+
         return saved;
     }
 
-    // ── GARAGE: Decline request ─────────────────────────────────────────
+    // ── STEP 2b: GARAGE declines the request (PENDING → CANCELLED) ───────
     @Transactional
     public BreakdownRequest declineRequest(Long requestId, Long garageId) {
         BreakdownRequest request = findById(requestId);
+
         if (request.getStatus() != RequestStatus.PENDING) {
             throw new IllegalStateException("Request is no longer pending");
         }
+
         request.setStatus(RequestStatus.CANCELLED);
         request.setNotes("Declined by garage. Please submit a new request.");
         BreakdownRequest saved = requestRepository.save(request);
 
-        notificationService.createNotification(request.getUser(),
+        notificationService.createNotification(
+                request.getUser(),
                 "Request Declined",
                 "Your breakdown request was declined. Please submit a new request to another garage.",
                 "REQUEST_DECLINED", request);
 
         messagingTemplate.convertAndSendToUser(
                 request.getUser().getEmail(), "/queue/request-update", "CANCELLED:" + requestId);
+
         return saved;
     }
 
-    // ── GARAGE: Send quote (ACCEPTED → QUOTED) ──────────────────────────
-    // Garage sends payment quote BEFORE dispatching technician.
-    // Quote amount is locked once driver approves — cannot be changed.
+    // ── STEP 3: GARAGE sends payment quote to driver (ACCEPTED → QUOTED) ─
+    // Amount is fixed. Message warns driver that amount cannot change once accepted.
     @Transactional
     public BreakdownRequest sendQuote(Long requestId, BigDecimal quoteAmount, String quoteNotes) {
         BreakdownRequest request = findById(requestId);
+
         if (request.getStatus() != RequestStatus.ACCEPTED) {
             throw new IllegalStateException("Request must be ACCEPTED before sending a quote");
         }
@@ -150,31 +159,34 @@ public class BreakdownRequestService {
         request.setQuotedAt(LocalDateTime.now());
         BreakdownRequest saved = requestRepository.save(request);
 
-        notificationService.createNotification(request.getUser(),
+        notificationService.createNotification(
+                request.getUser(),
                 "Payment Quote Received",
-                "Garage " + request.getGarage().getGarageName() +
-                        " has sent a payment quote of Rs. " + quoteAmount +
-                        ". Details: " + quoteNotes +
-                        ". NOTE: This amount is fixed and cannot be changed once approved." +
-                        " Please APPROVE or REJECT.",
+                "Garage \"" + request.getGarage().getGarageName() + "\" has sent a payment quote of Rs. " +
+                        quoteAmount + ". Details: " + quoteNotes +
+                        ". IMPORTANT: This amount is LOCKED and cannot be changed once you approve. " +
+                        "Please APPROVE or REJECT the quote.",
                 "QUOTE_RECEIVED", request);
 
         messagingTemplate.convertAndSendToUser(
                 request.getUser().getEmail(), "/queue/request-update", "QUOTED:" + requestId);
+
         return saved;
     }
 
-    // ── DRIVER: Approve quote (QUOTED → QUOTE_APPROVED) ────────────────
-    // Once approved, technician is dispatched and amount is locked.
+    // ── STEP 4a: DRIVER approves quote (QUOTED → QUOTE_APPROVED) ─────────
+    // Technician is dispatched. Amount is now fully locked.
     @Transactional
     public BreakdownRequest approveQuote(Long requestId, String userEmail) {
         BreakdownRequest request = findById(requestId);
+
         if (!request.getUser().getEmail().equals(userEmail)) {
             throw new SecurityException("Unauthorized");
         }
         if (request.getStatus() != RequestStatus.QUOTED) {
             throw new IllegalStateException("No quote to approve");
         }
+
         request.setStatus(RequestStatus.QUOTE_APPROVED);
         request.setQuoteApprovedAt(LocalDateTime.now());
         BreakdownRequest saved = requestRepository.save(request);
@@ -189,20 +201,23 @@ public class BreakdownRequestService {
         messagingTemplate.convertAndSendToUser(
                 request.getGarage().getOwner().getEmail(),
                 "/queue/request-update", "QUOTE_APPROVED:" + requestId);
+
         return saved;
     }
 
-    // ── DRIVER: Reject quote (QUOTED → CANCELLED) ───────────────────────
-    // Driver can reject and submit a fresh request to another garage.
+    // ── STEP 4b: DRIVER rejects quote (QUOTED → CANCELLED) ───────────────
+    // Driver can now submit a fresh request to a different garage.
     @Transactional
     public BreakdownRequest rejectQuote(Long requestId, String userEmail) {
         BreakdownRequest request = findById(requestId);
+
         if (!request.getUser().getEmail().equals(userEmail)) {
             throw new SecurityException("Unauthorized");
         }
         if (request.getStatus() != RequestStatus.QUOTED) {
             throw new IllegalStateException("No quote to reject");
         }
+
         request.setStatus(RequestStatus.CANCELLED);
         request.setNotes("Quote rejected by driver. Driver may submit a new request.");
         BreakdownRequest saved = requestRepository.save(request);
@@ -216,44 +231,53 @@ public class BreakdownRequestService {
         messagingTemplate.convertAndSendToUser(
                 request.getGarage().getOwner().getEmail(),
                 "/queue/request-update", "QUOTE_REJECTED:" + requestId);
+
         return saved;
     }
 
-    // ── GARAGE: Dispatch technician / start work (QUOTE_APPROVED → IN_PROGRESS) ──
+    // ── STEP 5: GARAGE dispatches technician (QUOTE_APPROVED → IN_PROGRESS)
     @Transactional
     public BreakdownRequest startWork(Long requestId) {
         BreakdownRequest request = findById(requestId);
+
         if (request.getStatus() != RequestStatus.QUOTE_APPROVED) {
             throw new IllegalStateException("Quote must be approved by driver before starting work");
         }
+
         request.setStatus(RequestStatus.IN_PROGRESS);
         BreakdownRequest saved = requestRepository.save(request);
 
-        notificationService.createNotification(request.getUser(),
-                "Technician Dispatched",
-                "Your quote has been approved. Our technician is on the way! " +
+        notificationService.createNotification(
+                request.getUser(),
+                "Technician On The Way",
+                "Your quote has been approved and our technician is now heading to your location! " +
                         "Locked amount: Rs. " + request.getQuoteAmount() +
-                        ". Contact: " + request.getGarage().getPhone(),
+                        ". Technician contact: " + request.getGarage().getPhone(),
                 "TECHNICIAN_DISPATCHED", request);
 
         messagingTemplate.convertAndSendToUser(
                 request.getUser().getEmail(), "/queue/request-update", "IN_PROGRESS:" + requestId);
+
         return saved;
     }
 
-    // ── GARAGE: Complete job (IN_PROGRESS → COMPLETED) ──────────────────
+    // ── STEP 6: GARAGE completes the job (IN_PROGRESS → COMPLETED) ───────
+    // Final amount = quote amount (already locked — cannot be changed)
     @Transactional
     public BreakdownRequest completeJob(Long requestId) {
         BreakdownRequest request = findById(requestId);
+
         if (request.getStatus() != RequestStatus.IN_PROGRESS) {
             throw new IllegalStateException("Request must be IN_PROGRESS to complete");
         }
+
         request.setStatus(RequestStatus.COMPLETED);
-        request.setFinalAmount(request.getQuoteAmount()); // Final = approved quote (locked)
+        request.setFinalAmount(request.getQuoteAmount()); // locked amount
         request.setCompletedAt(LocalDateTime.now());
         BreakdownRequest saved = requestRepository.save(request);
 
-        notificationService.createNotification(request.getUser(),
+        notificationService.createNotification(
+                request.getUser(),
                 "Job Completed",
                 "Work is done! Final amount: Rs. " + request.getQuoteAmount() +
                         ". Please pay via " + request.getPreferredPaymentMethod() +
@@ -262,13 +286,16 @@ public class BreakdownRequestService {
 
         messagingTemplate.convertAndSendToUser(
                 request.getUser().getEmail(), "/queue/request-update", "COMPLETED:" + requestId);
+
         return saved;
     }
 
-    // ── DRIVER: Cancel (only when PENDING, ACCEPTED, or QUOTED) ─────────
+    // ── DRIVER: Cancel request ────────────────────────────────────────────
+    // Allowed only before QUOTE_APPROVED (once technician dispatched, cannot cancel)
     @Transactional
     public void cancelRequest(Long requestId, String userEmail) {
         BreakdownRequest request = findById(requestId);
+
         if (!request.getUser().getEmail().equals(userEmail)) {
             throw new SecurityException("Unauthorized");
         }
@@ -278,10 +305,12 @@ public class BreakdownRequestService {
                 request.getStatus() == RequestStatus.PAID) {
             throw new IllegalStateException("Cannot cancel at this stage");
         }
+
         request.setStatus(RequestStatus.CANCELLED);
         requestRepository.save(request);
     }
 
+    // ── Queries ───────────────────────────────────────────────────────────
     public BreakdownRequest findById(Long id) {
         return requestRepository.findById(id)
                 .filter(r -> !r.isDeleted())
