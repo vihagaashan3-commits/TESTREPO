@@ -13,6 +13,9 @@
     --rr-red:#dc3545;
     --rr-red-dark:#b71c2b;
     --rr-red-light:#ff6b6b;
+    --rr-alice-blue:ECF4F7;
+    --rr-charcoal:#39404B;
+    --rr-burgundy:#910029;
 
     --rr-black:#111111;
     --rr-dark:#1b1f27;
@@ -57,8 +60,8 @@ body{
 
 .rr-hero{
 
-    background:linear-gradient(135deg,#dc3545 0%,#a41324 100%);
-    color:white;
+    background:var(--rr-burgundy);
+    color:black;
 
 }
 
@@ -239,7 +242,7 @@ a{
 
 .rr-icon-circle:hover{
 
-    background:var(--rr-red);
+    background:var(--rr-burgundy);
 
     transform:translateY(-2px);
 
@@ -451,7 +454,7 @@ a{
     border-radius:20px;
     overflow:hidden;
 
-    background:white;
+    background:var(--rr-alice-blue);
 
     box-shadow:var(--rr-shadow-sm);
 
