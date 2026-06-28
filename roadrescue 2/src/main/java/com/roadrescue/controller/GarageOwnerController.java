@@ -50,11 +50,7 @@ public class GarageOwnerController {
 
         if (!myGarages.isEmpty()) {
             Long garageId = myGarages.get(0).getId();
-
-            // Requests assigned to this garage
             Page<BreakdownRequest> myRequests = requestService.getRequestsByGarage(garageId, page, size);
-
-            // All pending requests (not yet assigned to any garage)
             Page<BreakdownRequest> allPending = requestService.getAllRequests(page, 50, RequestStatus.PENDING, null);
 
             model.addAttribute("requests", myRequests);
@@ -66,6 +62,7 @@ public class GarageOwnerController {
         return "garage-owner/requests";
     }
 
+    // ── STEP 1: Garage accepts incoming request ──────────────────────────
     @PostMapping("/requests/{id}/accept")
     public String acceptRequest(@PathVariable Long id,
                                 @AuthenticationPrincipal UserDetails userDetails,
@@ -84,10 +81,11 @@ public class GarageOwnerController {
                 garage.getGarageName()
         );
 
-        ra.addFlashAttribute("success", "Request #" + id + " accepted!");
+        ra.addFlashAttribute("success", "Request #" + id + " accepted! Now send the driver a quote.");
         return "redirect:/garage-owner/requests";
     }
 
+    // ── STEP 2: Garage declines request ─────────────────────────────────
     @PostMapping("/requests/{id}/decline")
     public String declineRequest(@PathVariable Long id,
                                  @AuthenticationPrincipal UserDetails userDetails,
@@ -98,31 +96,35 @@ public class GarageOwnerController {
             return "redirect:/dashboard";
         }
         requestService.declineRequest(id, garages.get(0).getId());
-        ra.addFlashAttribute("error", "Request #" + id + " declined. User has been notified.");
+        ra.addFlashAttribute("error", "Request #" + id + " declined. Driver has been notified.");
         return "redirect:/garage-owner/requests";
     }
 
-    @PostMapping("/requests/{id}/in-progress")
-    public String markInProgress(@PathVariable Long id, RedirectAttributes ra) {
-        requestService.updateStatus(id, RequestStatus.IN_PROGRESS);
-        ra.addFlashAttribute("success", "Request marked as In Progress.");
+    // ── STEP 3: Garage sends quote to driver (before dispatching technician) ──
+    @PostMapping("/requests/{id}/send-quote")
+    public String sendQuote(@PathVariable Long id,
+                            @RequestParam BigDecimal quoteAmount,
+                            @RequestParam(required = false) String quoteNotes,
+                            RedirectAttributes ra) {
+        requestService.sendQuote(id, quoteAmount, quoteNotes);
+        ra.addFlashAttribute("success", "Quote of Rs. " + quoteAmount + " sent to driver. Waiting for approval.");
         return "redirect:/garage-owner/requests";
     }
 
-    @PostMapping("/requests/{id}/set-final-amount")
-    public String setFinalAmount(@PathVariable Long id,
-                                 @RequestParam BigDecimal finalAmount,
-                                 RedirectAttributes ra) {
-        requestService.setFinalAmount(id, finalAmount);
-        ra.addFlashAttribute("success", "Final amount set. Customer has been notified.");
+    // ── STEP 4: Driver approves quote → Garage dispatches technician ─────
+    @PostMapping("/requests/{id}/start-work")
+    public String startWork(@PathVariable Long id, RedirectAttributes ra) {
+        requestService.startWork(id);
+        ra.addFlashAttribute("success", "Technician dispatched! Request is now In Progress.");
         return "redirect:/garage-owner/requests";
     }
 
+    // ── STEP 5: Garage marks job complete ───────────────────────────────
     @PostMapping("/requests/{id}/complete")
     public String markComplete(@PathVariable Long id, RedirectAttributes ra) {
-        BreakdownRequest req = requestService.updateStatus(id, RequestStatus.COMPLETED);
+        BreakdownRequest req = requestService.completeJob(id);
         emailService.sendRequestCompletedEmail(req.getUser().getEmail(), req.getUser().getFullName());
-        ra.addFlashAttribute("success", "Request marked as Completed!");
+        ra.addFlashAttribute("success", "Request #" + id + " marked as Completed!");
         return "redirect:/garage-owner/requests";
     }
 
