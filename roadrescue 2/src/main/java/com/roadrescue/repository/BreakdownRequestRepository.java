@@ -17,14 +17,18 @@ public interface BreakdownRequestRepository extends JpaRepository<BreakdownReque
 
     Page<BreakdownRequest> findByGarageIdAndDeletedFalse(Long garageId, Pageable pageable);
 
-    @Query("SELECT DISTINCT r FROM BreakdownRequest r WHERE r.deleted = false " +
+    @Query("SELECT r FROM BreakdownRequest r WHERE r.deleted = false " +
             "AND (:status IS NULL OR r.status = :status)")
     Page<BreakdownRequest> findWithFilters(
             @Param("status") RequestStatus status,
             @Param("serviceType") ServiceType serviceType,
             Pageable pageable);
 
-    long countByDeletedFalse();
+    // Pending requests not yet assigned to any garage
+    @Query("SELECT r FROM BreakdownRequest r WHERE r.deleted = false " +
+            "AND r.status = 'PENDING' AND r.garage IS NULL")
+    Page<BreakdownRequest> findUnassignedPending(Pageable pageable);
 
     long countByStatusAndDeletedFalse(RequestStatus status);
+    long countByDeletedFalse();
 }
