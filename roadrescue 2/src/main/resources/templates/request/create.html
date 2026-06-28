@@ -64,7 +64,6 @@
                                     <div class="col-6" th:each="svc : ${serviceTypes}">
                                         <div class="service-card text-center p-2"
                                              th:data-value="${svc.name()}"
-                                             th:data-cost="${svc.minimumCharge}"
                                              th:data-name="${svc.displayName}"
                                              onclick="toggleService(this)">
                                             <div class="service-icon">
@@ -82,29 +81,15 @@
                                             </div>
                                             <small class="d-block fw-semibold mt-1"
                                                    th:text="${svc.displayName}">Service</small>
-                                            <span class="badge bg-danger mt-1"
-                                                  th:text="'Rs. ' + ${svc.minimumCharge}">Rs.0</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Total minimum cost summary -->
-                                <div id="costSummary" class="mt-3 d-none">
-                                    <div class="alert alert-warning mb-2">
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <span class="fw-semibold"><i class="fas fa-list me-1"></i>Selected Services:</span>
-                                        </div>
-                                        <div id="selectedServicesList" class="small mb-2"></div>
-                                        <div class="d-flex justify-content-between align-items-center border-top pt-2">
-                                            <span class="fw-bold">Minimum Total:</span>
-                                            <span class="fw-bold text-danger fs-5" id="totalCostBox">Rs. 0</span>
-                                        </div>
-                                    </div>
-                                    <div class="alert alert-info small mb-0">
-                                        <i class="fas fa-exclamation-triangle me-1 text-warning"></i>
-                                        <strong>Note:</strong> This is the minimum estimate. The actual amount
-                                        may change after the technician inspects your vehicle. The garage will
-                                        confirm the final price before completing the job.
+                                <!-- Selected services list (NO prices shown) -->
+                                <div id="selectedSummary" class="mt-3 d-none">
+                                    <div class="alert alert-warning mb-0">
+                                        <span class="fw-semibold"><i class="fas fa-list me-1"></i>Selected Services:</span>
+                                        <div id="selectedServicesList" class="small mt-1"></div>
                                     </div>
                                 </div>
                             </div>
@@ -172,7 +157,7 @@
                                 </div>
                                 <small class="text-muted mt-2 d-block">
                                     <i class="fas fa-info-circle me-1"></i>
-                                    You can pay the final amount using this method after the job is done.
+                                    You can pay using this method after the job is done.
                                 </small>
                             </div>
                         </div>
@@ -222,7 +207,7 @@
                             </div>
                         </div>
 
-                        <!-- Final Summary before Submit -->
+                        <!-- Request Summary (NO minimum cost shown) -->
                         <div class="card border-0 shadow-sm mb-4" id="summaryCard" style="display:none">
                             <div class="card-header bg-white fw-bold">
                                 <i class="fas fa-receipt text-danger me-2"></i>Request Summary
@@ -234,22 +219,18 @@
                                         <td id="summaryServices">—</td>
                                     </tr>
                                     <tr>
-                                        <td class="text-muted fw-semibold">Minimum Cost</td>
-                                        <td class="text-danger fw-bold" id="summaryMin">—</td>
-                                    </tr>
-                                    <tr>
                                         <td class="text-muted fw-semibold">Payment</td>
-                                        <td id="summaryPayment">—</td>
+                                        <td id="summaryPayment">Not selected</td>
                                     </tr>
                                     <tr>
                                         <td class="text-muted fw-semibold">Garage</td>
                                         <td id="summaryGarage">Broadcast to all nearby</td>
                                     </tr>
                                 </table>
-                                <div class="alert alert-warning small mt-2 mb-0">
-                                    <i class="fas fa-exclamation-triangle me-1"></i>
-                                    Final amount will be confirmed by the technician after inspection.
-                                    Payment is collected after the job is completed.
+                                <div class="alert alert-info small mt-2 mb-0">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    The garage will send you a payment quote after accepting your request.
+                                    You can approve or reject the quote before any work begins.
                                 </div>
                             </div>
                         </div>
@@ -274,10 +255,9 @@
 
 <script>
     let map, marker;
-    let selectedServices = {}; // { serviceName: cost }
+    let selectedServices = {}; // { serviceName: displayName }
     let selectedPaymentMethod = '';
 
-    // Init Leaflet map
     map = L.map('map').setView([6.9271, 79.8612], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
@@ -350,7 +330,6 @@
 
     function toggleService(card) {
         var value = card.dataset.value;
-        var cost = parseInt(card.dataset.cost);
         var name = card.dataset.name;
 
         if (card.classList.contains('selected')) {
@@ -358,35 +337,27 @@
             delete selectedServices[value];
         } else {
             card.classList.add('selected');
-            selectedServices[value] = { cost: cost, name: name };
+            selectedServices[value] = name;
         }
-        updateCostSummary();
+        updateSelectedList();
         updateSummary();
     }
 
-    function updateCostSummary() {
+    function updateSelectedList() {
         var keys = Object.keys(selectedServices);
-        var costSummary = document.getElementById('costSummary');
+        var summary = document.getElementById('selectedSummary');
         var list = document.getElementById('selectedServicesList');
-        var totalBox = document.getElementById('totalCostBox');
 
         if (keys.length === 0) {
-            costSummary.classList.add('d-none');
+            summary.classList.add('d-none');
             return;
         }
-
-        costSummary.classList.remove('d-none');
-        var total = 0;
+        summary.classList.remove('d-none');
         var html = '';
         keys.forEach(function(k) {
-            total += selectedServices[k].cost;
-            html += '<div class="d-flex justify-content-between">' +
-                '<span><i class="fas fa-check-circle text-success me-1"></i>' + selectedServices[k].name + '</span>' +
-                '<span class="text-danger">Rs. ' + selectedServices[k].cost.toLocaleString() + '</span>' +
-                '</div>';
+            html += '<div><i class="fas fa-check-circle text-success me-1"></i>' + selectedServices[k] + '</div>';
         });
         list.innerHTML = html;
-        totalBox.textContent = 'Rs. ' + total.toLocaleString();
     }
 
     function selectPayment(card) {
@@ -404,19 +375,14 @@
             return;
         }
         document.getElementById('summaryCard').style.display = 'block';
-
-        var names = keys.map(function(k) { return selectedServices[k].name; }).join(', ');
-        var total = keys.reduce(function(sum, k) { return sum + selectedServices[k].cost; }, 0);
-
+        var names = keys.map(function(k) { return selectedServices[k]; }).join(', ');
         document.getElementById('summaryServices').textContent = names;
-        document.getElementById('summaryMin').textContent = 'Rs. ' + total.toLocaleString();
         document.getElementById('summaryPayment').textContent = selectedPaymentMethod || 'Not selected';
     }
 
     function submitForm() {
         var valid = true;
 
-        // Validate service selection
         var keys = Object.keys(selectedServices);
         if (keys.length === 0) {
             document.getElementById('serviceError').classList.remove('d-none');
@@ -425,7 +391,6 @@
             document.getElementById('serviceError').classList.add('d-none');
         }
 
-        // Validate payment method
         if (!selectedPaymentMethod) {
             document.getElementById('paymentMethodError').classList.remove('d-none');
             valid = false;
@@ -433,7 +398,6 @@
             document.getElementById('paymentMethodError').classList.add('d-none');
         }
 
-        // Validate location
         if (!document.getElementById('latInput').value) {
             alert('Please set your location on the map.');
             valid = false;
@@ -441,7 +405,6 @@
 
         if (!valid) return;
 
-        // Build serviceTypes hidden inputs
         var container = document.getElementById('serviceTypeInputs');
         container.innerHTML = '';
         keys.forEach(function(k) {
@@ -455,7 +418,6 @@
         document.getElementById('reqForm').submit();
     }
 
-    // Auto-get location on load
     getLocation();
 </script>
 </body>
