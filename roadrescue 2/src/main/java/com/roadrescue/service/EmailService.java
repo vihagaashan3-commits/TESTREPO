@@ -77,7 +77,7 @@ public class EmailService {
 
             helper.setFrom("nadeeshakalhara685@gmail.com");
             helper.setTo(to);
-            helper.setSubject("🔐 RoadRescue Verification Code");
+            helper.setSubject("RoadRescue Verification Code");
 
             String html = """
                     <!DOCTYPE html>
@@ -96,7 +96,7 @@ public class EmailService {
                             <tr>
                               <td style="background:#dc3545;padding:25px;text-align:center;">
                                 <h1 style="color:white;margin:0;">
-                                    🚗 RoadRescue
+                                    RoadRescue
                                 </h1>
                               </td>
                             </tr>
@@ -132,7 +132,7 @@ public class EmailService {
                                 </div>
 
                                 <p style="color:#777;font-size:15px;">
-                                    ⏰ This code will expire in
+                                     This code will expire in
                                     <strong>5 minutes</strong>.
                                 </p>
 
