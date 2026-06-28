@@ -83,8 +83,12 @@ public class BreakdownRequestController {
         BreakdownRequest request = requestService.findById(id);
         User user = userService.findByEmail(userDetails.getUsername());
 
+        // FIXED: use serviceTypes (List) instead of serviceType (null single field)
+        ServiceType firstService = (request.getServiceTypes() != null && !request.getServiceTypes().isEmpty())
+                ? request.getServiceTypes().get(0) : null;
+
         List<Garage> nearbyGarages = requestService.findNearbyGarages(
-                request.getLatitude(), request.getLongitude(), request.getServiceType());
+                request.getLatitude(), request.getLongitude(), firstService);
 
         Payment payment = paymentService.findByRequestId(id);
 
@@ -97,7 +101,6 @@ public class BreakdownRequestController {
     }
 
     // ── STEP 4a: DRIVER approves the garage's quote ───────────────────────
-    // Technician will be dispatched. Amount is now locked.
     @PostMapping("/{id}/approve-quote")
     public String approveQuote(@PathVariable Long id,
                                @AuthenticationPrincipal UserDetails userDetails,
@@ -113,7 +116,6 @@ public class BreakdownRequestController {
     }
 
     // ── STEP 4b: DRIVER rejects the garage's quote ────────────────────────
-    // Request is cancelled. Driver can submit a new request to another garage.
     @PostMapping("/{id}/reject-quote")
     public String rejectQuote(@PathVariable Long id,
                               @AuthenticationPrincipal UserDetails userDetails,
@@ -129,7 +131,6 @@ public class BreakdownRequestController {
     }
 
     // ── DRIVER: Cancel request ────────────────────────────────────────────
-    // Only allowed before QUOTE_APPROVED
     @PostMapping("/{id}/cancel")
     public String cancelRequest(@PathVariable Long id,
                                 @AuthenticationPrincipal UserDetails userDetails,
