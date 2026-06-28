@@ -45,8 +45,17 @@
                     <tr th:each="req : ${requests}">
                         <td class="fw-semibold text-danger">#<span th:text="${req.id}"></span></td>
                         <td>
-                            <span class="badge bg-secondary"
-                                  th:text="${#strings.replace(req.serviceType.name(), '_', ' ')}"></span>
+                            <!-- Multiple service types -->
+                            <span th:if="${req.serviceTypes != null and !req.serviceTypes.isEmpty()}">
+                                <span th:each="svc : ${req.serviceTypes}"
+                                      class="badge bg-secondary me-1"
+                                      th:text="${#strings.replace(svc.name(), '_', ' ')}"></span>
+                            </span>
+                            <!-- Fallback for old single-service requests -->
+                            <span th:if="${req.serviceTypes == null or req.serviceTypes.isEmpty()}">
+                                <span class="badge bg-secondary"
+                                      th:text="${req.serviceType != null ? #strings.replace(req.serviceType.name(), '_', ' ') : '—'}"></span>
+                            </span>
                         </td>
                         <td>
                             <small th:text="${req.locationAddress != null ? req.locationAddress : 'GPS Location'}">—</small>

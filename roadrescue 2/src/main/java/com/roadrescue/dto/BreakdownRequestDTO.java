@@ -4,11 +4,13 @@ import com.roadrescue.enums.ServiceType;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class BreakdownRequestDTO {
 
-    @NotNull(message = "Service type is required")
-    private ServiceType serviceType;
+    // Multiple service types
+    private List<ServiceType> serviceTypes;
 
     @NotBlank(message = "Description is required")
     @Size(max = 500)
@@ -27,4 +29,7 @@ public class BreakdownRequestDTO {
     private Long vehicleId;
 
     private Long garageId;
+
+    // Payment method chosen by driver upfront
+    private String preferredPaymentMethod;
 }

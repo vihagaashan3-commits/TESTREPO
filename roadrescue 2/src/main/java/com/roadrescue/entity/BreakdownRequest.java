@@ -21,10 +21,12 @@ public class BreakdownRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "Service type is required")
+    // Multiple service types stored as comma-separated string
+    @ElementCollection
+    @CollectionTable(name = "request_service_types", joinColumns = @JoinColumn(name = "request_id"))
     @Enumerated(EnumType.STRING)
-    @Column(name = "service_type", nullable = false)
-    private ServiceType serviceType;
+    @Column(name = "service_type")
+    private List<ServiceType> serviceTypes;
 
     @NotBlank(message = "Description is required")
     @Size(max = 500)
@@ -51,9 +53,17 @@ public class BreakdownRequest {
     @Column(name = "notes")
     private String notes;
 
-    // Final amount set by garage after job is done
+    // Minimum total cost (sum of all selected service minimums)
+    @Column(name = "minimum_amount", precision = 10, scale = 2)
+    private BigDecimal minimumAmount;
+
+    // Final amount set by garage after job
     @Column(name = "final_amount", precision = 10, scale = 2)
     private BigDecimal finalAmount;
+
+    // Payment method preferred by driver
+    @Column(name = "preferred_payment_method")
+    private String preferredPaymentMethod;
 
     @Column(name = "is_deleted")
     private boolean deleted = false;
@@ -90,4 +100,10 @@ public class BreakdownRequest {
 
     @OneToMany(mappedBy = "breakdownRequest", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Notification> notifications;
+
+    // Helper: get first service type for compatibility
+    public ServiceType getServiceType() {
+        if (serviceTypes != null && !serviceTypes.isEmpty()) return serviceTypes.get(0);
+        return null;
+    }
 }
