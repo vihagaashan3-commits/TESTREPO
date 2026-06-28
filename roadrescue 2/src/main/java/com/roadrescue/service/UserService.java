@@ -101,16 +101,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    // ── Change password ───────────────────────────────────────────
-    @Transactional
-    public void changePassword(Long id, String oldPassword, String newPassword) {
-        User user = findById(id);
-        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            throw new IllegalArgumentException("Current password is incorrect");
-        }
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
-    }
+
 
     // ── Soft delete ───────────────────────────────────────────────
     @Transactional
