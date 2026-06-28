@@ -21,7 +21,7 @@ public class BreakdownRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Multiple service types stored as comma-separated string
+    // Multiple service types
     @ElementCollection
     @CollectionTable(name = "request_service_types", joinColumns = @JoinColumn(name = "request_id"))
     @Enumerated(EnumType.STRING)
@@ -48,16 +48,27 @@ public class BreakdownRequest {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private RequestStatus status = RequestStatus.PENDING;
 
     @Column(name = "notes")
     private String notes;
 
-    // Minimum total cost (sum of all selected service minimums)
-    @Column(name = "minimum_amount", precision = 10, scale = 2)
-    private BigDecimal minimumAmount;
+    // ── Quote fields (set by garage after accepting, before dispatching) ──
+    // Flow: ACCEPTED → garage sends quote → QUOTED → driver approves → QUOTE_APPROVED → technician dispatched
+    @Column(name = "quote_amount", precision = 10, scale = 2)
+    private BigDecimal quoteAmount;
 
-    // Final amount set by garage after job
+    @Column(name = "quote_notes", length = 500)
+    private String quoteNotes;
+
+    @Column(name = "quoted_at")
+    private LocalDateTime quotedAt;
+
+    @Column(name = "quote_approved_at")
+    private LocalDateTime quoteApprovedAt;
+
+    // Final amount (equals quote amount once job is complete — amount is locked after approval)
     @Column(name = "final_amount", precision = 10, scale = 2)
     private BigDecimal finalAmount;
 
@@ -66,6 +77,7 @@ public class BreakdownRequest {
     private String preferredPaymentMethod;
 
     @Column(name = "is_deleted")
+    @Builder.Default
     private boolean deleted = false;
 
     @CreationTimestamp
@@ -79,7 +91,7 @@ public class BreakdownRequest {
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
-    // Relationships
+    // ── Relationships ────────────────────────────────────────────────────
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
