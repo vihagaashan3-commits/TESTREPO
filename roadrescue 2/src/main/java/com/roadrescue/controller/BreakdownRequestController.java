@@ -17,7 +17,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Controller
@@ -93,12 +92,45 @@ public class BreakdownRequestController {
         return "request/detail";
     }
 
+    // ── DRIVER: Approve quote sent by garage ─────────────────────────────
+    @PostMapping("/{id}/approve-quote")
+    public String approveQuote(@PathVariable Long id,
+                               @AuthenticationPrincipal UserDetails userDetails,
+                               RedirectAttributes ra) {
+        try {
+            requestService.approveQuote(id, userDetails.getUsername());
+            ra.addFlashAttribute("success", "Quote approved! The technician will be dispatched shortly.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/requests/" + id;
+    }
+
+    // ── DRIVER: Reject quote — can then submit a new request ─────────────
+    @PostMapping("/{id}/reject-quote")
+    public String rejectQuote(@PathVariable Long id,
+                              @AuthenticationPrincipal UserDetails userDetails,
+                              RedirectAttributes ra) {
+        try {
+            requestService.rejectQuote(id, userDetails.getUsername());
+            ra.addFlashAttribute("info", "Quote rejected. You can submit a new request to another garage.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/requests";
+    }
+
+    // ── DRIVER: Cancel request (only allowed before QUOTE_APPROVED) ───────
     @PostMapping("/{id}/cancel")
     public String cancelRequest(@PathVariable Long id,
                                 @AuthenticationPrincipal UserDetails userDetails,
                                 RedirectAttributes redirectAttributes) {
-        requestService.cancelRequest(id, userDetails.getUsername());
-        redirectAttributes.addFlashAttribute("success", "Request cancelled.");
+        try {
+            requestService.cancelRequest(id, userDetails.getUsername());
+            redirectAttributes.addFlashAttribute("success", "Request cancelled.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
         return "redirect:/requests";
     }
 
