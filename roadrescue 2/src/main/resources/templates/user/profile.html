@@ -727,30 +727,7 @@
             </div>
 
             <!-- 3. Profile Picture Card -->
-            <div class="profile-card">
-                <div class="profile-card-header">
-                    <div class="header-left">
-                        <div class="card-icon purple"><i class="fas fa-image"></i></div>
-                        <h6>Profile Picture</h6>
-                    </div>
-                </div>
-                <div class="edit-section">
-                    <p class="text-muted small mb-3">Upload a photo to personalize your profile. Max 5 MB, JPG/PNG.</p>
-                    <div class="d-flex gap-2 flex-wrap">
-                        <button class="btn-rr" onclick="openPicModal()">
-                            <i class="fas fa-upload"></i>Upload Photo
-                        </button>
-                        <form th:action="@{/profile/remove-picture}" method="post" style="display:inline"
-                              th:if="${user.profileImage != null and !#strings.isEmpty(user.profileImage)}">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                            <button type="submit" class="btn-rr-ghost"
-                                    onclick="return confirm('Remove your profile picture?')">
-                                <i class="fas fa-trash-alt"></i>Remove
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+
 
         </div>
 
@@ -873,13 +850,7 @@
                             </div>
                         </div>
 
-                        <!-- Add vehicle shortcut -->
-                        <div class="col-sm-6">
-                            <a th:href="@{/vehicles/new}" class="add-vehicle-card">
-                                <i class="fas fa-plus-circle fa-2x mb-2"></i>
-                                <span style="font-size:0.8rem;font-weight:600;">Add Vehicle</span>
-                            </a>
-                        </div>
+
                     </div>
                 </div>
             </div>
