@@ -120,12 +120,20 @@ public class GarageController {
                                RedirectAttributes redirectAttributes,
                                Model model) {
         if (result.hasErrors()) {
+            model.addAttribute("garageId", id);
             model.addAttribute("serviceTypes", ServiceType.values());
             return "garage/edit";
         }
-        garageService.updateGarage(id, dto, userDetails.getUsername());
-        redirectAttributes.addFlashAttribute("success", "Garage updated successfully!");
-        return "redirect:/garages/" + id;
+        try {
+            garageService.updateGarage(id, dto, userDetails.getUsername());
+            redirectAttributes.addFlashAttribute("success", "Garage updated successfully!");
+            return "redirect:/garages/" + id;
+        } catch (Exception e) {
+            model.addAttribute("garageId", id);
+            model.addAttribute("serviceTypes", ServiceType.values());
+            model.addAttribute("error", e.getMessage());
+            return "garage/edit";
+        }
     }
 
     @PostMapping("/{id}/delete")
