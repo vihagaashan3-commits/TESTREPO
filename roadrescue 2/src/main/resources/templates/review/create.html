@@ -15,3 +15,60 @@
 </head>
 <body class="bg-light">
 <th:block th:replace="~{layout :: navbar}"></th:block>
+
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center mb-4 gap-2">
+                <!-- Back button: goes to garage page if no requestId, else to request page -->
+                <a th:href="${requestId != null} ? @{/requests/{id}(id=${requestId})} : @{/garages/{id}(id=${garageId})}"
+                   class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h5 class="mb-0 fw-bold"><i class="fas fa-star text-warning me-2"></i>Write a Review</h5>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div th:if="${error}" class="alert alert-danger mb-3" th:text="${error}"></div>
+
+                    <!-- Dynamic form action depending on which flow we came from -->
+                    <form th:action="${requestId != null} ? @{/reviews/create} : @{/reviews/garage/{id}(id=${garageId})}"
+                          method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                        <!-- Pass requestId through if present -->
+                        <input th:if="${requestId != null}" type="hidden" name="requestId" th:value="${requestId}"/>
+                        <input th:if="${requestId != null}" type="hidden" name="garageId" th:value="${garageId}"/>
+
+                        <!-- Star Rating -->
+                        <div class="mb-4 text-center">
+                            <label class="form-label fw-semibold d-block">Your Rating *</label>
+                            <div id="starRow">
+                                <button type="button" class="star-btn" data-val="1">★</button>
+                                <button type="button" class="star-btn" data-val="2">★</button>
+                                <button type="button" class="star-btn" data-val="3">★</button>
+                                <button type="button" class="star-btn" data-val="4">★</button>
+                                <button type="button" class="star-btn" data-val="5">★</button>
+                            </div>
+                            <input type="hidden" name="rating" id="ratingInput" required>
+                            <div id="ratingLabel" class="small text-muted mt-1">Click to rate</div>
+                        </div>
+
+                        <!-- Comment -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Your Comment *</label>
+                            <textarea name="comment" rows="4" class="form-control"
+                                      placeholder="Share your experience with this garage..."
+                                      minlength="5" maxlength="500" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-warning w-100 fw-bold">
+                            <i class="fas fa-paper-plane me-2"></i>Submit Review
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
