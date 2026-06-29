@@ -128,9 +128,21 @@ public class GarageOwnerController {
 
     @PostMapping("/requests/{id}/complete")
     public String markComplete(@PathVariable Long id, RedirectAttributes ra) {
+
         BreakdownRequest req = requestService.completeJob(id);
-        emailService.sendRequestCompletedEmail(req.getUser().getEmail(), req.getUser().getFullName());
-        ra.addFlashAttribute("success", "Request #" + id + " marked as Completed! Driver can now rate your service.");
+
+        emailService.sendRequestCompletedEmail(
+                req.getUser().getEmail(),
+                req.getUser().getFullName(),
+                req.getGarage().getId(),
+                req.getId()
+        );
+
+        ra.addFlashAttribute(
+                "success",
+                "Request #" + id + " marked as Completed! Driver can now rate your service."
+        );
+
         return "redirect:/garage-owner/requests";
     }
 

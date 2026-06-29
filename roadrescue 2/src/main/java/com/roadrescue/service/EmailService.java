@@ -203,19 +203,138 @@ public class EmailService {
     }
 
     @Async
-    public void sendRequestCompletedEmail(String to, String userName) {
+    public void sendRequestCompletedEmail(
+            String to,
+            String userName,
+            Long garageId,
+            Long requestId) {
+
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("nadeeshakalhara685@gmail.com");
-            message.setTo(to);
-            message.setSubject("Your Breakdown Request Has Been Completed");
-            message.setText("Dear " + userName + ",\n\n" +
-                    "Your breakdown request has been completed. " +
-                    "We hope you're back on the road!\n\n" +
-                    "Please take a moment to rate your experience.\n\nThe RoadRescue Team");
-            mailSender.send(message);
-        }catch (Exception e) {
-            log.error("Failed to send OTP email to {}", to, e);
+            String reviewLink = "http://localhost:8080/reviews/new?garageId="
+                    + garageId + "&requestId=" + requestId;
+
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            helper.setFrom("nadeeshakalhara685@gmail.com", "RoadRescue");
+            helper.setTo(to);
+            helper.setSubject("Your RoadRescue Service Has Been Completed");
+
+            String html = """
+            <!DOCTYPE html>
+            <html>
+            <body style="margin:0;padding:0;background:#f4f6f9;font-family:Arial,sans-serif;">
+
+            <table width="100%%" cellpadding="0" cellspacing="0" style="padding:40px 0;">
+              <tr>
+                <td align="center">
+
+                  <table width="650" cellpadding="0" cellspacing="0"
+                         style="background:#ffffff;border-radius:12px;
+                         box-shadow:0 4px 12px rgba(0,0,0,.1);overflow:hidden;">
+
+                    <tr>
+                      <td style="background:#0d6efd;color:white;
+                      padding:25px;text-align:center;">
+
+                        <h1 style="margin:0;"> RoadRescue</h1>
+                        <p style="margin-top:8px;">
+                            Roadside Assistance You Can Trust
+                        </p>
+
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td style="padding:35px;">
+
+                        <h2>Hello %s,</h2>
+
+                        <p>
+                        We are pleased to inform you that your roadside
+                        assistance request has been <b>successfully completed.</b>
+                        </p>
+
+                        <p>
+                        Thank you for choosing <b>RoadRescue</b>.
+                        We hope our service helped you get back on the road
+                        safely and quickly.
+                        </p>
+
+                        <p>
+                        Your opinion is important to us.
+                        Please take a moment to rate your experience.
+                        </p>
+
+                        <p style="text-align:center;margin:40px 0;">
+                          <a href="%s"
+                             style="
+                             background:#0d6efd;
+                             color:white;
+                             text-decoration:none;
+                             padding:16px 34px;
+                             border-radius:8px;
+                             font-size:16px;
+                             font-weight:bold;">
+                             ⭐ Leave a Review
+                          </a>
+                        </p>
+
+                        <hr>
+
+                        <p style="color:#666;">
+                        Your feedback helps us improve our services and
+                        continue providing reliable roadside assistance.
+                        </p>
+
+                        <p>
+                        Thank you once again for choosing RoadRescue.
+                        </p>
+
+                        <br>
+
+                        <p>
+                        Best Regards,<br>
+                        <b>RoadRescue Support Team</b><br>
+                        <span style="color:#777;">
+                        Keeping You Moving, Anytime, Anywhere.
+                        </span>
+                        </p>
+
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td style="
+                      background:#f8f9fa;
+                      padding:18px;
+                      text-align:center;
+                      color:#888;
+                      font-size:13px;">
+
+                      © 2026 RoadRescue. All Rights Reserved.
+
+                      </td>
+                    </tr>
+
+                  </table>
+
+                </td>
+              </tr>
+            </table>
+
+            </body>
+            </html>
+            """.formatted(userName, reviewLink);
+
+            helper.setText(html, true);
+
+            mailSender.send(mimeMessage);
+
+            log.info("Request completion email sent successfully to {}", to);
+
+        } catch (Exception e) {
+            log.error("Failed to send request completion email to {}", to, e);
         }
     }
     @Async
