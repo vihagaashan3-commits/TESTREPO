@@ -95,7 +95,8 @@
                 </a>
                 <!-- On the garage detail page, show Edit button only to the owner -->
                 <a th:if="${#authentication.name == garage.owner.email}"
-                    Edit Garage
+                   th:href="@{/garages/{id}/edit(id=${garage.id})}"
+                   Edit Garage
                 </a>
                 <form th:action="@{/garages/{id}/toggle-availability(id=${garage.id})}"
                       method="post" sec:authorize="hasRole('GARAGE_OWNER')">
