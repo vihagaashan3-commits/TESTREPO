@@ -229,20 +229,7 @@ public class EmailService {
                         <p>
                           Please keep your mobile phone available and stay at a safe location.
                         </p>
-            
-                        <p style="text-align:center;margin:35px 0;">
-                          <a href="#"
-                             style="
-                             background:#dc3545;
-                             color:white;
-                             text-decoration:none;
-                             padding:14px 30px;
-                             border-radius:8px;
-                             font-weight:bold;">
-                             View Request
-                          </a>
-                        </p>
-            
+       
                         <p>
                           Thank you for choosing <b>RoadRescue</b>.
                         </p>
