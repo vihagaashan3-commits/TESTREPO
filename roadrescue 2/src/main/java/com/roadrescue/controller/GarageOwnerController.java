@@ -50,7 +50,11 @@ public class GarageOwnerController {
 
         if (!myGarages.isEmpty()) {
             Long garageId = myGarages.get(0).getId();
+
+            // Requests assigned to this garage
             Page<BreakdownRequest> myRequests = requestService.getRequestsByGarage(garageId, page, size);
+
+            // Unassigned pending requests nearby (broadcast requests)
             Page<BreakdownRequest> allPending = requestService.getAllRequests(page, 50, RequestStatus.PENDING, null);
 
             model.addAttribute("requests", myRequests);
@@ -62,7 +66,7 @@ public class GarageOwnerController {
         return "garage-owner/requests";
     }
 
-    // ── STEP 1: Garage accepts incoming request ──────────────────────────
+    // ── STEP 2: Garage accepts incoming request ───────────────────────────
     @PostMapping("/requests/{id}/accept")
     public String acceptRequest(@PathVariable Long id,
                                 @AuthenticationPrincipal UserDetails userDetails,
@@ -85,7 +89,7 @@ public class GarageOwnerController {
         return "redirect:/garage-owner/requests";
     }
 
-    // ── STEP 2: Garage declines request ─────────────────────────────────
+    // ── STEP 2b: Garage declines request ─────────────────────────────────
     @PostMapping("/requests/{id}/decline")
     public String declineRequest(@PathVariable Long id,
                                  @AuthenticationPrincipal UserDetails userDetails,
@@ -96,22 +100,25 @@ public class GarageOwnerController {
             return "redirect:/dashboard";
         }
         requestService.declineRequest(id, garages.get(0).getId());
-        ra.addFlashAttribute("error", "Request #" + id + " declined. Driver has been notified.");
+        ra.addFlashAttribute("info", "Request #" + id + " declined. Driver has been notified.");
         return "redirect:/garage-owner/requests";
     }
 
-    // ── STEP 3: Garage sends quote to driver (before dispatching technician) ──
+    // ── STEP 3: Garage sends payment quote to driver ──────────────────────
+    // Quote is sent BEFORE technician is dispatched.
+    // Message to driver warns: amount is locked once approved.
     @PostMapping("/requests/{id}/send-quote")
     public String sendQuote(@PathVariable Long id,
                             @RequestParam BigDecimal quoteAmount,
                             @RequestParam(required = false) String quoteNotes,
                             RedirectAttributes ra) {
         requestService.sendQuote(id, quoteAmount, quoteNotes);
-        ra.addFlashAttribute("success", "Quote of Rs. " + quoteAmount + " sent to driver. Waiting for approval.");
+        ra.addFlashAttribute("success",
+                "Quote of Rs. " + quoteAmount + " sent to driver. Waiting for approval.");
         return "redirect:/garage-owner/requests";
     }
 
-    // ── STEP 4: Driver approves quote → Garage dispatches technician ─────
+    // ── STEP 5: Dispatch technician after driver approves quote ───────────
     @PostMapping("/requests/{id}/start-work")
     public String startWork(@PathVariable Long id, RedirectAttributes ra) {
         requestService.startWork(id);
@@ -119,12 +126,13 @@ public class GarageOwnerController {
         return "redirect:/garage-owner/requests";
     }
 
-    // ── STEP 5: Garage marks job complete ───────────────────────────────
+    // ── STEP 6: Mark job complete ─────────────────────────────────────────
+    // Final amount = approved quote amount (locked — no changes allowed)
     @PostMapping("/requests/{id}/complete")
     public String markComplete(@PathVariable Long id, RedirectAttributes ra) {
         BreakdownRequest req = requestService.completeJob(id);
         emailService.sendRequestCompletedEmail(req.getUser().getEmail(), req.getUser().getFullName());
-        ra.addFlashAttribute("success", "Request #" + id + " marked as Completed!");
+        ra.addFlashAttribute("success", "Request #" + id + " marked as Completed! Driver can now rate your service.");
         return "redirect:/garage-owner/requests";
     }
 

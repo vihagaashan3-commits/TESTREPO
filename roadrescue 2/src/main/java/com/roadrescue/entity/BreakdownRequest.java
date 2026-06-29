@@ -21,7 +21,6 @@ public class BreakdownRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Multiple service types
     @ElementCollection
     @CollectionTable(name = "request_service_types", joinColumns = @JoinColumn(name = "request_id"))
     @Enumerated(EnumType.STRING)
@@ -54,8 +53,9 @@ public class BreakdownRequest {
     @Column(name = "notes")
     private String notes;
 
-    // ── Quote fields (set by garage after accepting, before dispatching) ──
-    // Flow: ACCEPTED → garage sends quote → QUOTED → driver approves → QUOTE_APPROVED → technician dispatched
+    // ── Quote fields (set by garage BEFORE dispatching technician) ───────
+    // Flow: PENDING → ACCEPTED → QUOTED → QUOTE_APPROVED → IN_PROGRESS → COMPLETED
+    // minimumAmount is NOT shown to user at request time — only the quote is shown
     @Column(name = "quote_amount", precision = 10, scale = 2)
     private BigDecimal quoteAmount;
 
@@ -68,11 +68,10 @@ public class BreakdownRequest {
     @Column(name = "quote_approved_at")
     private LocalDateTime quoteApprovedAt;
 
-    // Final amount (equals quote amount once job is complete — amount is locked after approval)
+    // Final amount = quoteAmount (locked once driver approves — cannot change)
     @Column(name = "final_amount", precision = 10, scale = 2)
     private BigDecimal finalAmount;
 
-    // Payment method preferred by driver
     @Column(name = "preferred_payment_method")
     private String preferredPaymentMethod;
 
@@ -91,7 +90,7 @@ public class BreakdownRequest {
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
-    // ── Relationships ────────────────────────────────────────────────────
+    // ── Relationships ─────────────────────────────────────────────────────
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -113,7 +112,7 @@ public class BreakdownRequest {
     @OneToMany(mappedBy = "breakdownRequest", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Notification> notifications;
 
-    // Helper: get first service type for compatibility
+    // Helper: get first service type for single-service compatibility
     public ServiceType getServiceType() {
         if (serviceTypes != null && !serviceTypes.isEmpty()) return serviceTypes.get(0);
         return null;

@@ -39,41 +39,62 @@
         </a>
         <h5 class="mb-0 fw-bold">Request #<span th:text="${request.id}"></span></h5>
         <span th:class="${'badge ms-2 ' +
-            (request.status.name() == 'PENDING'     ? 'bg-warning text-dark' :
-             request.status.name() == 'ACCEPTED'    ? 'bg-info' :
-             request.status.name() == 'IN_PROGRESS' ? 'bg-primary' :
-             request.status.name() == 'COMPLETED'   ? 'bg-success' : 'bg-danger')}"
+            (request.status.name() == 'PENDING'        ? 'bg-warning text-dark' :
+             request.status.name() == 'ACCEPTED'       ? 'bg-info text-dark' :
+             request.status.name() == 'QUOTED'         ? 'bg-primary' :
+             request.status.name() == 'QUOTE_APPROVED' ? 'bg-info text-dark' :
+             request.status.name() == 'IN_PROGRESS'    ? 'bg-primary' :
+             request.status.name() == 'COMPLETED'      ? 'bg-success' :
+             request.status.name() == 'PAID'           ? 'bg-success' : 'bg-danger')}"
               th:text="${request.status}">Status</span>
     </div>
 
-    <!-- Status Tracker -->
+    <!-- ── Status Tracker ── -->
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body py-4">
             <div class="status-tracker">
                 <div class="status-step">
                     <div th:class="${'status-dot ' + (request.status.name() != 'CANCELLED' ? 'done' : '')}">
-                        <i class="fas fa-check"></i>
+                        <i class="fas fa-paper-plane"></i>
                     </div>
                     <small class="text-muted">Submitted</small>
                 </div>
                 <div class="status-step">
                     <div th:class="${'status-dot ' +
                         (request.status.name() == 'ACCEPTED' ? 'active' :
-                        (request.status.name() == 'IN_PROGRESS' or request.status.name() == 'COMPLETED' ? 'done' : ''))}">
+                        (request.status.name() == 'QUOTED' or
+                         request.status.name() == 'QUOTE_APPROVED' or
+                         request.status.name() == 'IN_PROGRESS' or
+                         request.status.name() == 'COMPLETED' or
+                         request.status.name() == 'PAID' ? 'done' : ''))}">
                         <i class="fas fa-warehouse"></i>
                     </div>
                     <small class="text-muted">Accepted</small>
                 </div>
                 <div class="status-step">
                     <div th:class="${'status-dot ' +
+                        (request.status.name() == 'QUOTED' ? 'active' :
+                        (request.status.name() == 'QUOTE_APPROVED' or
+                         request.status.name() == 'IN_PROGRESS' or
+                         request.status.name() == 'COMPLETED' or
+                         request.status.name() == 'PAID' ? 'done' : ''))}">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <small class="text-muted">Quote Sent</small>
+                </div>
+                <div class="status-step">
+                    <div th:class="${'status-dot ' +
                         (request.status.name() == 'IN_PROGRESS' ? 'active' :
-                        (request.status.name() == 'COMPLETED' ? 'done' : ''))}">
+                        (request.status.name() == 'COMPLETED' or
+                         request.status.name() == 'PAID' ? 'done' : ''))}">
                         <i class="fas fa-tools"></i>
                     </div>
                     <small class="text-muted">In Progress</small>
                 </div>
                 <div class="status-step">
-                    <div th:class="${'status-dot ' + (request.status.name() == 'COMPLETED' ? 'done' : '')}">
+                    <div th:class="${'status-dot ' +
+                        (request.status.name() == 'COMPLETED' or
+                         request.status.name() == 'PAID' ? 'done' : '')}">
                         <i class="fas fa-check-double"></i>
                     </div>
                     <small class="text-muted">Completed</small>
@@ -83,7 +104,7 @@
     </div>
 
     <div class="row g-4">
-        <!-- Left: Details + Actions -->
+        <!-- ── LEFT COLUMN ── -->
         <div class="col-lg-5">
 
             <!-- Request Info -->
@@ -96,36 +117,10 @@
                         <tr>
                             <td class="text-muted fw-semibold">Services</td>
                             <td>
-                                <!-- Multiple service types -->
-                                <span th:if="${request.serviceTypes != null and !request.serviceTypes.isEmpty()}">
-                                    <span th:each="svc : ${request.serviceTypes}"
-                                          class="badge bg-secondary me-1"
-                                          th:text="${#strings.replace(svc.name(), '_', ' ')}"></span>
-                                </span>
-                                <!-- Fallback for old single-service requests -->
-                                <span th:if="${request.serviceTypes == null or request.serviceTypes.isEmpty()}">
-                                    <span class="badge bg-secondary"
-                                          th:text="${request.serviceType != null ? #strings.replace(request.serviceType.name(), '_', ' ') : '—'}"></span>
-                                </span>
+                                <span th:each="svc : ${request.serviceTypes}"
+                                      class="badge bg-secondary me-1"
+                                      th:text="${#strings.replace(svc.name(), '_', ' ')}"></span>
                             </td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted fw-semibold">Min. Cost</td>
-                            <td class="text-danger fw-bold"
-                                th:text="${request.minimumAmount != null ? 'Rs. ' + request.minimumAmount :
-                                          (request.serviceType != null ? 'Rs. ' + request.serviceType.minimumCharge : '—')}">—</td>
-                        </tr>
-                        <tr th:if="${request.preferredPaymentMethod != null}">
-                            <td class="text-muted fw-semibold">Payment Method</td>
-                            <td>
-                                <span th:text="${request.preferredPaymentMethod}"></span>
-                                <small class="text-muted">(preferred by customer)</small>
-                            </td>
-                        </tr>
-                        <tr th:if="${request.finalAmount != null}">
-                            <td class="text-muted fw-semibold">Final Price</td>
-                            <td class="text-success fw-bold"
-                                th:text="'Rs. ' + ${request.finalAmount}">—</td>
                         </tr>
                         <tr>
                             <td class="text-muted fw-semibold">Description</td>
@@ -139,75 +134,115 @@
                             <td class="text-muted fw-semibold">Location</td>
                             <td th:text="${request.locationAddress != null ? request.locationAddress : 'GPS: ' + request.latitude + ', ' + request.longitude}">—</td>
                         </tr>
-                        <tr>
-                            <td class="text-muted fw-semibold">Submitted</td>
-                            <td th:text="${#temporals.format(request.createdAt, 'dd MMM yyyy, HH:mm')}">—</td>
+                        <tr th:if="${request.preferredPaymentMethod != null}">
+                            <td class="text-muted fw-semibold">Payment</td>
+                            <td th:text="${request.preferredPaymentMethod}">—</td>
                         </tr>
                         <tr th:if="${request.garage != null}">
                             <td class="text-muted fw-semibold">Garage</td>
                             <td>
-                                <a th:href="@{/garages/{id}(id=${request.garage.id})}"
-                                   th:text="${request.garage.garageName}" class="text-danger fw-semibold">—</a>
+                                <span class="text-danger fw-semibold" th:text="${request.garage.garageName}">—</span>
+                                <br><small class="text-muted" th:text="${request.garage.phone}"></small>
                             </td>
                         </tr>
                         <tr>
-                            <td class="text-muted fw-semibold">Customer</td>
-                            <td th:text="${request.user.fullName}">—</td>
+                            <td class="text-muted fw-semibold">Submitted</td>
+                            <td th:text="${#temporals.format(request.createdAt, 'dd MMM yyyy, HH:mm')}">—</td>
                         </tr>
                     </table>
                 </div>
             </div>
 
-            <!-- GARAGE OWNER: Status update buttons -->
+            <!-- ══════════════════════════════════════════════════
+                 DRIVER SECTIONS (no sec:authorize — use th:if only)
+                 Garage owner sections below are separately protected
+                 ══════════════════════════════════════════════════ -->
+
+            <!-- DRIVER: Quote received — approve or reject -->
             <div class="card border-0 shadow-sm mb-4"
-                 sec:authorize="hasRole('GARAGE_OWNER')"
-                 th:if="${request.status.name() != 'COMPLETED' and request.status.name() != 'CANCELLED'}">
-                <div class="card-header bg-white fw-bold">
-                    <i class="fas fa-cog text-warning me-2"></i>Update Status
+                 th:if="${request.status.name() == 'QUOTED'}"
+                 sec:authorize="!hasRole('GARAGE_OWNER')">
+                <div class="card-header bg-warning text-dark fw-bold">
+                    <i class="fas fa-file-invoice-dollar me-2"></i>Payment Quote Received
                 </div>
-                <div class="card-body d-grid gap-2">
-                    <form th:if="${request.status.name() == 'PENDING'}"
-                          th:action="@{/garage-owner/requests/{id}/accept(id=${request.id})}" method="post">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                        <button class="btn btn-success w-100">
-                            <i class="fas fa-check me-2"></i>Accept Request
-                        </button>
-                    </form>
-                    <form th:if="${request.status.name() == 'PENDING'}"
-                          th:action="@{/garage-owner/requests/{id}/decline(id=${request.id})}" method="post"
-                          onsubmit="return confirm('Decline this request? The customer will be notified.')">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                        <button class="btn btn-outline-danger w-100">
-                            <i class="fas fa-times me-2"></i>Decline Request
-                        </button>
-                    </form>
-                    <form th:if="${request.status.name() == 'ACCEPTED'}"
-                          th:action="@{/garage-owner/requests/{id}/in-progress(id=${request.id})}" method="post">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                        <button class="btn btn-primary w-100">
-                            <i class="fas fa-tools me-2"></i>Mark In Progress
-                        </button>
-                    </form>
-                    <!-- Set Final Price button — uses minimumAmount or falls back to 0 -->
-                    <button th:if="${request.status.name() == 'IN_PROGRESS' and request.finalAmount == null}"
-                            class="btn btn-warning w-100"
-                            th:onclick="${'openFinalAmountModal(' + request.id + ',' +
-                                (request.minimumAmount != null ? request.minimumAmount :
-                                 (request.serviceType != null ? request.serviceType.minimumCharge : 0)) + ')'}">
-                        <i class="fas fa-rupee-sign me-2"></i>Set Final Price
-                    </button>
-                    <form th:if="${request.status.name() == 'IN_PROGRESS' and request.finalAmount != null}"
-                          th:action="@{/garage-owner/requests/{id}/complete(id=${request.id})}" method="post">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                        <button class="btn btn-success w-100">
-                            <i class="fas fa-flag-checkered me-2"></i>Mark Completed
-                        </button>
-                    </form>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <div class="fw-bold fs-5 mb-1">
+                            Rs. <span th:text="${request.quoteAmount}"></span>
+                        </div>
+                        <div th:if="${request.quoteNotes != null}" class="small mb-2"
+                             th:text="${request.quoteNotes}"></div>
+                        <div class="alert alert-danger small mb-0 mt-2">
+                            <i class="fas fa-lock me-1"></i>
+                            <strong>This amount is fixed and cannot be changed once you approve.</strong>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <form th:action="@{/requests/{id}/approve-quote(id=${request.id})}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check me-2"></i>Approve Quote — Send Technician
+                            </button>
+                        </form>
+                        <form th:action="@{/requests/{id}/reject-quote(id=${request.id})}" method="post"
+                              onsubmit="return confirm('Reject this quote? Your request will be cancelled and you can submit a new one.')">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit" class="btn btn-outline-danger w-100">
+                                <i class="fas fa-times me-2"></i>Reject Quote
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
-            <!-- USER: Cancel button -->
-            <div th:if="${request.status.name() == 'PENDING'}" sec:authorize="hasRole('USER')">
+            <!-- DRIVER: Quote approved notice -->
+            <div class="card border-0 shadow-sm mb-4"
+                 th:if="${request.status.name() == 'QUOTE_APPROVED'}"
+                 sec:authorize="!hasRole('GARAGE_OWNER')">
+                <div class="card-body">
+                    <div class="alert alert-success mb-0">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Quote Approved!</strong> Locked at Rs. <span th:text="${request.quoteAmount}"></span>.
+                        <br><small>The technician will arrive shortly.</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DRIVER: Job in progress notice -->
+            <div class="card border-0 shadow-sm mb-4"
+                 th:if="${request.status.name() == 'IN_PROGRESS'}"
+                 sec:authorize="!hasRole('GARAGE_OWNER')">
+                <div class="card-body">
+                    <div class="alert alert-primary mb-0">
+                        <i class="fas fa-tools me-2"></i>
+                        <strong>Technician is working on your vehicle.</strong>
+                        <br>Agreed amount: <strong>Rs. <span th:text="${request.quoteAmount}"></span></strong>
+                        <br><small class="text-muted">Amount is locked — no changes allowed.</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DRIVER: Completed — rate garage -->
+            <div class="card border-0 shadow-sm mb-4"
+                 th:if="${request.status.name() == 'COMPLETED' or request.status.name() == 'PAID'}"
+                 sec:authorize="!hasRole('GARAGE_OWNER')">
+                <div class="card-body">
+                    <div class="alert alert-success mb-3">
+                        <i class="fas fa-flag-checkered me-2"></i>
+                        <strong>Job Completed!</strong> Final amount: Rs. <span th:text="${request.finalAmount}"></span>
+                    </div>
+                    <a th:if="${request.garage != null}"
+                       th:href="@{/reviews/new(garageId=${request.garage.id}, requestId=${request.id})}"
+                       class="btn btn-warning w-100">
+                        <i class="fas fa-star me-2"></i>Rate Garage &amp; Technician
+                    </a>
+                </div>
+            </div>
+
+            <!-- DRIVER: Cancel button (only when PENDING or ACCEPTED) -->
+            <div th:if="${request.status.name() == 'PENDING' or request.status.name() == 'ACCEPTED'}"
+                 sec:authorize="!hasRole('GARAGE_OWNER')"
+                 class="mb-4">
                 <form th:action="@{/requests/{id}/cancel(id=${request.id})}" method="post"
                       onsubmit="return confirm('Are you sure you want to cancel this request?')">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
@@ -217,51 +252,102 @@
                 </form>
             </div>
 
-            <!-- ADMIN: View only notice -->
-            <div sec:authorize="hasRole('ADMIN')" class="alert alert-secondary">
-                <i class="fas fa-eye me-2"></i>Admin view — read only
-            </div>
+            <!-- ══════════════════════════════════════════════════
+                 GARAGE OWNER SECTION
+                 ══════════════════════════════════════════════════ -->
+            <div class="card border-0 shadow-sm mb-4"
+                 sec:authorize="hasRole('GARAGE_OWNER')"
+                 th:if="${request.status.name() != 'COMPLETED' and
+                          request.status.name() != 'PAID' and
+                          request.status.name() != 'CANCELLED'}">
+                <div class="card-header bg-white fw-bold">
+                    <i class="fas fa-cog text-warning me-2"></i>Manage Request
+                </div>
+                <div class="card-body d-grid gap-2">
 
-            <!-- ===================== PAYMENT SECTION ===================== -->
+                    <!-- PENDING: Accept or Decline -->
+                    <form th:if="${request.status.name() == 'PENDING'}"
+                          th:action="@{/garage-owner/requests/{id}/accept(id=${request.id})}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-check me-2"></i>Accept Request
+                        </button>
+                    </form>
+                    <form th:if="${request.status.name() == 'PENDING'}"
+                          th:action="@{/garage-owner/requests/{id}/decline(id=${request.id})}" method="post"
+                          onsubmit="return confirm('Decline this request?')">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="btn btn-outline-danger w-100">
+                            <i class="fas fa-times me-2"></i>Decline Request
+                        </button>
+                    </form>
 
-            <!-- Minimum cost notice (ACCEPTED or IN_PROGRESS, no payment yet) -->
-            <div class="card border-0 shadow-sm mb-4 mt-3"
-                 th:if="${payment == null and (request.status.name() == 'ACCEPTED' or request.status.name() == 'IN_PROGRESS')}">
-                <div class="card-body">
-                    <div class="alert alert-warning mb-2">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Minimum Charge:
-                            Rs. <span th:text="${request.minimumAmount != null ? request.minimumAmount :
-                                       (request.serviceType != null ? request.serviceType.minimumCharge : '—')}"></span>
-                        </strong>
-                        <br>
-                        <small class="text-muted">The actual amount may change after the technician inspects your vehicle.</small>
+                    <!-- ACCEPTED: Send Quote -->
+                    <div th:if="${request.status.name() == 'ACCEPTED'}">
+                        <p class="text-muted small mb-2">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Send the driver a payment quote. They must approve before you dispatch a technician.
+                        </p>
+                        <form th:action="@{/garage-owner/requests/{id}/send-quote(id=${request.id})}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <div class="mb-2">
+                                <label class="form-label fw-semibold small">Quote Amount (Rs.)</label>
+                                <input type="number" name="quoteAmount" step="0.01" min="1"
+                                       class="form-control" required placeholder="e.g. 3500.00"/>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label fw-semibold small">Notes (optional)</label>
+                                <textarea name="quoteNotes" class="form-control" rows="2"
+                                          placeholder="e.g. Includes parts and labour"></textarea>
+                            </div>
+                            <div class="alert alert-warning small mb-2">
+                                <i class="fas fa-lock me-1"></i>
+                                Once the driver approves, this amount is <strong>locked</strong>.
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-paper-plane me-2"></i>Send Quote to Driver
+                            </button>
+                        </form>
                     </div>
-                    <div th:if="${request.preferredPaymentMethod != null}" class="alert alert-info small mb-0">
-                        <i class="fas fa-credit-card me-1"></i>
-                        Customer's preferred payment method:
-                        <strong th:text="${request.preferredPaymentMethod}"></strong>
+
+                    <!-- QUOTED: Waiting -->
+                    <div th:if="${request.status.name() == 'QUOTED'}" class="alert alert-info mb-0">
+                        <i class="fas fa-hourglass-half me-2"></i>
+                        Quote of <strong>Rs. <span th:text="${request.quoteAmount}"></span></strong> sent.
+                        Waiting for driver to approve or reject.
                     </div>
+
+                    <!-- QUOTE_APPROVED: Dispatch -->
+                    <div th:if="${request.status.name() == 'QUOTE_APPROVED'}">
+                        <div class="alert alert-success small mb-2">
+                            <i class="fas fa-check-circle me-1"></i>
+                            Driver approved Rs. <strong th:text="${request.quoteAmount}"></strong>. Dispatch now.
+                        </div>
+                        <form th:action="@{/garage-owner/requests/{id}/start-work(id=${request.id})}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-truck me-2"></i>Dispatch Technician
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- IN_PROGRESS: Complete -->
+                    <form th:if="${request.status.name() == 'IN_PROGRESS'}"
+                          th:action="@{/garage-owner/requests/{id}/complete(id=${request.id})}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <div class="alert alert-primary small mb-2">
+                            <i class="fas fa-lock me-1"></i>
+                            Final amount locked at <strong>Rs. <span th:text="${request.quoteAmount}"></span></strong>.
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-flag-checkered me-2"></i>Mark Job Completed
+                        </button>
+                    </form>
                 </div>
             </div>
 
-            <!-- Final amount confirmed notice (IN_PROGRESS, final set, no payment) -->
-            <div class="card border-0 shadow-sm mb-4 mt-3"
-                 th:if="${payment == null and request.finalAmount != null and request.status.name() == 'IN_PROGRESS'}">
-                <div class="card-body">
-                    <div class="alert alert-success mb-0">
-                        <i class="fas fa-check-circle me-2"></i>
-                        <strong>Final Price Confirmed: Rs. <span th:text="${request.finalAmount}"></span></strong>
-                        <br>
-                        <small>Payment will be collected on completion using
-                            <strong th:text="${request.preferredPaymentMethod != null ? request.preferredPaymentMethod : 'agreed method'}"></strong>.
-                        </small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- GARAGE OWNER: Create payment record (COMPLETED, no payment yet) -->
-            <div class="card border-0 shadow-sm mb-4 mt-3"
+            <!-- ── PAYMENT SECTION ── -->
+            <div class="card border-0 shadow-sm mb-4"
                  sec:authorize="hasAnyRole('GARAGE_OWNER','ADMIN')"
                  th:if="${request.status.name() == 'COMPLETED' and payment == null}">
                 <div class="card-header bg-white fw-bold">
@@ -269,13 +355,10 @@
                 </div>
                 <div class="card-body">
                     <div class="alert alert-info small mb-3">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Final amount:
-                        <strong th:if="${request.finalAmount != null}" th:text="'Rs. ' + ${request.finalAmount}">—</strong>
-                        <strong th:unless="${request.finalAmount != null}">Not set — enter below</strong>
+                        <i class="fas fa-lock me-1"></i>
+                        Locked amount: <strong>Rs. <span th:text="${request.finalAmount}"></span></strong>
                         <span th:if="${request.preferredPaymentMethod != null}">
-                            &nbsp;| Customer prefers:
-                            <strong th:text="${request.preferredPaymentMethod}"></strong>
+                            &nbsp;| Customer prefers: <strong th:text="${request.preferredPaymentMethod}"></strong>
                         </span>
                     </div>
                     <form th:action="@{/payments/request/{id}/create(id=${request.id})}" method="post">
@@ -284,18 +367,16 @@
                             <label class="form-label fw-semibold">Amount (Rs.)</label>
                             <input type="number" name="amount" step="0.01" min="0.01"
                                    th:value="${request.finalAmount}"
-                                   class="form-control" required placeholder="e.g. 2500.00"/>
+                                   class="form-control" required readonly/>
+                            <small class="text-muted">Amount is locked and cannot be changed.</small>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Payment Method</label>
                             <select name="method" class="form-select" required>
                                 <option value="">Select method</option>
-                                <option value="CASH"
-                                        th:selected="${request.preferredPaymentMethod == 'CASH'}">Cash</option>
-                                <option value="CARD"
-                                        th:selected="${request.preferredPaymentMethod == 'CARD'}">Card</option>
-                                <option value="ONLINE"
-                                        th:selected="${request.preferredPaymentMethod == 'ONLINE'}">Online Transfer</option>
+                                <option value="CASH" th:selected="${request.preferredPaymentMethod == 'CASH'}">Cash</option>
+                                <option value="CARD" th:selected="${request.preferredPaymentMethod == 'CARD'}">Card</option>
+                                <option value="ONLINE" th:selected="${request.preferredPaymentMethod == 'ONLINE'}">Online Transfer</option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn-success w-100">
@@ -305,14 +386,13 @@
                 </div>
             </div>
 
-            <!-- Payment details (everyone sees once payment exists) -->
-            <div class="card border-0 shadow-sm mb-4 mt-3" th:if="${payment != null}">
+            <!-- Payment details -->
+            <div class="card border-0 shadow-sm mb-4" th:if="${payment != null}">
                 <div class="card-header bg-white fw-bold">
                     <i class="fas fa-receipt text-success me-2"></i>Payment
                     <span th:class="${'badge ms-2 ' +
                         (payment.status.name() == 'PAID'    ? 'bg-success' :
-                         payment.status.name() == 'PENDING' ? 'bg-warning text-dark' :
-                         payment.status.name() == 'FAILED'  ? 'bg-danger' : 'bg-secondary')}"
+                         payment.status.name() == 'PENDING' ? 'bg-warning text-dark' : 'bg-secondary')}"
                           th:text="${payment.status}">Status</span>
                 </div>
                 <div class="card-body">
@@ -344,9 +424,13 @@
                 </div>
             </div>
 
+            <div sec:authorize="hasRole('ADMIN')" class="alert alert-secondary">
+                <i class="fas fa-eye me-2"></i>Admin view — read only
+            </div>
+
         </div>
 
-        <!-- Right: Map + Nearby Garages -->
+        <!-- ── RIGHT COLUMN ── -->
         <div class="col-lg-7">
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white fw-bold">
@@ -357,7 +441,6 @@
                 </div>
             </div>
 
-            <!-- Nearby Garages (only when PENDING) -->
             <div class="card border-0 shadow-sm"
                  th:if="${request.status.name() == 'PENDING' and nearbyGarages != null and !nearbyGarages.isEmpty()}">
                 <div class="card-header bg-white fw-bold">
@@ -378,47 +461,15 @@
                                     <span th:text="${garage.phone}">Phone</span>
                                 </small>
                             </div>
-                            <a th:href="@{/garages/{id}(id=${garage.id})}"
-                               class="btn btn-sm btn-outline-danger">View</a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Real-time update banner -->
             <div id="wsAlert" class="alert alert-info mt-3 d-none">
                 <i class="fas fa-satellite-dish me-2"></i>
-                <span id="wsMessage">Waiting for updates...</span>
+                <span id="wsMessage">Status updated! Refreshing...</span>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Final Amount Modal -->
-<div class="modal fade" id="finalAmountModal" tabindex="-1">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h6 class="modal-title fw-bold"><i class="fas fa-rupee-sign me-2"></i>Set Final Price</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="finalAmountForm" method="post">
-                <div class="modal-body">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <label class="form-label fw-semibold">Final Amount (Rs.)</label>
-                    <input type="number" name="finalAmount" id="finalAmountInput"
-                           step="0.01" min="0" class="form-control form-control-lg" required>
-                    <small class="text-muted" id="minNote"></small>
-                    <div class="alert alert-info small mt-2 mb-0">
-                        <i class="fas fa-bell me-1"></i>Customer will be notified immediately.
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-warning fw-bold w-100">
-                        <i class="fas fa-check me-2"></i>Confirm &amp; Notify Customer
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
@@ -455,22 +506,12 @@
         });
     }
 
-    function openFinalAmountModal(requestId, minAmount) {
-        document.getElementById('finalAmountForm').action =
-            '/garage-owner/requests/' + requestId + '/set-final-amount';
-        document.getElementById('finalAmountInput').value = minAmount;
-        document.getElementById('finalAmountInput').min = minAmount;
-        document.getElementById('minNote').textContent = 'Minimum charge: Rs. ' + minAmount;
-        new bootstrap.Modal(document.getElementById('finalAmountModal')).show();
-    }
-
     try {
         const socket = new SockJS('/ws');
         const stompClient = Stomp.over(socket);
         stompClient.connect({}, () => {
             stompClient.subscribe('/user/queue/request-update', msg => {
                 document.getElementById('wsAlert').classList.remove('d-none');
-                document.getElementById('wsMessage').textContent = 'Status updated! Refreshing...';
                 setTimeout(() => location.reload(), 2000);
             });
         });
