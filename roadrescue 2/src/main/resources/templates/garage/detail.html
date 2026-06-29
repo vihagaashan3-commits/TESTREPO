@@ -96,7 +96,8 @@
                 <!-- On the garage detail page, show Edit button only to the owner -->
                 <a th:if="${#authentication.name == garage.owner.email}"
                    th:href="@{/garages/{id}/edit(id=${garage.id})}"
-                   Edit Garage
+                   class="btn btn-outline-danger btn-sm">
+                    Edit Garage
                 </a>
                 <form th:action="@{/garages/{id}/toggle-availability(id=${garage.id})}"
                       method="post" sec:authorize="hasRole('GARAGE_OWNER')">
