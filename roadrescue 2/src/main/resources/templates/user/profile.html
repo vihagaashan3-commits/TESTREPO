@@ -338,7 +338,7 @@
             font-size: 0.78rem;
             font-weight: 700;
             color: var(--black);
-            background: linear-gradient(180deg,#fdf6df,#f7ecc4);
+            background: linear-gradient(180deg,#fdf6df, #ffe95c);
             border: 1.5px solid var(--black);
             border-radius: 5px;
             padding: 3px 10px;
@@ -588,7 +588,7 @@
             </div>
         </div>
         <div class="stat-box">
-            <div class="sb-icon green"><i class="fas fa-shield-check"></i></div>
+            <div style="color: #0c800c" class="sb-icon green"><i class="fas fa-shield-check"></i></div>
             <div>
                 <div style="color: #119f2f" class="sb-val" th:text="${user.active} ? 'Active' : 'Inactive'">Active</div>
                 <div class="sb-lbl">Account Status</div>
@@ -861,7 +861,7 @@
             <div class="profile-card" th:if="${user.role.name() != 'ROLE_GARAGE_OWNER'}">
                 <div class="profile-card-header">
                     <div class="header-left">
-                        <div class="card-icon green"><i class="fas fa-car"></i></div>
+                        <div class="card-icon green"><i  class="fas fa-car"></i></div>
                         <h6>Registered Vehicles</h6>
                         <span class="badge bg-danger bg-opacity-10 text-danger ms-1" style="font-size:0.72rem"
                               th:text="${vehicles.size()}">0</span>
@@ -885,12 +885,12 @@
                     <div th:unless="${vehicles.isEmpty()}" class="row g-3">
                         <div th:each="v : ${vehicles}" class="col-sm-6">
                             <div class="vehicle-card">
-                                <div class="vtype-badge">
-                                    <i class="fas"
+                                <div class="vtype-badge" style="color: #9aa1ac">
+                                    <i style="color: #6B7280" class="fas"
                                        th:classappend="${v.vehicleType == 'Bike'} ? 'fa-motorcycle' :
                                                        (${v.vehicleType == 'Truck'} ? 'fa-truck' :
                                                        (${v.vehicleType == 'Van'} ? 'fa-shuttle-van' : 'fa-car'))"></i>
-                                    <span th:text="${v.vehicleType}">Car</span>
+                                    <span style="color: black" th:text="${v.vehicleType}">Car</span>
                                 </div>
                                 <div class="vehicle-name">
                                     <span th:text="${v.brand}">Brand</span>&nbsp;<span th:text="${v.model}">Model</span>
