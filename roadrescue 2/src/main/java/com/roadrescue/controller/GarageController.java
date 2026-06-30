@@ -1,5 +1,8 @@
 package com.roadrescue.controller;
-
+import com.roadrescue.dto.ContactGarageDTO;
+import com.roadrescue.entity.User;
+import com.roadrescue.service.EmailService;
+import com.roadrescue.service.UserService;
 import com.roadrescue.dto.GarageDTO;
 import com.roadrescue.entity.Garage;
 import com.roadrescue.enums.ServiceType;
@@ -24,6 +27,8 @@ import java.util.List;
 public class GarageController {
 
     private final GarageService garageService;
+    private final UserService userService;
+    private final EmailService emailService;
 
     @GetMapping
     public String listGarages(@RequestParam(defaultValue = "0") int page,
@@ -73,7 +78,7 @@ public class GarageController {
         if (result.hasErrors()) {
             model.addAttribute("serviceTypes", ServiceType.values());
             return "garage/create";
-        }//edit this
+        }
         try {
             Garage garage = garageService.createGarage(dto, userDetails.getUsername());
             redirectAttributes.addFlashAttribute("success", "Garage registered! Awaiting admin verification.");
@@ -82,6 +87,46 @@ public class GarageController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/garages/new";
         }
+    }
+
+    @GetMapping("/{id}/contact")
+    public String contactGarageForm(@PathVariable Long id, Model model) {
+        Garage garage = garageService.findById(id);
+        model.addAttribute("garage", garage);
+        model.addAttribute("contactDTO", new ContactGarageDTO());
+        return "garage/contact";
+    }
+
+    @PostMapping("/{id}/contact")
+    public String contactGarage(@PathVariable Long id,
+                                @Valid @ModelAttribute("contactDTO") ContactGarageDTO dto,
+                                BindingResult result,
+                                @AuthenticationPrincipal UserDetails userDetails,
+                                RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", "Please fill in both subject and message.");
+            return "redirect:/garages/" + id + "/contact";
+        }
+
+        Garage garage = garageService.findById(id);
+
+        if (garage.getEmail() == null || garage.getEmail().isBlank()) {
+            redirectAttributes.addFlashAttribute("error", "This garage has not provided a contact email.");
+            return "redirect:/garages/" + id + "/contact";
+        }
+
+        User sender = userService.findByEmail(userDetails.getUsername());
+
+        emailService.sendContactGarageEmail(
+                garage.getEmail(),
+                sender.getFullName(),
+                sender.getEmail(),
+                dto.getSubject(),
+                dto.getMessage()
+        );
+
+        redirectAttributes.addFlashAttribute("success", "Your message has been sent to the garage.");
+        return "redirect:/garages/" + id + "/contact";
     }
 
     @GetMapping("/nearby")

@@ -25,7 +25,7 @@ public class ProfileController {
     private final UserService userService;
     private final VehicleService vehicleService;
 
-    // ── GET /profile ──────────────────────────────────────────────
+
     @GetMapping
     public String profile(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         User user = userService.findByEmail(userDetails.getUsername());
@@ -34,7 +34,7 @@ public class ProfileController {
         return "user/profile";
     }
 
-    // ── POST /profile/update  (update name + phone) ───────────────
+
     @PostMapping("/update")
     public String updateProfile(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -45,7 +45,7 @@ public class ProfileController {
         try {
             User user = userService.findByEmail(userDetails.getUsername());
 
-            // Basic validation
+
             if (fullName == null || fullName.trim().length() < 2) {
                 ra.addFlashAttribute("error", "Full name must be at least 2 characters.");
                 return "redirect:/profile";
@@ -67,7 +67,7 @@ public class ProfileController {
         return "redirect:/profile";
     }
 
-    // ── POST /profile/change-password ─────────────────────────────
+
     @PostMapping("/change-password")
     public String changePassword(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -98,7 +98,7 @@ public class ProfileController {
         return "redirect:/profile";
     }
 
-    // ── POST /profile/upload-picture ──────────────────────────────
+
     @PostMapping("/upload-picture")
     public String uploadPicture(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -110,28 +110,28 @@ public class ProfileController {
             return "redirect:/profile";
         }
 
-        // Only allow image files
+
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
             ra.addFlashAttribute("error", "Only image files are allowed (JPG, PNG, etc.).");
             return "redirect:/profile";
         }
 
-        // Max 5 MB
+
         if (file.getSize() > 5 * 1024 * 1024) {
             ra.addFlashAttribute("error", "Image must be smaller than 5 MB.");
             return "redirect:/profile";
         }
 
         try {
-            // Save to uploads/profiles/
+
             String uploadDir = "uploads/profiles/";
             Path uploadPath = Paths.get(uploadDir);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
-            // Unique file name to avoid collisions
+
             String originalFilename = file.getOriginalFilename();
             String extension = (originalFilename != null && originalFilename.contains("."))
                     ? originalFilename.substring(originalFilename.lastIndexOf("."))
@@ -141,7 +141,7 @@ public class ProfileController {
             Path filePath = uploadPath.resolve(fileName);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            // Save path in DB
+
             User user = userService.findByEmail(userDetails.getUsername());
             userService.updateProfileImage(user.getId(), "/" + uploadDir + fileName);
 
@@ -152,7 +152,7 @@ public class ProfileController {
         return "redirect:/profile";
     }
 
-    // ── POST /profile/remove-picture ─────────────────────────────
+
     @PostMapping("/remove-picture")
     public String removePicture(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -161,7 +161,7 @@ public class ProfileController {
         try {
             User user = userService.findByEmail(userDetails.getUsername());
 
-            // Delete physical file if it exists
+
             if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
                 Path filePath = Paths.get(user.getProfileImage().replaceFirst("^/", ""));
                 Files.deleteIfExists(filePath);

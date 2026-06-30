@@ -28,7 +28,6 @@ public class RegisterDTO {
     @NotBlank(message = "Please confirm your password")
     private String confirmPassword;
 
-    private String role; // USER, GARAGE_OWNER, ADMIN
-
-    private String adminCode; //  ADMIN
+    private String role;
+    private String adminCode;
 }
