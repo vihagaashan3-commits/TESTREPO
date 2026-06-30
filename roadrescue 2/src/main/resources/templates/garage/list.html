@@ -19,17 +19,9 @@
 <body class="bg-light">
 <th:block th:replace="~{layout :: navbar}"></th:block>
 
-<div class="container my-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h5 class="fw-bold mb-0"><i class="fas fa-warehouse text-danger me-2"></i>Find a Garage</h5>
-        <a th:href="@{/garages/new}"
-           sec:authorize="hasRole('GARAGE_OWNER')"
-           th:if="${ownerHasGarage == null or !ownerHasGarage}"
-           class="btn btn-danger">
-            <i class="fas fa-plus me-2"></i>Register Garage
-        </a>
-    </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="fw-bold mb-0"><i class="fas fa-warehouse text-danger me-2"></i>Find a Garage</h5>
+</div>
 
     <!-- Search & Filter -->
     <div class="card border-0 shadow-sm mb-4">
@@ -138,17 +130,17 @@
     <!-- Pagination -->
     <nav class="mt-4" th:if="${garages.totalPages > 1}">
         <ul class="pagination justify-content-center">
-            <li class="page-item" th:classappend="${garages.first} ? 'disabled' : ''">
+            <li class="page-item" th:classappend="${garages.first} ? 'disabled'">
                 <a class="page-link" th:href="@{/garages(page=${currentPage - 1}, keyword=${keyword})}">
                     <i class="fas fa-chevron-left"></i>
                 </a>
             </li>
             <li class="page-item" th:each="i : ${#numbers.sequence(0, garages.totalPages - 1)}"
-                th:classappend="${i == currentPage} ? 'active' : ''">
+                th:classappend="${i == currentPage} ? 'active'">
                 <a class="page-link" th:href="@{/garages(page=${i}, keyword=${keyword})}"
                    th:text="${i + 1}">1</a>
             </li>
-            <li class="page-item" th:classappend="${garages.last} ? 'disabled' : ''">
+            <li class="page-item" th:classappend="${garages.last} ? 'disabled'">
                 <a class="page-link" th:href="@{/garages(page=${currentPage + 1}, keyword=${keyword})}">
                     <i class="fas fa-chevron-right"></i>
                 </a>

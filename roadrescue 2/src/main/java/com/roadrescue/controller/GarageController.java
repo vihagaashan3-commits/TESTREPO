@@ -4,11 +4,13 @@ import com.roadrescue.dto.ContactGarageDTO;
 import com.roadrescue.dto.GarageDTO;
 import com.roadrescue.entity.Garage;
 import com.roadrescue.entity.User;
+import com.roadrescue.entity.Review;
 import com.roadrescue.enums.ServiceType;
 import com.roadrescue.exception.DuplicateGarageException;
 import com.roadrescue.service.EmailService;
 import com.roadrescue.service.GarageService;
 import com.roadrescue.service.UserService;
+import com.roadrescue.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,8 +30,12 @@ import java.util.List;
 public class GarageController {
 
     private final GarageService garageService;
+
     private final UserService userService;
     private final EmailService emailService;
+
+    private final ReviewService reviewService;
+
 
     @GetMapping
     public String listGarages(@RequestParam(defaultValue = "0") int page,
@@ -56,9 +62,13 @@ public class GarageController {
                              @AuthenticationPrincipal UserDetails userDetails) {
         Garage garage = garageService.findById(id);
         Double avgRating = garageService.getAverageRating(id);
+        List<Review> reviews = reviewService.getAllGarageReviews(id);
 
         model.addAttribute("garage", garage);
         model.addAttribute("avgRating", avgRating != null ? String.format("%.1f", avgRating) : "N/A");
+        model.addAttribute("avgRatingRounded", avgRating != null ? (int) Math.round(avgRating) : 0);
+        model.addAttribute("reviews", reviews);
+        model.addAttribute("reviewCount", reviews.size());
 
         if (userDetails != null) {
             model.addAttribute("loggedUserUsername", userDetails.getUsername());
