@@ -30,9 +30,7 @@ public class GarageOwnerController {
     private final UserService userService;
     private final EmailService emailService;
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // DASHBOARD
-    // ─────────────────────────────────────────────────────────────────────────
+
 
     @GetMapping("/dashboard")
     public String ownerDashboard(@AuthenticationPrincipal UserDetails userDetails, Model model) {
@@ -47,9 +45,7 @@ public class GarageOwnerController {
         return "garage-owner/dashboard";
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // REQUESTS
-    // ─────────────────────────────────────────────────────────────────────────
+
 
     @GetMapping("/requests")
     public String listRequests(@AuthenticationPrincipal UserDetails userDetails,
@@ -148,9 +144,7 @@ public class GarageOwnerController {
         return "redirect:/garage-owner/requests";
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TECHNICIANS — CRUD
-    // ─────────────────────────────────────────────────────────────────────────
+
 
     @GetMapping("/technicians")
     public String manageTechnicians(@AuthenticationPrincipal UserDetails userDetails,
