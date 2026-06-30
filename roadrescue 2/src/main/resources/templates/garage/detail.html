@@ -59,7 +59,7 @@
                         </li>
                         <li class="mb-2">
                             <i class="fas fa-phone text-success me-2"></i>
-                            <a th:href="'tel:' + ${garage.phone}" th:text="${garage.phone}" class="text-decoration-none">Phone</a>
+                            <a th:href="|tel:${garage.phone}|" th:text="${garage.phone}" class="text-decoration-none">Phone</a>
                         </li>
                         <li class="mb-2" th:if="${garage.email}">
                             <i class="fas fa-envelope text-info me-2"></i>
@@ -93,9 +93,15 @@
                    class="btn btn-danger">
                     <i class="fas fa-exclamation-triangle me-2"></i>Request Help from This Garage
                 </a>
-                <a th:href="@{/garages/{id}/contact(id=${garage.id})}" class="btn btn-outline-primary"
+                <a th:if="${#authentication.name != garage.owner.email}"
+                   th:href="@{/garages/{id}/contact(id=${garage.id})}" class="btn btn-outline-primary"
                    sec:authorize="isAuthenticated()">
                     <i class="fas fa-envelope me-2"></i>Contact Garage
+                </a>
+                <a th:if="${#authentication.name == garage.owner.email}"
+                   th:href="@{/garages/{id}/contact-customer(id=${garage.id})}" class="btn btn-outline-primary"
+                   sec:authorize="hasRole('GARAGE_OWNER')">
+                    <i class="fas fa-envelope me-2"></i>Contact Customer
                 </a>
                 <!-- On the garage detail page, show Edit button only to the owner -->
                 <a th:if="${#authentication.name == garage.owner.email}"
