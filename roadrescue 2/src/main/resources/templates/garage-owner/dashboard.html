@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
-</head>
+
 <body class="bg-light">
 
 <th:block th:replace="~{layout :: navbar}"></th:block>
@@ -17,25 +17,64 @@
 <div class="container-fluid my-4">
     <div class="row">
         <!-- Sidebar -->
-        <div class="col-md-2">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush rounded">
-                        <a th:href="@{/garage-owner/dashboard}" class="list-group-item list-group-item-action active bg-danger text-white">
-                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                        </a>
-                        <a th:href="@{/garage-owner/requests}" class="list-group-item list-group-item-action">
-                            <i class="fas fa-clipboard-list me-2"></i>Requests
-                        </a>
-                        <a th:href="@{/garage-owner/technicians}" class="list-group-item list-group-item-action">
-                            <i class="fas fa-user-cog me-2"></i>Technicians
-                        </a>
-                        <a th:href="@{/garages}" class="list-group-item list-group-item-action">
-                            <i class="fas fa-warehouse me-2"></i>My Garage
-                        </a>
-                    </div>
+        <div class="col-lg-3 col-xl-2">
+
+            <div class="dashboard-sidebar">
+
+                <div class="p-4 text-center border-bottom">
+
+                    <i class="fas fa-warehouse text-danger fa-3x mb-3"></i>
+
+                    <h5 class="fw-bold mb-1">Garage Panel</h5>
+
+                    <small class="text-muted">
+                        RoadRescue Owner
+                    </small>
+
                 </div>
+
+                <div class="list-group list-group-flush">
+
+                    <a th:href="@{/garage-owner/dashboard}"
+                       class="list-group-item list-group-item-action active">
+
+                        <i class="fas fa-house"></i>
+
+                        Dashboard
+
+                    </a>
+
+                    <a th:href="@{/garage-owner/requests}"
+                       class="list-group-item list-group-item-action">
+
+                        <i class="fas fa-clipboard-list"></i>
+
+                        Breakdown Requests
+
+                    </a>
+
+                    <a th:href="@{/garage-owner/technicians}"
+                       class="list-group-item list-group-item-action">
+
+                        <i class="fas fa-user-cog"></i>
+
+                        Technicians
+
+                    </a>
+
+                    <a th:href="@{/garages}"
+                       class="list-group-item list-group-item-action">
+
+                        <i class="fas fa-warehouse"></i>
+
+                        My Garage
+
+                    </a>
+
+                </div>
+
             </div>
+
         </div>
 
         <!-- Main Content -->
