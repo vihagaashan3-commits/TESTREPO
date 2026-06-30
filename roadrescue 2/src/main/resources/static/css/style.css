@@ -237,9 +237,7 @@ a{
 
 .dropdown-divider{ margin:.4rem 0; }
 
-/* ===========================
-   FLASH MESSAGES
-=========================== */
+/*FLASH MESSAGES */
 .rr-flash-container{ max-width:1200px; }
 
 .rr-alert{
