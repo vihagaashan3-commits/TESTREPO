@@ -25,6 +25,13 @@ public class GlobalExceptionHandler {
         return mav;
     }
 
+    @ExceptionHandler(DuplicateGarageException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ModelAndView handleDuplicateGarage(DuplicateGarageException ex) {
+        log.warn("Duplicate garage registration attempt: {}", ex.getMessage());
+        return new ModelAndView("redirect:/garages");
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ModelAndView handleAccessDenied(AccessDeniedException ex) {
