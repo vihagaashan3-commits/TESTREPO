@@ -116,7 +116,7 @@
                     <table class="table table-borderless mb-0 small">
                         <tr>
                             <td class="text-muted fw-semibold">Services</td>
-                            <td>
+
                             <td>
                                 <span th:if="${request.serviceTypes != null}"
                                       th:each="svc : ${request.serviceTypes}"
@@ -124,7 +124,7 @@
                                       th:text="${#strings.replace(svc.name(), '_', ' ')}">
                                 </span>
                             </td>
-                            </td>
+
                         </tr>
                         <tr>
                             <td class="text-muted fw-semibold">Description</td>
