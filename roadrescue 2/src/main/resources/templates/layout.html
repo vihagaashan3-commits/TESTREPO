@@ -62,7 +62,9 @@
 
                 <li class="nav-item">
                     <a class="nav-link rr-nav-link"
-                       th:href="@{/dashboard}">
+                       th:href="${#authorization.expression('hasRole(''ADMIN'')') ? '/admin/dashboard' :
+                  #authorization.expression('hasRole(''GARAGE_OWNER'')') ? '/garage-owner/dashboard' :
+                  '/user/dashboard'}">
                         <i class="fas fa-home me-2"></i>
                         Dashboard
                     </a>
