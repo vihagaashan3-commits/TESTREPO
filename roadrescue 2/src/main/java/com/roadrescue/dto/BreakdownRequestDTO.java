@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 public class BreakdownRequestDTO {
 
-
+    // Multiple service types
     private List<ServiceType> serviceTypes;
 
     @NotBlank(message = "Description is required")
@@ -30,5 +30,6 @@ public class BreakdownRequestDTO {
 
     private Long garageId;
 
-    private String preferredPupfrontaymentMethod;
+    // Payment method chosen by driver upfront
+    private String preferredPaymentMethod;
 }
