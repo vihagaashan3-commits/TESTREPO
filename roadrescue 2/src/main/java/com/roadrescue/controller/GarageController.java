@@ -1,4 +1,5 @@
 package com.roadrescue.controller;
+import com.roadrescue.dto.ContactCustomerDTO;
 import com.roadrescue.dto.ContactGarageDTO;
 import com.roadrescue.entity.User;
 import com.roadrescue.service.EmailService;
@@ -127,6 +128,53 @@ public class GarageController {
 
         redirectAttributes.addFlashAttribute("success", "Your message has been sent to the garage.");
         return "redirect:/garages/" + id + "/contact";
+    }
+
+    @GetMapping("/{id}/contact-customer")
+    @PreAuthorize("hasRole('GARAGE_OWNER')")
+    public String contactCustomerForm(@PathVariable Long id, Model model,
+                                      @AuthenticationPrincipal UserDetails userDetails) {
+        Garage garage = garageService.findById(id);
+        User owner = userService.findByEmail(userDetails.getUsername());
+
+        if (!garage.getOwner().getId().equals(owner.getId())) {
+            throw new SecurityException("You don't own this garage");
+        }
+
+        model.addAttribute("garage", garage);
+        model.addAttribute("contactCustomerDTO", new ContactCustomerDTO());
+        return "garage/contact-customer";
+    }
+
+    @PostMapping("/{id}/contact-customer")
+    @PreAuthorize("hasRole('GARAGE_OWNER')")
+    public String contactCustomer(@PathVariable Long id,
+                                  @Valid @ModelAttribute("contactCustomerDTO") ContactCustomerDTO dto,
+                                  BindingResult result,
+                                  @AuthenticationPrincipal UserDetails userDetails,
+                                  RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", "Please fill in all fields correctly.");
+            return "redirect:/garages/" + id + "/contact-customer";
+        }
+
+        Garage garage = garageService.findById(id);
+        User owner = userService.findByEmail(userDetails.getUsername());
+
+        if (!garage.getOwner().getId().equals(owner.getId())) {
+            throw new SecurityException("You don't own this garage");
+        }
+
+        emailService.sendGarageToCustomerEmail(
+                dto.getCustomerEmail(),
+                garage.getGarageName(),
+                garage.getEmail(),
+                dto.getSubject(),
+                dto.getMessage()
+        );
+
+        redirectAttributes.addFlashAttribute("success", "Your message has been sent to the customer.");
+        return "redirect:/garages/" + id;
     }
 
     @GetMapping("/nearby")
