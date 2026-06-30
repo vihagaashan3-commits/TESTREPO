@@ -372,12 +372,14 @@
     }
 
     function openContactModal(requestId, customerEmail, customerName) {
-        document.getElementById('contactCustomerForm').action =
-            '/garage-owner/requests/' + requestId + '/contact-customer';
-        document.getElementById('contactCustomerEmail').value = customerEmail;
-        document.getElementById('contactCustomerEmailDisplay').value = customerEmail;
-        document.getElementById('contactCustomerName').textContent = customerName;
-        new bootstrap.Modal(document.getElementById('contactCustomerModal')).show();
+        var subject = 'RoadRescue - Update on your service request #' + requestId;
+        var body = 'Hi ' + customerName + ',\n\n';
+        var gmailUrl = 'https://mail.google.com/mail/?view=cm&fs=1'
+            + '&to=' + encodeURIComponent(customerEmail)
+            + '&su=' + encodeURIComponent(subject)
+            + '&body=' + encodeURIComponent(body);
+        window.open(gmailUrl, '_blank');
+
     }
 </script>
 </body>
