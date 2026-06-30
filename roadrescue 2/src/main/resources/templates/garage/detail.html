@@ -94,7 +94,7 @@
                     <i class="fas fa-exclamation-triangle me-2"></i>Request Help from This Garage
                 </a>
                 <a th:href="@{/garages/{id}/contact(id=${garage.id})}" class="btn btn-outline-primary"
-                   sec:authorize="hasRole('USER')">
+                   sec:authorize="isAuthenticated()">
                     <i class="fas fa-envelope me-2"></i>Contact Garage
                 </a>
                 <!-- On the garage detail page, show Edit button only to the owner -->
