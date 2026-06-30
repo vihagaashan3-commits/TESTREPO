@@ -29,6 +29,11 @@ public class GarageService {
     public Garage createGarage(GarageDTO dto, String ownerEmail) {
         User owner = userService.findByEmail(ownerEmail);
 
+        boolean alreadyHasGarage = !garageRepository.findByOwnerIdAndDeletedFalse(owner.getId()).isEmpty();
+        if (alreadyHasGarage) {
+            throw new IllegalArgumentException("This email has already registered a garage. Only one garage is allowed per account.");
+        }
+
         Garage garage = Garage.builder()
                 .garageName(dto.getGarageName())
                 .address(dto.getAddress())
