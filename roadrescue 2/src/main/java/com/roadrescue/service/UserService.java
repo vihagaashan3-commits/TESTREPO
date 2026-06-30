@@ -21,11 +21,11 @@ public class UserService {
     // ── Register ──────────────────────────────────────────────────
     @Transactional
     public User register(RegisterDTO dto) {
-        if (userRepository.existsByEmail(dto.getEmail())) {
+        if (userRepository.existsByEmailAndDeletedFalse(dto.getEmail())) {
             throw new IllegalArgumentException("Email already in use");
         }
-        if (!dto.getPassword().equals(dto.getConfirmPassword())) {
-            throw new IllegalArgumentException("Passwords do not match");
+        if (userRepository.existsByEmailAndDeletedFalse(dto.getEmail())) {
+            throw new IllegalArgumentException("Email already in use");
         }
 
         Role role = "GARAGE_OWNER".equalsIgnoreCase(dto.getRole())
@@ -82,6 +82,12 @@ public class UserService {
             return userRepository.searchUsers(keyword, pageable);
         }
         return userRepository.findByDeletedFalse(pageable);
+    }
+
+    @Transactional
+    public void deleteUser(Long id) {
+        User user = findById(id);
+        userRepository.delete(user);
     }
 
     // ── Update profile (name + phone) ─────────────────────────────
@@ -149,6 +155,6 @@ public class UserService {
 
     // ── Email exists check ────────────────────────────────────────
     public boolean emailExists(String email) {
-        return userRepository.existsByEmail(email);
+        return userRepository.existsByEmailAndDeletedFalse(email);
     }
 }
