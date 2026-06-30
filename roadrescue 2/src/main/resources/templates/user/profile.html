@@ -10,6 +10,7 @@
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
     <style>
         :root {
@@ -22,11 +23,12 @@
             --red-dark: #B91C1C;
             --red-soft: #FDECEC;
             --muted: #767A82;
+            --amber: #f1a208;
         }
 
         body {
             background: var(--paper);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: var(--black);
         }
 
@@ -36,14 +38,24 @@
             padding: 2.25rem 0;
             color: #fff;
             border-bottom: 3px solid var(--red);
+            position: relative;
+            overflow: hidden;
         }
+        .profile-hero::after{
+            content:"";
+            position:absolute; inset:0;
+            background: repeating-linear-gradient(115deg, rgba(255,255,255,.03) 0 2px, transparent 2px 26px);
+            pointer-events:none;
+        }
+        .profile-hero .container{ position:relative; z-index:1; }
 
         .hero-eyebrow {
+            font-family: 'JetBrains Mono', monospace;
             font-size: 0.7rem;
             font-weight: 700;
-            letter-spacing: 0.14em;
+            letter-spacing: 0.16em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.45);
+            color: var(--amber);
             margin-bottom: 0.6rem;
         }
 
@@ -71,6 +83,7 @@
 
         /* ══ Avatar ══ */
         .avatar-wrap {
+            color: green;
             position: relative;
             display: inline-block;
         }
@@ -94,6 +107,7 @@
             overflow: hidden;
         }
         .avatar-initials {
+            font-family: 'Sora', sans-serif;
             font-size: 2rem;
             font-weight: 700;
             color: var(--red);
@@ -169,7 +183,8 @@
         .card-icon.amber  { background: var(--paper);    color: var(--black); border: 1px solid var(--line); }
         .profile-card-header h6 {
             margin: 0;
-            font-weight: 700;
+            font-family: 'Sora', sans-serif;
+            font-weight: 600;
             font-size: 0.88rem;
             color: var(--black);
         }
@@ -198,7 +213,8 @@
             margin-top: 1px;
         }
         .info-label {
-            font-size: 0.66rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.64rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.08em;
@@ -214,7 +230,8 @@
         /* ══ Edit form fields ══ */
         .edit-section { padding: 1.2rem 1.35rem; }
         .edit-section .form-label {
-            font-size: 0.7rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.07em;
@@ -285,7 +302,7 @@
         .sb-icon.red    { background: var(--red-soft); color: var(--red); }
         .sb-icon.blue   { background: var(--paper); color: var(--black); border: 1px solid var(--line); }
         .sb-icon.green  { background: var(--red-soft); color: var(--red); }
-        .stat-box .sb-val  { font-size: 1.4rem; font-weight: 700; color: var(--black); line-height: 1; }
+        .stat-box .sb-val  { font-family: 'Sora', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--black); line-height: 1; }
         .stat-box .sb-lbl  { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; margin-top: 4px; }
 
         /* ══ Vehicle cards ══ */
@@ -315,18 +332,19 @@
             letter-spacing: 0.06em;
             margin-bottom: 0.55rem;
         }
-        .vehicle-name  { font-size: 0.95rem; font-weight: 700; color: var(--black); margin-bottom: 0.2rem; }
+        .vehicle-name  { font-family: 'Sora', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--black); margin-bottom: 0.4rem; }
         .vehicle-plate {
-            font-family: 'Courier New', monospace;
-            font-size: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
             font-weight: 700;
             color: var(--black);
-            background: var(--paper);
-            border: 1px solid var(--line);
-            border-radius: 4px;
-            padding: 2px 7px;
+            background: linear-gradient(180deg,#fdf6df, #ffe95c);
+            border: 1.5px solid var(--black);
+            border-radius: 5px;
+            padding: 3px 10px;
             display: inline-block;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.1em;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
         }
         .v-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; }
         .v-meta span { font-size: 0.72rem; color: var(--muted); display: flex; align-items: center; gap: 3px; }
@@ -406,7 +424,8 @@
             gap: 5px;
             padding: 3px 10px;
             border-radius: 20px;
-            font-size: 0.7rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
             font-weight: 700;
             letter-spacing: 0.05em;
             text-transform: uppercase;
@@ -474,6 +493,8 @@
             border: 2px solid var(--red);
         }
 
+        h2.fw-bold { font-family: 'Sora', sans-serif; }
+
         @media (max-width: 768px) {
             .stat-strip { grid-template-columns: 1fr; }
             .hero-meta-row { gap: 0.5rem; }
@@ -522,7 +543,7 @@
 
             <!-- Name / role / status -->
             <div>
-                <h2 class="fw-bold mb-2" th:text="${user.fullName}">Full Name</h2>
+                <h2 style="color: white" class="fw-bold mb-2" th:text="${user.fullName}">Full Name</h2>
                 <div class="hero-meta-row">
                     <span class="role-badge">
                         <i class="fas"
@@ -567,9 +588,9 @@
             </div>
         </div>
         <div class="stat-box">
-            <div class="sb-icon green"><i class="fas fa-shield-check"></i></div>
+            <div style="color: #0c800c" class="sb-icon green"><i class="fas fa-shield-check"></i></div>
             <div>
-                <div class="sb-val" th:text="${user.active} ? 'Active' : 'Inactive'">Active</div>
+                <div style="color: #119f2f" class="sb-val" th:text="${user.active} ? 'Active' : 'Inactive'">Active</div>
                 <div class="sb-lbl">Account Status</div>
             </div>
         </div>
@@ -798,7 +819,7 @@
                             <div>
                                 <div class="info-label">Status</div>
                                 <div class="info-value">
-                                    <span th:if="${user.active}" class="badge" style="font-size:0.78rem;background:#FDECEC;color:#DC2626;border:1px solid #FBD2D2">
+                                    <span th:if="${user.active}" class="badge" style="font-size:0.78rem;background:#ecfdef;color:#26dc5d;border:1px solid #26891e">
                                         <i class="fas fa-circle me-1" style="font-size:0.5rem"></i>Active
                                     </span>
                                     <span th:unless="${user.active}" class="badge" style="font-size:0.78rem;background:#F0F0F1;color:#767A82;border:1px solid #E8E8EA">
@@ -823,7 +844,7 @@
                             <div>
                                 <div class="info-label">2-Factor Auth</div>
                                 <div class="info-value">
-                                    <span th:if="${user.twoFactorEnabled}" class="badge" style="font-size:0.78rem;background:#FDECEC;color:#DC2626;border:1px solid #FBD2D2">
+                                    <span th:if="${user.twoFactorEnabled}" class="badge" style="font-size:0.78rem;background:#edfdec;color:#26dc5d;border:1px solid #0c800c">
                                         <i class="fas fa-check me-1"></i>Enabled
                                     </span>
                                     <span th:unless="${user.twoFactorEnabled}" class="badge" style="font-size:0.78rem;background:#F0F0F1;color:#767A82;border:1px solid #E8E8EA">
@@ -840,7 +861,7 @@
             <div class="profile-card" th:if="${user.role.name() != 'ROLE_GARAGE_OWNER'}">
                 <div class="profile-card-header">
                     <div class="header-left">
-                        <div class="card-icon green"><i class="fas fa-car"></i></div>
+                        <div class="card-icon green"><i  class="fas fa-car"></i></div>
                         <h6>Registered Vehicles</h6>
                         <span class="badge bg-danger bg-opacity-10 text-danger ms-1" style="font-size:0.72rem"
                               th:text="${vehicles.size()}">0</span>
@@ -864,12 +885,12 @@
                     <div th:unless="${vehicles.isEmpty()}" class="row g-3">
                         <div th:each="v : ${vehicles}" class="col-sm-6">
                             <div class="vehicle-card">
-                                <div class="vtype-badge">
-                                    <i class="fas"
+                                <div class="vtype-badge" style="color: #9aa1ac">
+                                    <i style="color: #6B7280" class="fas"
                                        th:classappend="${v.vehicleType == 'Bike'} ? 'fa-motorcycle' :
                                                        (${v.vehicleType == 'Truck'} ? 'fa-truck' :
                                                        (${v.vehicleType == 'Van'} ? 'fa-shuttle-van' : 'fa-car'))"></i>
-                                    <span th:text="${v.vehicleType}">Car</span>
+                                    <span style="color: black" th:text="${v.vehicleType}">Car</span>
                                 </div>
                                 <div class="vehicle-name">
                                     <span th:text="${v.brand}">Brand</span>&nbsp;<span th:text="${v.model}">Model</span>
