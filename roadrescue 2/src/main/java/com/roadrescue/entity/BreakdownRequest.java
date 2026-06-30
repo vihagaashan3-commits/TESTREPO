@@ -53,7 +53,7 @@ public class BreakdownRequest {
     @Column(name = "notes")
     private String notes;
 
-    // ── Quote fields (set by garage BEFORE dispatching technician) ───────
+    // Quote fields (set by garage BEFORE dispatching technician)
     // Flow: PENDING → ACCEPTED → QUOTED → QUOTE_APPROVED → IN_PROGRESS → COMPLETED
     // minimumAmount is NOT shown to user at request time — only the quote is shown
     @Column(name = "quote_amount", precision = 10, scale = 2)
@@ -90,7 +90,7 @@ public class BreakdownRequest {
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
-    // ── Relationships ─────────────────────────────────────────────────────
+    // Relationships
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
