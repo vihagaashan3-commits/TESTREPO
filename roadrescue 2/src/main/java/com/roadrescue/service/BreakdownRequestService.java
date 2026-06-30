@@ -102,7 +102,7 @@ public class BreakdownRequestService {
 
         String servicesText = request.getServiceTypes() != null
                 ? String.join(", ", request.getServiceTypes().stream()
-                                    .map(ServiceType::getDisplayName).toList())
+                .map(ServiceType::getDisplayName).toList())
                 : "Service";
 
         notificationService.createNotification(

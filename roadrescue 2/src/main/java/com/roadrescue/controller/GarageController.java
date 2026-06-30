@@ -3,6 +3,7 @@ package com.roadrescue.controller;
 import com.roadrescue.dto.GarageDTO;
 import com.roadrescue.entity.Garage;
 import com.roadrescue.enums.ServiceType;
+import com.roadrescue.exception.DuplicateGarageException;
 import com.roadrescue.service.GarageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +58,19 @@ public class GarageController {
 
     @GetMapping("/new")
     @PreAuthorize("hasRole('GARAGE_OWNER')")
-    public String newGarageForm(Model model) {
+    public String newGarageForm(@AuthenticationPrincipal UserDetails userDetails,
+                                RedirectAttributes redirectAttributes,
+                                Model model) {
+        if (garageService.ownerHasGarage(userDetails.getUsername())) {
+            redirectAttributes.addFlashAttribute("error",
+                    "You have already registered a garage. Only one garage is allowed per account.");
+            List<Garage> owned = garageService.getOwnerGarages(userDetails.getUsername());
+            if (!owned.isEmpty()) {
+                return "redirect:/garages/" + owned.get(0).getId();
+            }
+            return "redirect:/garages";
+        }
+
         model.addAttribute("garageDTO", new GarageDTO());
         model.addAttribute("serviceTypes", ServiceType.values());
         return "garage/create";
@@ -73,11 +86,14 @@ public class GarageController {
         if (result.hasErrors()) {
             model.addAttribute("serviceTypes", ServiceType.values());
             return "garage/create";
-        }//edit this
+        }
         try {
             Garage garage = garageService.createGarage(dto, userDetails.getUsername());
             redirectAttributes.addFlashAttribute("success", "Garage registered! Awaiting admin verification.");
             return "redirect:/garages/" + garage.getId();
+        } catch (DuplicateGarageException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/garages";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/garages/new";
