@@ -514,4 +514,64 @@ public class EmailService {
             log.error("Failed to send OTP email to {}", to, e);
         }
     }
+
+    @Async
+    public void sendContactGarageEmail(String to, String senderName, String senderEmail,
+                                       String subject, String message) {
+
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            helper.setFrom("nadeeshakalhara685@gmail.com", "RoadRescue");
+            helper.setTo(to);
+            helper.setReplyTo(senderEmail);
+            helper.setSubject("New message from " + senderName + ": " + subject);
+
+            String html = """
+        <!DOCTYPE html>
+        <html>
+        <body style="margin:0;padding:0;background:#f4f6f9;font-family:Arial,sans-serif;">
+        <table width="100%%" cellpadding="0" cellspacing="0" style="padding:40px 0;">
+          <tr><td align="center">
+            <table width="600" cellpadding="0" cellspacing="0"
+                   style="background:#ffffff;border-radius:12px;overflow:hidden;
+                   box-shadow:0 8px 25px rgba(0,0,0,.08);">
+              <tr>
+                <td style="background:#0d6efd;padding:25px;text-align:center;">
+                  <h1 style="color:white;margin:0;">RoadRescue</h1>
+                  <p style="color:white;margin:6px 0 0;opacity:.85;">New Customer Enquiry</p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:35px;">
+                  <p><b>From:</b> %s (%s)</p>
+                  <p><b>Subject:</b> %s</p>
+                  <div style="background:#f8f9fa;border-left:5px solid #0d6efd;
+                      padding:18px;border-radius:8px;margin:20px 0;white-space:pre-wrap;">%s</div>
+                  <p style="color:#777;font-size:14px;">
+                    You can reply directly to this email to respond to the customer.
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td style="background:#f8f9fa;padding:18px;text-align:center;color:#888;font-size:13px;">
+                  © 2026 RoadRescue. All Rights Reserved.
+                </td>
+              </tr>
+            </table>
+          </td></tr>
+        </table>
+        </body>
+        </html>
+        """.formatted(senderName, senderEmail, subject, message);
+
+            helper.setText(html, true);
+            mailSender.send(mimeMessage);
+            log.info("Contact-garage email sent successfully to {}", to);
+
+        } catch (Exception e) {
+            log.error("Failed to send contact-garage email to {}", to, e);
+        }
+    }
 }
