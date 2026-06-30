@@ -93,10 +93,11 @@
                    class="btn btn-danger">
                     <i class="fas fa-exclamation-triangle me-2"></i>Request Help from This Garage
                 </a>
-                <a th:href="@{/garages/{id}/edit(id=${garage.id})}"
-                   sec:authorize="hasAnyRole('GARAGE_OWNER', 'ADMIN')"
-                   class="btn btn-outline-warning">
-                    <i class="fas fa-edit me-2"></i>Edit Garage
+                <!-- On the garage detail page, show Edit button only to the owner -->
+                <a th:if="${#authentication.name == garage.owner.email}"
+                   th:href="@{/garages/{id}/edit(id=${garage.id})}"
+                   class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-edit"></i>Edit Garage
                 </a>
                 <form th:action="@{/garages/{id}/toggle-availability(id=${garage.id})}"
                       method="post" sec:authorize="hasRole('GARAGE_OWNER')">
