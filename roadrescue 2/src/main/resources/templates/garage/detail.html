@@ -114,6 +114,12 @@
                    class="btn btn-outline-danger btn-sm">
                     <i class="fas fa-edit"></i>Edit Garage
                 </a>
+                <a th:if="${#authentication.name == garage.owner.email}"
+                   href="https://mail.google.com/mail/u/0/#inbox"
+                   target="_blank"
+                   class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-envelope-open-text me-2"></i>Reply to Customer Messages
+                </a>
                 <form th:action="@{/garages/{id}/toggle-availability(id=${garage.id})}"
                       method="post" sec:authorize="hasRole('GARAGE_OWNER')">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
