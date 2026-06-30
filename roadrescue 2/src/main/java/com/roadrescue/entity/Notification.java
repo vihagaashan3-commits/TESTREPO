@@ -27,6 +27,10 @@ public class Notification {
     @Column(name = "notification_type")
     private String notificationType; // REQUEST_ACCEPTED, TECHNICIAN_DISPATCHED, PAYMENT_RECEIVED, etc.
 
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
