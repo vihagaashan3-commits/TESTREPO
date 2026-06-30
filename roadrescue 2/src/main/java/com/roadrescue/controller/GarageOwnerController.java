@@ -32,7 +32,7 @@ public class GarageOwnerController {
     private final TechnicianService technicianService;
     private final UserService userService;
     private final EmailService emailService;
-
+    private final ReviewService reviewService;
 
 
     @GetMapping("/dashboard")
@@ -44,6 +44,9 @@ public class GarageOwnerController {
             Long garageId = myGarages.get(0).getId();
             Page<BreakdownRequest> pending = requestService.getRequestsByGarage(garageId, 0, 10);
             model.addAttribute("pendingRequests", pending);
+            Double avgRating = garageService.getAverageRating(garageId);
+            model.addAttribute("avgRating", avgRating != null ? String.format("%.1f", avgRating) : "N/A");
+            model.addAttribute("reviews", reviewService.getGarageReviews(garageId, 0, 5));
         }
         return "garage-owner/dashboard";
     }
