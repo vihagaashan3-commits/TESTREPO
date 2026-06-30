@@ -30,12 +30,18 @@ public class GarageController {
     public String listGarages(@RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "9") int size,
                               @RequestParam(required = false) String keyword,
+                              @AuthenticationPrincipal UserDetails userDetails,
                               Model model) {
         Page<Garage> garages = garageService.getAllGarages(page, size, keyword);
         model.addAttribute("garages", garages);
         model.addAttribute("keyword", keyword);
         model.addAttribute("currentPage", page);
         model.addAttribute("serviceTypes", ServiceType.values());
+
+        if (userDetails != null) {
+            model.addAttribute("ownerHasGarage", garageService.ownerHasGarage(userDetails.getUsername()));
+        }
+
         return "garage/list";
     }
 
