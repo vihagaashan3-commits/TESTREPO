@@ -7,6 +7,7 @@ import com.roadrescue.enums.ServiceType;
 import com.roadrescue.exception.ResourceNotFoundException;
 import com.roadrescue.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BreakdownRequestService {
 
     private final BreakdownRequestRepository requestRepository;
@@ -65,22 +67,28 @@ public class BreakdownRequestService {
 
         BreakdownRequest saved = requestRepository.save(request);
 
-        // Notify garage(s) via WebSocket
-        if (dto.getGarageId() != null) {
-            messagingTemplate.convertAndSendToUser(
-                    saved.getGarage().getOwner().getEmail(),
-                    "/queue/new-request",
-                    "New request sent directly to your garage! ID: " + saved.getId());
-        } else {
-            List<Garage> nearbyGarages = garageRepository.findNearbyGarages(
-                    dto.getLatitude(), dto.getLongitude(), 10.0);
-            for (Garage garage : nearbyGarages) {
+        // Notify garage(s) via WebSocket — never let a notification failure
+        // undo the request that was just successfully created/saved above.
+        try {
+            if (dto.getGarageId() != null) {
                 messagingTemplate.convertAndSendToUser(
-                        garage.getOwner().getEmail(),
+                        saved.getGarage().getOwner().getEmail(),
                         "/queue/new-request",
-                        "New breakdown request nearby! ID: " + saved.getId());
+                        "New request sent directly to your garage! ID: " + saved.getId());
+            } else {
+                List<Garage> nearbyGarages = garageRepository.findNearbyGarages(
+                        dto.getLatitude(), dto.getLongitude(), 10.0);
+                for (Garage garage : nearbyGarages) {
+                    messagingTemplate.convertAndSendToUser(
+                            garage.getOwner().getEmail(),
+                            "/queue/new-request",
+                            "New breakdown request nearby! ID: " + saved.getId());
+                }
             }
+        } catch (Exception e) {
+            log.error("Failed to push WebSocket notification for new request #{}", saved.getId(), e);
         }
+
         return saved;
     }
 
@@ -100,20 +108,32 @@ public class BreakdownRequestService {
         request.setGarage(garage);
         BreakdownRequest saved = requestRepository.save(request);
 
-        String servicesText = request.getServiceTypes() != null
-                ? String.join(", ", request.getServiceTypes().stream()
-                .map(ServiceType::getDisplayName).toList())
-                : "Service";
+        // ── Side effects (notification + WebSocket push) ──────────────────
+        // These must NOT be able to roll back the acceptance above.
+        // If either fails, we log it and move on — the driver/garage can
+        // still see the updated status next time they load the page.
+        try {
+            String servicesText = saved.getServiceTypes() != null
+                    ? String.join(", ", saved.getServiceTypes().stream()
+                    .map(ServiceType::getDisplayName).toList())
+                    : "Service";
 
-        notificationService.createNotification(
-                request.getUser(),
-                "Request Accepted",
-                "Your request for " + servicesText + " has been accepted by " +
-                        garage.getGarageName() + ". You will receive a payment quote shortly.",
-                "REQUEST_ACCEPTED", request);
+            notificationService.createNotification(
+                    saved.getUser(),
+                    "Request Accepted",
+                    "Your request for " + servicesText + " has been accepted by " +
+                            garage.getGarageName() + ". You will receive a payment quote shortly.",
+                    "REQUEST_ACCEPTED", saved);
+        } catch (Exception e) {
+            log.error("Failed to create acceptance notification for request #{}", requestId, e);
+        }
 
-        messagingTemplate.convertAndSendToUser(
-                request.getUser().getEmail(), "/queue/request-update", "ACCEPTED:" + garageId);
+        try {
+            messagingTemplate.convertAndSendToUser(
+                    saved.getUser().getEmail(), "/queue/request-update", "ACCEPTED:" + garageId);
+        } catch (Exception e) {
+            log.error("Failed to push WebSocket update for accepted request #{}", requestId, e);
+        }
 
         return saved;
     }
@@ -131,14 +151,22 @@ public class BreakdownRequestService {
         request.setNotes("Declined by garage. Please submit a new request!.");
         BreakdownRequest saved = requestRepository.save(request);
 
-        notificationService.createNotification(
-                request.getUser(),
-                "Request Declined",
-                "Your breakdown request was declined. Please submit a new request to another garage.",
-                "REQUEST_DECLINED", request);
+        try {
+            notificationService.createNotification(
+                    saved.getUser(),
+                    "Request Declined",
+                    "Your breakdown request was declined. Please submit a new request to another garage.",
+                    "REQUEST_DECLINED", saved);
+        } catch (Exception e) {
+            log.error("Failed to create decline notification for request #{}", requestId, e);
+        }
 
-        messagingTemplate.convertAndSendToUser(
-                request.getUser().getEmail(), "/queue/request-update", "CANCELLED:" + requestId);
+        try {
+            messagingTemplate.convertAndSendToUser(
+                    saved.getUser().getEmail(), "/queue/request-update", "CANCELLED:" + requestId);
+        } catch (Exception e) {
+            log.error("Failed to push WebSocket update for declined request #{}", requestId, e);
+        }
 
         return saved;
     }
@@ -159,17 +187,25 @@ public class BreakdownRequestService {
         request.setQuotedAt(LocalDateTime.now());
         BreakdownRequest saved = requestRepository.save(request);
 
-        notificationService.createNotification(
-                request.getUser(),
-                "Payment Quote Received",
-                "Garage \"" + request.getGarage().getGarageName() + "\" has sent a payment quote of Rs. " +
-                        quoteAmount + ". Details: " + quoteNotes +
-                        ". IMPORTANT: This amount is LOCKED and cannot be changed once you approve. " +
-                        "Please APPROVE or REJECT the quote.",
-                "QUOTE_RECEIVED", request);
+        try {
+            notificationService.createNotification(
+                    saved.getUser(),
+                    "Payment Quote Received",
+                    "Garage \"" + saved.getGarage().getGarageName() + "\" has sent a payment quote of Rs. " +
+                            quoteAmount + ". Details: " + quoteNotes +
+                            ". IMPORTANT: This amount is LOCKED and cannot be changed once you approve. " +
+                            "Please APPROVE or REJECT the quote.",
+                    "QUOTE_RECEIVED", saved);
+        } catch (Exception e) {
+            log.error("Failed to create quote notification for request #{}", requestId, e);
+        }
 
-        messagingTemplate.convertAndSendToUser(
-                request.getUser().getEmail(), "/queue/request-update", "QUOTED:" + requestId);
+        try {
+            messagingTemplate.convertAndSendToUser(
+                    saved.getUser().getEmail(), "/queue/request-update", "QUOTED:" + requestId);
+        } catch (Exception e) {
+            log.error("Failed to push WebSocket update for quoted request #{}", requestId, e);
+        }
 
         return saved;
     }
@@ -191,16 +227,24 @@ public class BreakdownRequestService {
         request.setQuoteApprovedAt(LocalDateTime.now());
         BreakdownRequest saved = requestRepository.save(request);
 
-        notificationService.createNotification(
-                request.getGarage().getOwner(),
-                "Quote Approved — Dispatch Technician",
-                "Driver approved the quote of Rs. " + request.getQuoteAmount() +
-                        " for Request #" + requestId + ". Please dispatch your technician now.",
-                "QUOTE_APPROVED", request);
+        try {
+            notificationService.createNotification(
+                    saved.getGarage().getOwner(),
+                    "Quote Approved — Dispatch Technician",
+                    "Driver approved the quote of Rs. " + saved.getQuoteAmount() +
+                            " for Request #" + requestId + ". Please dispatch your technician now.",
+                    "QUOTE_APPROVED", saved);
+        } catch (Exception e) {
+            log.error("Failed to create quote-approved notification for request #{}", requestId, e);
+        }
 
-        messagingTemplate.convertAndSendToUser(
-                request.getGarage().getOwner().getEmail(),
-                "/queue/request-update", "QUOTE_APPROVED:" + requestId);
+        try {
+            messagingTemplate.convertAndSendToUser(
+                    saved.getGarage().getOwner().getEmail(),
+                    "/queue/request-update", "QUOTE_APPROVED:" + requestId);
+        } catch (Exception e) {
+            log.error("Failed to push WebSocket update for quote-approved request #{}", requestId, e);
+        }
 
         return saved;
     }
@@ -222,15 +266,23 @@ public class BreakdownRequestService {
         request.setNotes("Quote rejected by driver. Driver may submit a new request.");
         BreakdownRequest saved = requestRepository.save(request);
 
-        notificationService.createNotification(
-                request.getGarage().getOwner(),
-                "Quote Rejected",
-                "Driver rejected the quote for Request #" + requestId + ".",
-                "QUOTE_REJECTED", request);
+        try {
+            notificationService.createNotification(
+                    saved.getGarage().getOwner(),
+                    "Quote Rejected",
+                    "Driver rejected the quote for Request #" + requestId + ".",
+                    "QUOTE_REJECTED", saved);
+        } catch (Exception e) {
+            log.error("Failed to create quote-rejected notification for request #{}", requestId, e);
+        }
 
-        messagingTemplate.convertAndSendToUser(
-                request.getGarage().getOwner().getEmail(),
-                "/queue/request-update", "QUOTE_REJECTED:" + requestId);
+        try {
+            messagingTemplate.convertAndSendToUser(
+                    saved.getGarage().getOwner().getEmail(),
+                    "/queue/request-update", "QUOTE_REJECTED:" + requestId);
+        } catch (Exception e) {
+            log.error("Failed to push WebSocket update for quote-rejected request #{}", requestId, e);
+        }
 
         return saved;
     }
@@ -247,16 +299,24 @@ public class BreakdownRequestService {
         request.setStatus(RequestStatus.IN_PROGRESS);
         BreakdownRequest saved = requestRepository.save(request);
 
-        notificationService.createNotification(
-                request.getUser(),
-                "Technician On The Way",
-                "Your quote has been approved and our technician is now heading to your location! " +
-                        "Locked amount: Rs. " + request.getQuoteAmount() +
-                        ". Technician contact: " + request.getGarage().getPhone(),
-                "TECHNICIAN_DISPATCHED", request);
+        try {
+            notificationService.createNotification(
+                    saved.getUser(),
+                    "Technician On The Way",
+                    "Your quote has been approved and our technician is now heading to your location! " +
+                            "Locked amount: Rs. " + saved.getQuoteAmount() +
+                            ". Technician contact: " + saved.getGarage().getPhone(),
+                    "TECHNICIAN_DISPATCHED", saved);
+        } catch (Exception e) {
+            log.error("Failed to create in-progress notification for request #{}", requestId, e);
+        }
 
-        messagingTemplate.convertAndSendToUser(
-                request.getUser().getEmail(), "/queue/request-update", "IN_PROGRESS:" + requestId);
+        try {
+            messagingTemplate.convertAndSendToUser(
+                    saved.getUser().getEmail(), "/queue/request-update", "IN_PROGRESS:" + requestId);
+        } catch (Exception e) {
+            log.error("Failed to push WebSocket update for in-progress request #{}", requestId, e);
+        }
 
         return saved;
     }
@@ -276,16 +336,24 @@ public class BreakdownRequestService {
         request.setCompletedAt(LocalDateTime.now());
         BreakdownRequest saved = requestRepository.save(request);
 
-        notificationService.createNotification(
-                request.getUser(),
-                "Job Completed",
-                "Work is done! Final amount: Rs. " + request.getQuoteAmount() +
-                        ". Please pay via " + request.getPreferredPaymentMethod() +
-                        ". You can now rate the garage and technician.",
-                "JOB_COMPLETED", request);
+        try {
+            notificationService.createNotification(
+                    saved.getUser(),
+                    "Job Completed",
+                    "Work is done! Final amount: Rs. " + saved.getQuoteAmount() +
+                            ". Please pay via " + saved.getPreferredPaymentMethod() +
+                            ". You can now rate the garage and technician.",
+                    "JOB_COMPLETED", saved);
+        } catch (Exception e) {
+            log.error("Failed to create completion notification for request #{}", requestId, e);
+        }
 
-        messagingTemplate.convertAndSendToUser(
-                request.getUser().getEmail(), "/queue/request-update", "COMPLETED:" + requestId);
+        try {
+            messagingTemplate.convertAndSendToUser(
+                    saved.getUser().getEmail(), "/queue/request-update", "COMPLETED:" + requestId);
+        } catch (Exception e) {
+            log.error("Failed to push WebSocket update for completed request #{}", requestId, e);
+        }
 
         return saved;
     }
