@@ -4,6 +4,7 @@ import com.roadrescue.dto.GarageDTO;
 import com.roadrescue.entity.Garage;
 import com.roadrescue.entity.User;
 import com.roadrescue.enums.ServiceType;
+import com.roadrescue.exception.DuplicateGarageException;
 import com.roadrescue.exception.ResourceNotFoundException;
 import com.roadrescue.repository.GarageRepository;
 import com.roadrescue.repository.ReviewRepository;
@@ -28,6 +29,13 @@ public class GarageService {
     @CacheEvict(value = "garages", allEntries = true)
     public Garage createGarage(GarageDTO dto, String ownerEmail) {
         User owner = userService.findByEmail(ownerEmail);
+
+        // SECURITY: Enforce one garage per owner account.
+        boolean alreadyHasGarage = garageRepository.existsByOwnerIdAndDeletedFalse(owner.getId());
+        if (alreadyHasGarage) {
+            throw new DuplicateGarageException(
+                    "This account has already registered a garage. Only one garage is allowed per account.");
+        }
 
         Garage garage = Garage.builder()
                 .garageName(dto.getGarageName())
@@ -69,6 +77,11 @@ public class GarageService {
     public List<Garage> getOwnerGarages(String ownerEmail) {
         User owner = userService.findByEmail(ownerEmail);
         return garageRepository.findByOwnerIdAndDeletedFalse(owner.getId());
+    }
+
+    public boolean ownerHasGarage(String ownerEmail) {
+        User owner = userService.findByEmail(ownerEmail);
+        return garageRepository.existsByOwnerIdAndDeletedFalse(owner.getId());
     }
 
     @Transactional
