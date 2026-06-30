@@ -130,6 +130,23 @@
 
 
 <script>
+    // Cookie consent banner
+    document.addEventListener("DOMContentLoaded", function () {
+        if (!localStorage.getItem("rr_cookie_consent")) {
+            document.getElementById("cookieBanner").style.display = "flex";
+        }
+    });
+
+    function acceptCookies() {
+        localStorage.setItem("rr_cookie_consent", "accepted");
+        document.getElementById("cookieBanner").style.display = "none";
+    }
+
+    function declineCookies() {
+        localStorage.setItem("rr_cookie_consent", "declined");
+        document.getElementById("cookieBanner").style.display = "none";
+    }
+
     function togglePassword() {
         const passwordField = document.getElementById("passwordField");
         const toggleIcon = document.getElementById("togglePw");
@@ -146,8 +163,55 @@
     }
 </script>
 
-</body>
-</html>
+<!-- Cookie Consent Banner -->
+<div id="cookieBanner" class="cookie-banner">
+    <div class="cookie-banner-text">
+        <i class="fas fa-cookie-bite"></i>
+        We use cookies to keep you signed in and improve your RoadRescue experience.
+        <a th:href="@{/privacy-policy}">Learn more</a>
+    </div>
+    <div class="cookie-banner-actions">
+        <button type="button" class="btn-cookie-decline" onclick="declineCookies()">Decline</button>
+        <button type="button" class="btn-cookie-accept" onclick="acceptCookies()">Accept</button>
+    </div>
+</div>
+
+<style>
+    .cookie-banner {
+        display: none;
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        z-index: 2000;
+        background: #1b1f27;
+        color: #fff;
+        padding: 16px 24px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        box-shadow: 0 -4px 20px rgba(0,0,0,.2);
+    }
+    .cookie-banner-text {
+        flex: 1 1 320px;
+        font-size: .9rem;
+        line-height: 1.4;
+    }
+    .cookie-banner-text i { color: #dc3545; margin-right: 6px; }
+    .cookie-banner-text a { color: #ff6b6b; text-decoration: underline; }
+    .cookie-banner-actions { display: flex; gap: 10px; flex-shrink: 0; }
+    .btn-cookie-accept, .btn-cookie-decline {
+        border: none;
+        padding: 8px 18px;
+        border-radius: 8px;
+        font-size: .85rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .btn-cookie-accept { background: #dc3545; color: #fff; }
+    .btn-cookie-accept:hover { background: #b71c2b; }
+    .btn-cookie-decline { background: transparent; color: #ccc; border: 1px solid #555; }
+    .btn-cookie-decline:hover { background: rgba(255,255,255,.08); }
+</style>
 
 </body>
 </html>
