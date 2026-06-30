@@ -17,7 +17,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    // ── Existing: garage path-variable flow ──────────────────────────────────
+
 
     @GetMapping("/garage/{garageId}")
     public String reviewForm(@PathVariable Long garageId, Model model) {
@@ -40,7 +40,7 @@ public class ReviewController {
         return "redirect:/garages/" + garageId;
     }
 
-    // ── New: query-param flow used by the breakdown request button ────────────
+
 
     @GetMapping("/new")
     public String newReviewForm(@RequestParam Long garageId,
@@ -67,7 +67,7 @@ public class ReviewController {
         return "redirect:/requests/" + requestId;
     }
 
-    // ── Existing: delete ──────────────────────────────────────────────────────
+
 
     @PostMapping("/{id}/delete")
     public String deleteReview(@PathVariable Long id,

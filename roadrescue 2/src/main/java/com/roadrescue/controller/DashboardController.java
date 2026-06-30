@@ -52,7 +52,7 @@ public class DashboardController {
         }
 
 
-        // Regular user
+
         model.addAttribute("myRequests", requestService.getRequestsByUser(user.getId(), 0, 5));
         return "user/dashboard";
     }
