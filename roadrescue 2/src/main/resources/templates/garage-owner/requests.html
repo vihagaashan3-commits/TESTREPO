@@ -116,6 +116,10 @@
                                        class="btn btn-sm btn-outline-secondary">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                            th:attr="onclick=${'openContactModal(' + req.id + ', &quot;' + req.user.email + '&quot;, &quot;' + req.user.fullName + '&quot;)'}">
+                                        <i class="fas fa-envelope"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -241,6 +245,12 @@
                                            class="btn btn-sm btn-outline-secondary">
                                             <i class="fas fa-eye"></i>
                                         </a>
+
+                                        <!-- Contact customer -->
+                                        <button type="button" class="btn btn-sm btn-outline-primary"
+                                                th:attr="onclick=${'openContactModal(' + req.id + ', &quot;' + req.user.email + '&quot;, &quot;' + req.user.fullName + '&quot;)'}">
+                                            <i class="fas fa-envelope"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -312,6 +322,46 @@
     </div>
 </div>
 
+<!-- Contact Customer Modal -->
+<div class="modal fade" id="contactCustomerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h6 class="modal-title fw-bold">
+                    <i class="fas fa-envelope me-2"></i>Contact Customer: <span id="contactCustomerName"></span>
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="contactCustomerForm" method="post" th:action="@{/garage-owner/requests/0/contact-customer}">
+                <div class="modal-body">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <input type="hidden" name="customerEmail" id="contactCustomerEmail">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">To</label>
+                        <input type="text" class="form-control" id="contactCustomerEmailDisplay" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Subject *</label>
+                        <input type="text" name="subject" class="form-control" maxlength="150" required
+                               placeholder="e.g. Update on your request">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Message *</label>
+                        <textarea name="message" class="form-control" rows="5" maxlength="2000" required
+                                  placeholder="Type your message here..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary fw-bold">
+                        <i class="fas fa-paper-plane me-2"></i>Send Message
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <th:block th:replace="~{layout :: footer}"></th:block>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -319,6 +369,17 @@
         document.getElementById('quoteForm').action =
             '/garage-owner/requests/' + requestId + '/send-quote';
         new bootstrap.Modal(document.getElementById('quoteModal')).show();
+    }
+
+    function openContactModal(requestId, customerEmail, customerName) {
+        var subject = 'RoadRescue - Update on your service request #' + requestId;
+        var body = 'Hi ' + customerName + ',\n\n';
+        var gmailUrl = 'https://mail.google.com/mail/?view=cm&fs=1'
+            + '&to=' + encodeURIComponent(customerEmail)
+            + '&su=' + encodeURIComponent(subject)
+            + '&body=' + encodeURIComponent(body);
+        window.open(gmailUrl, '_blank');
+
     }
 </script>
 </body>

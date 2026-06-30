@@ -1,11 +1,15 @@
 package com.roadrescue.controller;
 
+import com.roadrescue.dto.ContactGarageDTO;
 import com.roadrescue.dto.GarageDTO;
 import com.roadrescue.entity.Garage;
+import com.roadrescue.entity.User;
 import com.roadrescue.entity.Review;
 import com.roadrescue.enums.ServiceType;
 import com.roadrescue.exception.DuplicateGarageException;
+import com.roadrescue.service.EmailService;
 import com.roadrescue.service.GarageService;
+import com.roadrescue.service.UserService;
 import com.roadrescue.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +22,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.util.List;
 
 @Controller
@@ -27,7 +30,12 @@ import java.util.List;
 public class GarageController {
 
     private final GarageService garageService;
+
+    private final UserService userService;
+    private final EmailService emailService;
+
     private final ReviewService reviewService;
+
 
     @GetMapping
     public String listGarages(@RequestParam(defaultValue = "0") int page,
@@ -171,6 +179,38 @@ public class GarageController {
         garageService.softDelete(id);
         redirectAttributes.addFlashAttribute("success", "Garage deleted.");
         return "redirect:/garages";
+    }
+
+    @PostMapping("/{id}/contact")
+    @PreAuthorize("hasRole('USER')")
+    public String contactGarage(@PathVariable Long id,
+                                @Valid @ModelAttribute("contactGarageDTO") ContactGarageDTO dto,
+                                BindingResult result,
+                                @AuthenticationPrincipal UserDetails userDetails,
+                                RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", "Please fill in a subject and message.");
+            return "redirect:/garages/" + id;
+        }
+
+        Garage garage = garageService.findById(id);
+        if (garage.getEmail() == null || garage.getEmail().isBlank()) {
+            redirectAttributes.addFlashAttribute("error", "This garage hasn't provided a contact email yet.");
+            return "redirect:/garages/" + id;
+        }
+
+        User sender = userService.findByEmail(userDetails.getUsername());
+
+        emailService.sendContactGarageEmail(
+                garage.getEmail(),
+                sender.getFullName(),
+                sender.getEmail(),
+                dto.getSubject(),
+                dto.getMessage()
+        );
+
+        redirectAttributes.addFlashAttribute("success", "Your message has been sent to the garage.");
+        return "redirect:/garages/" + id;
     }
 
     @PostMapping("/{id}/toggle-availability")

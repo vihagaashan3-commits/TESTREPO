@@ -30,6 +30,14 @@
         </span>
         <span th:unless="${garage.verified}" class="badge bg-warning text-dark">Pending Verification</span>
     </div>
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i><span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i><span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 
     <div class="row g-4">
         <!-- Left -->
@@ -94,11 +102,23 @@
                     <i class="fas fa-exclamation-triangle me-2"></i>Request Help from This Garage
                 </a>
 
+                <button type="button" sec:authorize="hasRole('USER')"
+                        class="btn btn-outline-primary"
+                        data-bs-toggle="modal" data-bs-target="#contactGarageModal">
+                    <i class="fas fa-envelope me-2"></i>Contact Garage
+                </button>
+
                 <!-- On the garage detail page, show Edit button only to the owner -->
                 <a th:if="${#authentication.name == garage.owner.email}"
                    th:href="@{/garages/{id}/edit(id=${garage.id})}"
                    class="btn btn-outline-danger btn-sm">
                     <i class="fas fa-edit"></i>Edit Garage
+                </a>
+                <a th:if="${#authentication.name == garage.owner.email}"
+                   href="https://mail.google.com/mail/u/0/#inbox"
+                   target="_blank"
+                   class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-envelope-open-text me-2"></i>Reply to Customer Messages
                 </a>
                 <form th:action="@{/garages/{id}/toggle-availability(id=${garage.id})}"
                       method="post" sec:authorize="hasRole('GARAGE_OWNER')">
@@ -191,6 +211,45 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contact Garage Modal -->
+<div class="modal fade" id="contactGarageModal" tabindex="-1" sec:authorize="hasRole('USER')">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h6 class="modal-title fw-bold">
+                    <i class="fas fa-envelope me-2"></i>Contact <span th:text="${garage.garageName}">Garage</span>
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form th:action="@{/garages/{id}/contact(id=${garage.id})}" method="post">
+                <div class="modal-body">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Subject *</label>
+                        <input type="text" name="subject" class="form-control" maxlength="150" required
+                               placeholder="e.g. Question about your towing service">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Message *</label>
+                        <textarea name="message" class="form-control" rows="5" maxlength="2000" required
+                                  placeholder="Type your message here..."></textarea>
+                    </div>
+                    <div class="alert alert-light small mb-0 border">
+                        <i class="fas fa-info-circle me-1"></i>
+                        This will be sent directly to the garage's email. They can reply to you directly.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary fw-bold">
+                        <i class="fas fa-paper-plane me-2"></i>Send Message
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
