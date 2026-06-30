@@ -7,67 +7,313 @@
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        :root{
+            --rv-asphalt:#14161a;
+            --rv-steel:#525a66;
+            --rv-steel-soft:#8a909b;
+            --rv-ember:#d62828;
+            --rv-ember-dark:#a31e1e;
+            --rv-amber:#f1a208;
+            --rv-paper:#f6f4ef;
+            --rv-line:#e4e1d8;
+        }
+        body{ background:var(--rv-paper); font-family:'Inter',sans-serif; }
+        .rv-wrap{ max-width:1140px; }
+        .rv-headband{
+            background:var(--rv-asphalt);
+            border-radius:18px;
+            padding:34px 36px;
+            position:relative;
+            overflow:hidden;
+            color:#fff;
+        }
+        .rv-headband::after{
+            content:"";
+            position:absolute; inset:0;
+            background:
+                    repeating-linear-gradient(115deg, rgba(255,255,255,.035) 0 2px, transparent 2px 26px);
+            pointer-events:none;
+        }
+        .rv-eyebrow{
+            font-family:'JetBrains Mono',monospace;
+            font-size:.72rem;
+            letter-spacing:.18em;
+            text-transform:uppercase;
+            color:var(--rv-amber);
+            margin-bottom:6px;
+        }
+        .rv-title{
+            font-family:'Sora',sans-serif;
+            font-weight:700;
+            font-size:1.9rem;
+            margin:0;
+            letter-spacing:-.01em;
+        }
+        .rv-sub{
+            color:#c7cad1;
+            font-size:.94rem;
+            margin-top:6px;
+            margin-bottom:0;
+        }
+        .btn-rv-add{
+            background:var(--rv-ember);
+            border:none;
+            color:#fff;
+            font-weight:600;
+            font-size:.92rem;
+            padding:.65rem 1.3rem;
+            border-radius:10px;
+            transition:background .15s ease, transform .1s ease;
+            white-space:nowrap;
+        }
+        .btn-rv-add:hover{ background:var(--rv-ember-dark); color:#fff; transform:translateY(-1px); }
+
+        .rv-count-chip{
+            font-family:'JetBrains Mono',monospace;
+            font-size:.78rem;
+            background:rgba(255,255,255,.08);
+            border:1px solid rgba(255,255,255,.14);
+            color:#e7e9ec;
+            border-radius:999px;
+            padding:.3rem .8rem;
+            display:inline-block;
+        }
+
+        .rv-empty{
+            border:1.5px dashed #c9c4b4;
+            border-radius:18px;
+            background:#fffdf8;
+            padding:64px 24px;
+            text-align:center;
+        }
+        .rv-empty i{ font-size:2.2rem; color:var(--rv-steel-soft); }
+        .rv-empty h6{
+            font-family:'Sora',sans-serif;
+            font-weight:600;
+            color:var(--rv-asphalt);
+            margin-top:14px;
+        }
+        .rv-empty p{ color:var(--rv-steel); font-size:.92rem; }
+
+        .rv-card{
+            background:#fff;
+            border:1px solid var(--rv-line);
+            border-radius:16px;
+            overflow:hidden;
+            transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+            height:100%;
+            display:flex;
+            flex-direction:column;
+        }
+        .rv-card:hover{
+            transform:translateY(-3px);
+            box-shadow:0 14px 28px rgba(20,22,26,.1);
+            border-color:#d8d4c6;
+        }
+        .rv-card-top{
+            padding:20px 20px 16px;
+            display:flex;
+            align-items:flex-start;
+            justify-content:space-between;
+            gap:12px;
+        }
+        .rv-icon-badge{
+            width:46px; height:46px;
+            border-radius:12px;
+            background:var(--rv-asphalt);
+            color:var(--rv-amber);
+            display:flex; align-items:center; justify-content:center;
+            font-size:1.25rem;
+            flex-shrink:0;
+        }
+        .rv-card-name{
+            font-family:'Sora',sans-serif;
+            font-weight:600;
+            font-size:1.02rem;
+            color:var(--rv-asphalt);
+            margin:0;
+            line-height:1.25;
+        }
+        .rv-card-type{
+            font-size:.78rem;
+            color:var(--rv-steel-soft);
+            text-transform:uppercase;
+            letter-spacing:.06em;
+            margin-top:2px;
+        }
+
+        .rv-plate{
+            margin:0 20px 18px;
+            background:linear-gradient(180deg,#fdf6df,#f7ecc4);
+            border:2px solid var(--rv-asphalt);
+            border-radius:7px;
+            padding:9px 14px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            position:relative;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+        }
+        .rv-plate::before, .rv-plate::after{
+            content:"";
+            position:absolute;
+            top:50%; transform:translateY(-50%);
+            width:6px; height:6px;
+            border-radius:50%;
+            background:var(--rv-asphalt);
+            opacity:.55;
+        }
+        .rv-plate::before{ left:6px; }
+        .rv-plate::after{ right:6px; }
+        .rv-plate-text{
+            font-family:'JetBrains Mono',monospace;
+            font-weight:700;
+            font-size:1.15rem;
+            letter-spacing:.12em;
+            color:var(--rv-asphalt);
+        }
+
+        .rv-meta{
+            padding:0 20px 18px;
+            flex-grow:1;
+        }
+        .rv-meta-row{
+            display:flex;
+            justify-content:space-between;
+            font-size:.84rem;
+            padding:6px 0;
+            border-bottom:1px dashed var(--rv-line);
+        }
+        .rv-meta-row:last-child{ border-bottom:none; }
+        .rv-meta-label{ color:var(--rv-steel-soft); }
+        .rv-meta-value{ color:var(--rv-asphalt); font-weight:500; }
+        .rv-swatch{
+            display:inline-block;
+            width:10px; height:10px;
+            border-radius:50%;
+            margin-right:6px;
+            vertical-align:1px;
+            border:1px solid rgba(0,0,0,.15);
+        }
+
+        .rv-actions{
+            display:flex;
+            border-top:1px solid var(--rv-line);
+        }
+        .rv-actions a, .rv-actions button{
+            flex:1;
+            border:none;
+            background:#fff;
+            padding:12px 0;
+            font-size:.84rem;
+            font-weight:600;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:6px;
+            transition:background .15s ease;
+        }
+        .rv-actions a{ color:var(--rv-steel); text-decoration:none; }
+        .rv-actions a:hover{ background:#f5f3ec; color:var(--rv-asphalt); }
+        .rv-actions button{ color:var(--rv-ember); border-left:1px solid var(--rv-line); }
+        .rv-actions button:hover{ background:#fdf0ef; }
+
+        .rv-flash{
+            border:none;
+            border-radius:12px;
+            background:#eaf6ec;
+            color:#1d5b2a;
+            padding:14px 18px;
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
 <th:block th:replace="~{layout :: navbar}"></th:block>
 
-<div class="container my-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h5 class="fw-bold mb-0"><i class="fas fa-car text-danger me-2"></i>My Vehicles</h5>
-        <a th:href="@{/vehicles/new}" class="btn btn-danger">
+<div class="container rv-wrap my-4">
+
+    <div class="rv-headband d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div style="position:relative; z-index:1;">
+            <div class="rv-eyebrow">Vehicle registry</div>
+            <h5 class="rv-title">My Vehicles</h5>
+            <p class="rv-sub">Keep your fleet on file so help finds the right vehicle, fast.</p>
+            <span class="rv-count-chip mt-3 d-inline-block" th:if="${!vehicles.isEmpty()}">
+                <i class="fas fa-car-side me-1"></i>
+                <span th:text="${vehicles.size()}">0</span> registered
+            </span>
+        </div>
+        <a th:href="@{/vehicles/new}" class="btn-rv-add" style="position:relative; z-index:1;">
             <i class="fas fa-plus me-2"></i>Add Vehicle
         </a>
     </div>
 
     <!-- Flash -->
-    <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
-        <i class="fas fa-check-circle me-2"></i><span th:text="${success}"></span>
+    <div th:if="${success}" class="alert rv-flash alert-dismissible fade show d-flex align-items-center mb-4">
+        <i class="fas fa-circle-check me-2"></i><span th:text="${success}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
-    <div th:if="${vehicles.isEmpty()}" class="text-center py-5 text-muted">
-        <i class="fas fa-car fs-1 mb-3 d-block opacity-50"></i>
-        <h6>No vehicles added yet</h6>
-        <a th:href="@{/vehicles/new}" class="btn btn-danger mt-2">Add Your Vehicle</a>
+    <div th:if="${vehicles.isEmpty()}" class="rv-empty">
+        <i class="fas fa-warehouse"></i>
+        <h6>Your registry is empty</h6>
+        <p>Add a vehicle so a garage knows exactly what they're rescuing.</p>
+        <a th:href="@{/vehicles/new}" class="btn-rv-add d-inline-flex align-items-center mt-2">
+            <i class="fas fa-plus me-2"></i>Add your first vehicle
+        </a>
     </div>
 
     <div class="row g-4" th:unless="${vehicles.isEmpty()}">
         <div class="col-md-6 col-lg-4" th:each="v : ${vehicles}">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header rr-hero text-white">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="rounded-circle bg-white bg-opacity-25 p-2">
+            <div class="rv-card">
+
+                <div class="rv-card-top">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="rv-icon-badge">
                             <i th:class="${v.vehicleType == 'Bike' ? 'fas fa-motorcycle' :
                                           v.vehicleType == 'Truck' ? 'fas fa-truck' :
-                                          v.vehicleType == 'Van' ? 'fas fa-shuttle-van' : 'fas fa-car'} + ' fs-4'"></i>
+                                          v.vehicleType == 'Van' ? 'fas fa-shuttle-van' : 'fas fa-car'}"></i>
                         </div>
                         <div>
-                            <div class="fw-bold" th:text="${v.brand + ' ' + v.model}">Vehicle</div>
-                            <small class="opacity-75" th:text="${v.plateNumber}">Plate</small>
+                            <p class="rv-card-name" th:text="${v.brand + ' ' + v.model}">Vehicle</p>
+                            <div class="rv-card-type" th:text="${v.vehicleType}">Type</div>
                         </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <ul class="list-unstyled small mb-0">
-                        <li class="mb-1"><span class="text-muted me-2">Type:</span><span th:text="${v.vehicleType}">—</span></li>
-                        <li class="mb-1"><span class="text-muted me-2">Year:</span><span th:text="${v.year != null ? v.year : '—'}">—</span></li>
-                        <li class="mb-1"><span class="text-muted me-2">Color:</span><span th:text="${v.color != null ? v.color : '—'}">—</span></li>
-                        <li><span class="text-muted me-2">Plate:</span><strong th:text="${v.plateNumber}">—</strong></li>
-                    </ul>
+
+                <div class="rv-plate">
+                    <span class="rv-plate-text" th:text="${v.plateNumber}">PLATE</span>
                 </div>
-                <div class="card-footer bg-white border-0 d-flex gap-2">
-                    <a th:href="@{/vehicles/{id}/edit(id=${v.id})}" class="btn btn-sm btn-outline-warning flex-fill">
-                        <i class="fas fa-edit me-1"></i>Edit
+
+                <div class="rv-meta">
+                    <div class="rv-meta-row">
+                        <span class="rv-meta-label">Year</span>
+                        <span class="rv-meta-value" th:text="${v.year != null ? v.year : '—'}">—</span>
+                    </div>
+                    <div class="rv-meta-row">
+                        <span class="rv-meta-label">Color</span>
+                        <span class="rv-meta-value">
+                            <span class="rv-swatch" th:if="${v.color != null}" th:style="'background:' + ${v.color}"></span>
+                            <span th:text="${v.color != null ? v.color : '—'}">—</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="rv-actions">
+                    <a th:href="@{/vehicles/{id}/edit(id=${v.id})}">
+                        <i class="fas fa-pen"></i>Edit
                     </a>
                     <form th:action="@{/vehicles/{id}/delete(id=${v.id})}" method="post"
-                          class="flex-fill" onsubmit="return confirm('Remove this vehicle?')">
+                          style="flex:1; display:flex;" onsubmit="return confirm('Remove this vehicle?')">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                        <button type="submit" class="btn btn-sm btn-outline-danger w-100">
-                            <i class="fas fa-trash me-1"></i>Remove
+                        <button type="submit" style="flex:1;">
+                            <i class="fas fa-trash"></i>Remove
                         </button>
                     </form>
                 </div>
+
             </div>
         </div>
     </div>
