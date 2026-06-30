@@ -29,7 +29,7 @@ public class BreakdownRequestController {
     private final VehicleService vehicleService;
     private final PaymentService paymentService;
 
-    // ── DRIVER: My request history (own requests only) ────────────────────
+
     @GetMapping
     public String listRequests(@AuthenticationPrincipal UserDetails userDetails,
                                @RequestParam(defaultValue = "0") int page,
@@ -43,7 +43,7 @@ public class BreakdownRequestController {
         return "request/list";
     }
 
-    // ── DRIVER: New request form ──────────────────────────────────────────
+
     @GetMapping("/new")
     public String newRequestForm(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         User user = userService.findByEmail(userDetails.getUsername());
@@ -75,7 +75,7 @@ public class BreakdownRequestController {
         }
     }
 
-    // ── DRIVER: View request detail ───────────────────────────────────────
+
     @GetMapping("/{id}")
     public String viewRequest(@PathVariable Long id,
                               @AuthenticationPrincipal UserDetails userDetails,
@@ -83,7 +83,7 @@ public class BreakdownRequestController {
         BreakdownRequest request = requestService.findById(id);
         User user = userService.findByEmail(userDetails.getUsername());
 
-        // FIXED: use serviceTypes (List) instead of serviceType (null single field)
+
         ServiceType firstService = (request.getServiceTypes() != null && !request.getServiceTypes().isEmpty())
                 ? request.getServiceTypes().get(0) : null;
 
@@ -100,7 +100,7 @@ public class BreakdownRequestController {
         return "request/detail";
     }
 
-    // ── STEP 4a: DRIVER approves the garage's quote ───────────────────────
+
     @PostMapping("/{id}/approve-quote")
     public String approveQuote(@PathVariable Long id,
                                @AuthenticationPrincipal UserDetails userDetails,
@@ -115,7 +115,7 @@ public class BreakdownRequestController {
         return "redirect:/requests/" + id;
     }
 
-    // ── STEP 4b: DRIVER rejects the garage's quote ────────────────────────
+
     @PostMapping("/{id}/reject-quote")
     public String rejectQuote(@PathVariable Long id,
                               @AuthenticationPrincipal UserDetails userDetails,
@@ -130,7 +130,7 @@ public class BreakdownRequestController {
         return "redirect:/requests";
     }
 
-    // ── DRIVER: Cancel request ────────────────────────────────────────────
+
     @PostMapping("/{id}/cancel")
     public String cancelRequest(@PathVariable Long id,
                                 @AuthenticationPrincipal UserDetails userDetails,
@@ -144,7 +144,7 @@ public class BreakdownRequestController {
         return "redirect:/requests";
     }
 
-    // ── ADMIN: All requests with filters ──────────────────────────────────
+
     @GetMapping("/all")
     @PreAuthorize("hasAnyRole('ADMIN', 'GARAGE_OWNER')")
     public String allRequests(@RequestParam(defaultValue = "0") int page,

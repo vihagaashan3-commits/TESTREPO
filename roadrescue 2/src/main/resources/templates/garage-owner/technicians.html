@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Requests | RoadRescue</title>
+    <title>Technicians | RoadRescue</title>
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -16,6 +16,7 @@
 
 <div class="container-fluid my-4">
     <div class="row">
+
         <!-- Sidebar -->
         <div class="col-md-2">
             <div class="card border-0 shadow-sm">
@@ -24,10 +25,10 @@
                         <a th:href="@{/garage-owner/dashboard}" class="list-group-item list-group-item-action">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                         </a>
-                        <a th:href="@{/garage-owner/requests}" class="list-group-item list-group-item-action active bg-danger text-white">
+                        <a th:href="@{/garage-owner/requests}" class="list-group-item list-group-item-action">
                             <i class="fas fa-clipboard-list me-2"></i>Requests
                         </a>
-                        <a th:href="@{/garage-owner/technicians}" class="list-group-item list-group-item-action">
+                        <a th:href="@{/garage-owner/technicians}" class="list-group-item list-group-item-action active bg-danger text-white">
                             <i class="fas fa-user-cog me-2"></i>Technicians
                         </a>
                         <a th:href="@{/garages}" class="list-group-item list-group-item-action">
@@ -40,75 +41,148 @@
 
         <!-- Main Content -->
         <div class="col-md-10">
-            <h4 class="fw-bold mb-4"><i class="fas fa-clipboard-list me-2 text-danger"></i>Breakdown Requests</h4>
 
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h4 class="fw-bold mb-0">
+                    <i class="fas fa-user-cog me-2 text-danger"></i>Technicians
+                </h4>
+                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#addTechnicianModal">
+                    <i class="fas fa-plus me-2"></i>Add Technician
+                </button>
+            </div>
+
+            <!-- Flash messages -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- No garage warning -->
+            <div th:if="${garageId == null}" class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                You don't have a registered garage yet.
+                <a th:href="@{/garages/new}" class="alert-link ms-2">Register your garage now</a>
+            </div>
+
+            <!-- Stats row -->
+            <div th:if="${technicians != null}" class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm text-center py-3">
+                        <div class="fs-2 fw-bold text-danger" th:text="${technicians.totalElements}">0</div>
+                        <div class="text-muted small">Total Technicians</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm text-center py-3">
+                        <div class="fs-2 fw-bold text-success"
+                             th:text="${technicians.content.?[available].size()}">0</div>
+                        <div class="text-muted small">Available Now</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm text-center py-3">
+                        <div class="fs-2 fw-bold text-warning"
+                             th:text="${technicians.content.?[!available].size()}">0</div>
+                        <div class="text-muted small">On Assignment</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technicians table -->
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-0">
-                    <div th:if="${requests == null or requests.isEmpty()}" class="text-center py-5 text-muted">
-                        <i class="fas fa-inbox fs-1 mb-3 d-block"></i>
-                        <p>No requests found.</p>
+
+                    <!-- Empty state -->
+                    <div th:if="${technicians == null or technicians.isEmpty()}" class="text-center py-5 text-muted">
+                        <i class="fas fa-users fs-1 mb-3 d-block text-secondary"></i>
+                        <p class="mb-1">No technicians added yet.</p>
+                        <p class="small">Click <strong>Add Technician</strong> to get started.</p>
                     </div>
-                    <div th:unless="${requests == null or requests.isEmpty()}" class="table-responsive">
-                        <table class="table table-hover mb-0">
+
+                    <!-- Table -->
+                    <div th:unless="${technicians == null or technicians.isEmpty()}" class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                             <tr>
                                 <th>#</th>
-                                <th>Customer</th>
-                                <th>Service</th>
-                                <th>Location</th>
-                                <th>Status</th>
-                                <th>Date</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Skills</th>
+                                <th>Experience</th>
+                                <th>Availability</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="req : ${requests}">
-                                <td th:text="${req.id}">#</td>
-                                <td th:text="${req.user.fullName}">Customer</td>
+                            <tr th:each="tech, stat : ${technicians.content}">
+                                <td class="text-muted small" th:text="${stat.index + 1 + (currentPage * 10)}">1</td>
                                 <td>
-                                    <span class="badge bg-secondary"
-                                          th:text="${#strings.replace(req.serviceType.name(), '_', ' ')}">Service</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle bg-danger bg-opacity-10 d-flex align-items-center justify-content-center"
+                                             style="width:36px;height:36px;flex-shrink:0">
+                                            <span class="text-danger fw-bold small"
+                                                  th:text="${#strings.substring(tech.name,0,1).toUpperCase()}">A</span>
+                                        </div>
+                                        <span class="fw-semibold" th:text="${tech.name}">Name</span>
+                                    </div>
                                 </td>
-                                <td th:text="${req.locationAddress != null ? req.locationAddress : 'GPS Location'}">Location</td>
+                                <td th:text="${tech.phone}">Phone</td>
                                 <td>
-                                    <span th:class="${'badge ' +
-                                        (req.status.name() == 'PENDING' ? 'bg-warning text-dark' :
-                                         req.status.name() == 'ACCEPTED' ? 'bg-info' :
-                                         req.status.name() == 'IN_PROGRESS' ? 'bg-primary' :
-                                         req.status.name() == 'COMPLETED' ? 'bg-success' : 'bg-danger')}"
-                                          th:text="${req.status}">Status</span>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        <span th:each="skill : ${tech.skills}"
+                                              class="badge bg-secondary bg-opacity-75 fw-normal"
+                                              th:text="${skill.displayName}">Skill</span>
+                                        <span th:if="${tech.skills == null or tech.skills.isEmpty()}"
+                                              class="text-muted small">—</span>
+                                    </div>
                                 </td>
-                                <td th:text="${#temporals.format(req.createdAt, 'dd MMM yyyy')}">Date</td>
                                 <td>
-                                    <div class="d-flex gap-1 flex-wrap">
-                                        <form th:if="${req.status.name() == 'PENDING'}"
-                                              th:action="@{/garage-owner/requests/{id}/accept(id=${req.id})}"
+                                    <span th:if="${tech.experienceYears != null}"
+                                          th:text="${tech.experienceYears + ' yr' + (tech.experienceYears == 1 ? '' : 's')}">0 yrs</span>
+                                    <span th:unless="${tech.experienceYears != null}" class="text-muted">—</span>
+                                </td>
+                                <td>
+                                    <span th:if="${tech.available}" class="badge bg-success">
+                                        <i class="fas fa-circle me-1" style="font-size:0.5rem"></i>Available
+                                    </span>
+                                    <span th:unless="${tech.available}" class="badge bg-warning text-dark">
+                                        <i class="fas fa-circle me-1" style="font-size:0.5rem"></i>Busy
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <!-- Toggle availability -->
+                                        <form th:action="@{/garage-owner/technicians/{id}/toggle(id=${tech.id})}"
                                               method="post">
                                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                            <button class="btn btn-sm btn-success">
-                                                <i class="fas fa-check me-1"></i>Accept
+                                            <button type="submit"
+                                                    th:class="${tech.available ? 'btn btn-sm btn-outline-warning' : 'btn btn-sm btn-outline-success'}"
+                                                    th:title="${tech.available ? 'Mark as Busy' : 'Mark as Available'}">
+                                                <i th:class="${tech.available ? 'fas fa-pause' : 'fas fa-play'}"></i>
                                             </button>
                                         </form>
-                                        <form th:if="${req.status.name() == 'ACCEPTED'}"
-                                              th:action="@{/garage-owner/requests/{id}/in-progress(id=${req.id})}"
-                                              method="post">
-                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                            <button class="btn btn-sm btn-primary">
-                                                <i class="fas fa-spinner me-1"></i>In Progress
-                                            </button>
-                                        </form>
-                                        <form th:if="${req.status.name() == 'IN_PROGRESS'}"
-                                              th:action="@{/garage-owner/requests/{id}/complete(id=${req.id})}"
-                                              method="post">
-                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                            <button class="btn btn-sm btn-danger">
-                                                <i class="fas fa-flag-checkered me-1"></i>Complete
-                                            </button>
-                                        </form>
-                                        <span th:if="${req.status.name() == 'COMPLETED'}"
-                                              class="badge bg-success p-2">
-                                            <i class="fas fa-check-double me-1"></i>Done
-                                        </span>
+
+                                        <!-- Edit -->
+                                        <button class="btn btn-sm btn-outline-primary"
+                                                data-bs-toggle="modal"
+                                                th:data-bs-target="${'#editModal-' + tech.id}"
+                                                title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+
+                                        <!-- Delete -->
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                data-bs-toggle="modal"
+                                                th:data-bs-target="${'#deleteModal-' + tech.id}"
+                                                title="Remove">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -116,27 +190,200 @@
                         </table>
                     </div>
                 </div>
+
                 <!-- Pagination -->
-                <div class="card-footer bg-white" th:if="${requests != null and requests.totalPages > 1}">
+                <div class="card-footer bg-white" th:if="${technicians != null and technicians.totalPages > 1}">
                     <nav>
                         <ul class="pagination pagination-sm justify-content-center mb-0">
                             <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                                <a class="page-link" th:href="@{/garage-owner/requests(page=${currentPage - 1})}">Previous</a>
+                                <a class="page-link"
+                                   th:href="@{/garage-owner/technicians(page=${currentPage - 1})}">Previous</a>
                             </li>
-                            <li class="page-item" th:each="i : ${#numbers.sequence(0, requests.totalPages - 1)}"
+                            <li class="page-item"
+                                th:each="i : ${#numbers.sequence(0, technicians.totalPages - 1)}"
                                 th:classappend="${i == currentPage} ? 'active'">
-                                <a class="page-link" th:href="@{/garage-owner/requests(page=${i})}" th:text="${i + 1}">1</a>
+                                <a class="page-link"
+                                   th:href="@{/garage-owner/technicians(page=${i})}"
+                                   th:text="${i + 1}">1</a>
                             </li>
-                            <li class="page-item" th:classappend="${currentPage == requests.totalPages - 1} ? 'disabled'">
-                                <a class="page-link" th:href="@{/garage-owner/requests(page=${currentPage + 1})}">Next</a>
+                            <li class="page-item"
+                                th:classappend="${currentPage == technicians.totalPages - 1} ? 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/garage-owner/technicians(page=${currentPage + 1})}">Next</a>
                             </li>
                         </ul>
                     </nav>
                 </div>
             </div>
+        </div><!-- /col-md-10 -->
+    </div><!-- /row -->
+</div><!-- /container-fluid -->
+
+<!-- ═══════════════════════════════════════════
+     ADD TECHNICIAN MODAL
+════════════════════════════════════════════ -->
+<div class="modal fade" id="addTechnicianModal" tabindex="-1" aria-labelledby="addTechnicianLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form th:action="@{/garage-owner/technicians/add}" method="post" th:object="${newTechnician}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="garageId" th:value="${garageId}"/>
+
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold" id="addTechnicianLabel">
+                        <i class="fas fa-user-plus me-2 text-danger"></i>Add Technician
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{name}"
+                                   placeholder="e.g. Nimesh Silva" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Phone <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{phone}"
+                                   placeholder="0771234567" pattern="[0-9]{10,15}" required>
+                            <div class="form-text">10–15 digits, no spaces.</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Experience (years)</label>
+                            <input type="number" class="form-control" th:field="*{experienceYears}"
+                                   min="0" max="50" placeholder="3">
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold">Skills / Specializations</label>
+                            <div class="row g-2">
+                                <div th:each="serviceType : ${T(com.roadrescue.enums.ServiceType).values()}"
+                                     class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox"
+                                               name="skills"
+                                               th:value="${serviceType.name()}"
+                                               th:id="${'add-skill-' + serviceType.name()}">
+                                        <label class="form-check-label"
+                                               th:for="${'add-skill-' + serviceType.name()}"
+                                               th:text="${serviceType.displayName}">Skill</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-save me-2"></i>Save Technician
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
+<!-- ═══════════════════════════════════════════
+     EDIT & DELETE MODALS (one per technician)
+════════════════════════════════════════════ -->
+<th:block th:if="${technicians != null}" th:each="tech : ${technicians.content}">
+
+    <!-- EDIT MODAL -->
+    <div class="modal fade" th:id="${'editModal-' + tech.id}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form th:action="@{/garage-owner/technicians/{id}/update(id=${tech.id})}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title fw-bold">
+                            <i class="fas fa-user-edit me-2 text-primary"></i>Edit Technician
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="name"
+                                       th:value="${tech.name}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Phone <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="phone"
+                                       th:value="${tech.phone}"
+                                       pattern="[0-9]{10,15}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Experience (years)</label>
+                                <input type="number" class="form-control" name="experienceYears"
+                                       th:value="${tech.experienceYears}" min="0" max="50">
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold">Skills / Specializations</label>
+                                <div class="row g-2">
+                                    <div th:each="serviceType : ${T(com.roadrescue.enums.ServiceType).values()}"
+                                         class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox"
+                                                   name="skills"
+                                                   th:value="${serviceType.name()}"
+                                                   th:id="${'edit-skill-' + tech.id + '-' + serviceType.name()}"
+                                                   th:checked="${tech.skills != null and tech.skills.contains(serviceType)}">
+                                            <label class="form-check-label"
+                                                   th:for="${'edit-skill-' + tech.id + '-' + serviceType.name()}"
+                                                   th:text="${serviceType.displayName}">Skill</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE CONFIRM MODAL -->
+    <div class="modal fade" th:id="${'deleteModal-' + tech.id}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold text-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Remove Technician
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">
+                        Remove <strong th:text="${tech.name}">Name</strong> from your garage?
+                        This action cannot be undone.
+                    </p>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Keep</button>
+                    <form th:action="@{/garage-owner/technicians/{id}/delete(id=${tech.id})}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i>Remove
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</th:block>
 
 <th:block th:replace="~{layout :: footer}"></th:block>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

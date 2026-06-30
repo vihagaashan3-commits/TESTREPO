@@ -60,16 +60,16 @@ public class AuthController {
                 return "auth/register";
             }
 
-            // Generate OTP
+
             String otp = otpService.generateOtp(dto.getEmail());
 
-            // Send OTP Email
+
             emailService.sendOtpEmail(dto.getEmail(), otp);
 
-            // Save registration details temporarily in Session
+
             session.setAttribute("registerDTO", dto);
 
-            // Go to OTP Page
+
             return "redirect:/auth/verify-registration-otp";
 
         } catch (Exception e) {

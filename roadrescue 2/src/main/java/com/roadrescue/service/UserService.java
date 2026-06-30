@@ -112,6 +112,8 @@ public class UserService {
         userRepository.save(user);
     }
 
+
+
     // ── Soft delete ───────────────────────────────────────────────
     @Transactional
     public void softDelete(Long id) {

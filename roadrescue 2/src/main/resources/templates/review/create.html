@@ -12,6 +12,9 @@
         .star-btn { font-size: 2rem; cursor: pointer; color: #dee2e6; transition: color 0.15s; background: none; border: none; }
         .star-btn.active, .star-btn:hover { color: #ffc107; }
     </style>
+
+    
+
 </head>
 <body class="bg-light">
 <th:block th:replace="~{layout :: navbar}"></th:block>
@@ -20,7 +23,9 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="d-flex align-items-center mb-4 gap-2">
-                <a th:href="@{/garages/{id}(id=${garageId})}" class="btn btn-outline-secondary btn-sm">
+                <!-- Back button: goes to garage page if no requestId, else to request page -->
+                <a th:href="${requestId != null} ? @{/requests/{id}(id=${requestId})} : @{/garages/{id}(id=${garageId})}"
+                   class="btn btn-outline-secondary btn-sm">
                     <i class="fas fa-arrow-left"></i>
                 </a>
                 <h5 class="mb-0 fw-bold"><i class="fas fa-star text-warning me-2"></i>Write a Review</h5>
@@ -30,8 +35,14 @@
                 <div class="card-body p-4">
                     <div th:if="${error}" class="alert alert-danger mb-3" th:text="${error}"></div>
 
-                    <form th:action="@{/reviews/garage/{id}(id=${garageId})}" method="post">
+                    <!-- Dynamic form action depending on which flow we came from -->
+                    <form th:action="${requestId != null} ? @{/reviews/create} : @{/reviews/garage/{id}(id=${garageId})}"
+                          method="post">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                        <!-- Pass requestId through if present -->
+                        <input th:if="${requestId != null}" type="hidden" name="requestId" th:value="${requestId}"/>
+                        <input th:if="${requestId != null}" type="hidden" name="garageId" th:value="${garageId}"/>
 
                         <!-- Star Rating -->
                         <div class="mb-4 text-center">

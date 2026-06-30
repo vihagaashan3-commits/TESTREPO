@@ -73,7 +73,7 @@ public class GarageController {
         if (result.hasErrors()) {
             model.addAttribute("serviceTypes", ServiceType.values());
             return "garage/create";
-        }//edit this
+        }
         try {
             Garage garage = garageService.createGarage(dto, userDetails.getUsername());
             redirectAttributes.addFlashAttribute("success", "Garage registered! Awaiting admin verification.");

@@ -116,11 +116,15 @@
                     <table class="table table-borderless mb-0 small">
                         <tr>
                             <td class="text-muted fw-semibold">Services</td>
+
                             <td>
-                                <span th:each="svc : ${request.serviceTypes}"
+                                <span th:if="${request.serviceTypes != null}"
+                                      th:each="svc : ${request.serviceTypes}"
                                       class="badge bg-secondary me-1"
-                                      th:text="${#strings.replace(svc.name(), '_', ' ')}"></span>
+                                      th:text="${#strings.replace(svc.name(), '_', ' ')}">
+                                </span>
                             </td>
+
                         </tr>
                         <tr>
                             <td class="text-muted fw-semibold">Description</td>
@@ -132,7 +136,8 @@
                         </tr>
                         <tr>
                             <td class="text-muted fw-semibold">Location</td>
-                            <td th:text="${request.locationAddress != null ? request.locationAddress : 'GPS: ' + request.latitude + ', ' + request.longitude}">—</td>
+                            <td th:text="${request.locationAddress != null and !#strings.isEmpty(request.locationAddress) ? request.locationAddress : (request.latitude != null and request.longitude != null ? 'GPS: ' + request.latitude + ', ' + request.longitude : 'N/A')}">
+                            </td>
                         </tr>
                         <tr th:if="${request.preferredPaymentMethod != null}">
                             <td class="text-muted fw-semibold">Payment</td>
@@ -232,7 +237,7 @@
                         <strong>Job Completed!</strong> Final amount: Rs. <span th:text="${request.finalAmount}"></span>
                     </div>
                     <a th:if="${request.garage != null}"
-                       th:href="@{/reviews/new(garageId=${request.garage.id}, requestId=${request.id})}"
+                       th:href="@{/reviews/garage/{id}(id=${request.garage.id})}"
                        class="btn btn-warning w-100">
                         <i class="fas fa-star me-2"></i>Rate Garage &amp; Technician
                     </a>

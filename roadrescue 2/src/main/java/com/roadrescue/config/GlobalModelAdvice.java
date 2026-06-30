@@ -14,8 +14,7 @@ public class GlobalModelAdvice {
 
     private final UserService userService;
 
-    // Automatically adds the logged-in user to every page's model,
-    // so the navbar can show the profile picture on all pages.
+
     @ModelAttribute("user")
     public User addUserToModel(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) return null;
