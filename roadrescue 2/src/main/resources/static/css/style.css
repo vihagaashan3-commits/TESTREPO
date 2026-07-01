@@ -983,4 +983,23 @@ footer{ font-size:.88rem; }
 .btn-danger:hover{ background:var(--rr-red-dark); border-color:var(--rr-red-dark); }
 .form-control:focus,.form-select:focus{ border-color:var(--rr-red); box-shadow:0 0 0 .18rem rgba(224,48,58,.12); }
 
+/* ===========================
+   NOTIFICATIONS — unread indicator
+   (small dot instead of a full red
+   background so text stays readable)
+=========================== */
+.unread-notification{
+    background:var(--rr-white);
+}
+.unread-notification:hover{
+    background:var(--rr-red-soft);
+}
+.unread-dot{
+    display:inline-block;
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:var(--rr-red);
+    flex-shrink:0;
+}
 /* === END === */
