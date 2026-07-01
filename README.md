@@ -50,7 +50,7 @@
 | Maps | Google Maps JavaScript API |
 | Email | Spring Mail (Gmail SMTP) |
 | Build | Maven |
-| Java | 17 |
+| Java | 21 |
 
 ---
 
