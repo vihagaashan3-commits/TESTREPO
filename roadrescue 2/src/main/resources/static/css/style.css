@@ -1409,7 +1409,43 @@ footer{
     box-shadow:0 0 0 .2rem rgba(220,53,69,.15);
 
 }
+/* Garage Card Modern Styles */
+.garage-card {
+    border-radius: 20px !important;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
+.garage-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+}
+
+.rr-hero {
+    background: linear-gradient(135deg, #dc3545, #b71c2b) !important;
+    padding: 1.5rem !important;
+}
+
+.service-badge {
+    background-color: #fff1f2 !important;
+    color: #dc3545 !important;
+    border: 1px solid #ffccd1 !important;
+    padding: 0.5rem 0.9rem !important;
+    border-radius: 50px !important;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.btn-outline-danger {
+    border-radius: 12px !important;
+    border-width: 2px !important;
+    font-weight: 600;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: white;
+}
 
 /* ===========================
    END
