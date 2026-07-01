@@ -1,0 +1,3 @@
+$kind: collection
+description: Driver vehicle CRUD (requires front/back image upload).
+order: 4000

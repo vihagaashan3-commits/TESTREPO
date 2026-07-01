@@ -1,0 +1,10 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** Authenticated
+url: "{{baseUrl}}/payments?page=0"
+method: GET
+queryParams:
+  page: "0"
+order: 1000

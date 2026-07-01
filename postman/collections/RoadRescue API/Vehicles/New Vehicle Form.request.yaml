@@ -1,0 +1,8 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_USER
+url: "{{baseUrl}}/vehicles/new"
+method: GET
+order: 2000

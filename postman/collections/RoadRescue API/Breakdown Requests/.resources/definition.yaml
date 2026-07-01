@@ -1,0 +1,3 @@
+$kind: collection
+description: "Core breakdown request lifecycle: create, view, quote, pay, cancel."
+order: 5000

@@ -1,0 +1,50 @@
+$kind: collection
+description: >
+  RoadRescue — Vehicle Breakdown Assistance System.
+
+
+  This is a server-rendered Spring MVC + Thymeleaf application (not a pure JSON
+  REST API): most POST endpoints accept `application/x-www-form-urlencoded` or
+  `multipart/form-data` bodies and respond with redirects, and authentication is
+  session/cookie based (Spring Security form login) rather than tokens.
+
+
+  ## How to use this collection
+
+  1. Import the `RoadRescue Local` environment and select it.
+
+  2. Start the app (`mvn spring-boot:run`) and make sure `baseUrl` matches
+  (default `http://localhost:8080`).
+
+  3. Run **Auth > Login (POST - form login)** first. Postman's cookie jar will
+  store the `JSESSIONID` and `XSRF-TOKEN` cookies for you.
+
+  4. Every other request in the collection will then be authenticated
+  automatically. A collection-level Pre-request Script reads the `XSRF-TOKEN`
+  cookie and attaches it as the `X-XSRF-TOKEN` header on non-GET requests,
+  satisfying Spring Security's CSRF check.
+
+  5. Replace the placeholder IDs in each URL (e.g. `/requests/1`) with real IDs
+  returned by your database/seed data.
+variables:
+  baseUrl: http://localhost:8080
+scripts:
+  - type: http:beforeRequest
+    code: >-
+      // Auto-attach Spring Security's CSRF header for state-changing requests.
+
+      // Spring's CookieCsrfTokenRepository exposes the token in a readable
+      XSRF-TOKEN cookie;
+
+      // the app expects it echoed back as the X-XSRF-TOKEN header.
+
+      const method = pm.request.method;
+
+      if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS') {
+          const cookieJar = pm.cookies;
+          const xsrfCookie = cookieJar.get('XSRF-TOKEN');
+          if (xsrfCookie) {
+              pm.request.headers.upsert({ key: 'X-XSRF-TOKEN', value: xsrfCookie });
+          }
+      }
+    language: text/javascript

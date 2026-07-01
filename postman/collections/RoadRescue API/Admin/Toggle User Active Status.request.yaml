@@ -1,0 +1,8 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_ADMIN
+url: "{{baseUrl}}/admin/users/1/toggle"
+method: POST
+order: 3000

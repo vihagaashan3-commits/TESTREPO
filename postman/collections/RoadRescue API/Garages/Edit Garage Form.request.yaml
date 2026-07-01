@@ -1,0 +1,8 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_GARAGE_OWNER or ROLE_ADMIN
+url: "{{baseUrl}}/garages/1/edit"
+method: GET
+order: 8000

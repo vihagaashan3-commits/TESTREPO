@@ -1,0 +1,8 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** Authenticated (owner)
+url: "{{baseUrl}}/requests/1"
+method: GET
+order: 4000

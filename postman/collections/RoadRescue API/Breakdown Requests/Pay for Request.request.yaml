@@ -1,0 +1,16 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_USER (owner), request must be IN_PROGRESS
+url: "{{baseUrl}}/requests/1/pay"
+method: POST
+headers:
+  Content-Type: application/x-www-form-urlencoded
+body:
+  type: urlencoded
+  content:
+    - key: paymentMethod
+      value: CARD
+      description: e.g. CASH | CARD
+order: 9000

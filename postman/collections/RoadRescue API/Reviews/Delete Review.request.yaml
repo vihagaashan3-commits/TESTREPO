@@ -1,0 +1,10 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_USER (own review) or ROLE_ADMIN
+url: "{{baseUrl}}/reviews/1/delete?garageId=1"
+method: POST
+queryParams:
+  garageId: "1"
+order: 5000

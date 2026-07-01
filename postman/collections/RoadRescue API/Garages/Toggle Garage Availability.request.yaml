@@ -1,0 +1,8 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_GARAGE_OWNER
+url: "{{baseUrl}}/garages/1/toggle-availability"
+method: POST
+order: 11000

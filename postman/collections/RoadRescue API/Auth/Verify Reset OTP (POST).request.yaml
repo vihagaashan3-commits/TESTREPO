@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/verify-reset-otp"
+method: POST
+headers:
+  Content-Type: application/x-www-form-urlencoded
+body:
+  type: urlencoded
+  content:
+    otp: "123456"
+order: 11000

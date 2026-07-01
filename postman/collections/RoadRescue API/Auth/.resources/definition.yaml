@@ -1,0 +1,3 @@
+$kind: collection
+description: Registration, OTP verification, login/logout, password reset.
+order: 1000

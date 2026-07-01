@@ -1,0 +1,3 @@
+$kind: collection
+description: User & garage administration (ROLE_ADMIN only).
+order: 11000

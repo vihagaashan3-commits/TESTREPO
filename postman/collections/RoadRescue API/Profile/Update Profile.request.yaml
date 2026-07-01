@@ -1,0 +1,18 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** Authenticated
+url: "{{baseUrl}}/profile/update"
+method: POST
+headers:
+  Content-Type: application/x-www-form-urlencoded
+body:
+  type: urlencoded
+  content:
+    - key: fullName
+      value: Nimal Perera
+    - key: phone
+      value: "0711234567"
+      description: 10-15 digits
+order: 2000

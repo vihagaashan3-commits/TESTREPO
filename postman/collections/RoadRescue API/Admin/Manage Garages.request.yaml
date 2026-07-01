@@ -1,0 +1,13 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_ADMIN
+url: "{{baseUrl}}/admin/garages?page=0&size=10&keyword=&serviceType="
+method: GET
+queryParams:
+  page: "0"
+  size: "10"
+  keyword: ""
+  serviceType: ""
+order: 5000

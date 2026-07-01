@@ -1,0 +1,11 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_USER
+url: "{{baseUrl}}/requests?page=0&size=10"
+method: GET
+queryParams:
+  page: "0"
+  size: "10"
+order: 1000

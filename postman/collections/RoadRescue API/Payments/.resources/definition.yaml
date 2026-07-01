@@ -1,0 +1,3 @@
+$kind: collection
+description: Payment record creation and confirmation.
+order: 9000

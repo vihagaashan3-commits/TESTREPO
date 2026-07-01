@@ -1,0 +1,3 @@
+$kind: collection
+description: Logged-in user's own profile, password, and profile picture.
+order: 3000

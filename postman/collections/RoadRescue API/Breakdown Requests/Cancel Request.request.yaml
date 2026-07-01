@@ -1,0 +1,8 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_USER (owner)
+url: "{{baseUrl}}/requests/1/cancel"
+method: POST
+order: 8000

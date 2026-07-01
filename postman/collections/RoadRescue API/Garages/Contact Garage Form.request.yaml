@@ -1,0 +1,8 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_USER
+url: "{{baseUrl}}/garages/1/contact"
+method: GET
+order: 3000

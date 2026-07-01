@@ -1,0 +1,8 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_USER (owner)
+url: "{{baseUrl}}/vehicles/1/edit"
+method: GET
+order: 4000

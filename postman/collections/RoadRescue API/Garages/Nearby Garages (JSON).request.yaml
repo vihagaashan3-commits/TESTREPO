@@ -1,0 +1,8 @@
+$kind: http-request
+description: Returns garages within 15km as JSON — used by the map widget.
+url: "{{baseUrl}}/garages/nearby?lat=6.9271&lng=79.8612"
+method: GET
+queryParams:
+  lat: "6.9271"
+  lng: "79.8612"
+order: 7000

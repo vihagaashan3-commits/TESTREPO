@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/verify-otp"
+method: GET
+order: 14000

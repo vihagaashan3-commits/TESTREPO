@@ -1,0 +1,5 @@
+$kind: http-request
+description: Requires an in-progress registration in session.
+url: "{{baseUrl}}/auth/resend-registration-otp"
+method: POST
+order: 7000

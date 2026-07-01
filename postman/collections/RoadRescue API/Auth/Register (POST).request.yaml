@@ -1,0 +1,28 @@
+$kind: http-request
+description: Creates a pending registration and emails an OTP. Session must be
+  reused (Postman cookie jar) to complete verification.
+url: "{{baseUrl}}/auth/register"
+method: POST
+headers:
+  Content-Type: application/x-www-form-urlencoded
+body:
+  type: urlencoded
+  content:
+    - key: fullName
+      value: Test User
+    - key: email
+      value: testuser@example.com
+    - key: phone
+      value: "0771234567"
+    - key: password
+      value: Passw0rd!
+      description: Upper+lower+digit+special, 8+ chars
+    - key: confirmPassword
+      value: Passw0rd!
+    - key: role
+      value: ROLE_USER
+      description: ROLE_USER | ROLE_GARAGE_OWNER
+    - key: adminCode
+      value: ""
+      description: Only needed for ROLE_ADMIN self-registration flows if enabled
+order: 4000

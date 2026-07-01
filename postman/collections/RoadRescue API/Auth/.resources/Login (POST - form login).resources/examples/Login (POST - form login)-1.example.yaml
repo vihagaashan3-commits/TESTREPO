@@ -1,0 +1,241 @@
+$kind: http-example
+name: Login (POST - form login)
+description: Spring Security form login. On success sets JSESSIONID + XSRF-TOKEN
+  cookies used by every other request in this collection.
+request:
+  url: http://localhost:8080/auth/login
+  method: POST
+  headers:
+    Content-Type: application/x-www-form-urlencoded
+  body:
+    type: json
+    content: |-
+      {
+          "email":"jankalhara.student.nsbm.ac.lk",
+          "password":"Nadee@123"
+      }
+response:
+  statusCode: 200
+  statusText: ""
+  headers:
+    cache-control: no-cache, no-store, must-revalidate
+    pragma: no-cache
+    expires: "0"
+    x-content-type-options: nosniff
+    x-xss-protection: "0"
+    x-frame-options: DENY
+    content-type: text/html;charset=UTF-8
+    content-language: en-GB
+    transfer-encoding: chunked
+    date: Wed, 01 Jul 2026 16:54:31 GMT
+    keep-alive: timeout=60
+    connection: keep-alive
+  body:
+    type: html
+    content: |-
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Login | RoadRescue</title>
+          <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+          <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+          <link href="/css/style.css" rel="stylesheet">
+          <link href="/css/login.css" rel="stylesheet">
+          <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+      </head>
+      <body>
+
+
+      <div class="left-panel">
+          <div class="left-content">
+              <!-- Brand -->
+              <div class="brand">
+                  <div class="brand-icon">
+                      <i class="fas fa-car"></i>
+                  </div>
+                  RoadRescue
+              </div>
+
+              <!-- Hero -->
+              <div class="hero-text">
+                  <h1>We're Here<br>When You <span>Need</span> Us</h1>
+                  <div class="hero-divider"></div>
+                  <p>Fast, reliable and professional vehicle breakdown assistance anytime, anywhere.</p>
+
+                  <div class="features">
+                      <div class="feature-item">
+                          <div class="feature-icon"><i class="fas fa-headset"></i></div>
+                          <div>
+                              <h6>24/7 Support</h6>
+                              <p>Round the clock assistance</p>
+                          </div>
+                      </div>
+                      <div class="feature-item">
+                          <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                          <div>
+                              <h6>Trusted &amp; Secure</h6>
+                              <p>Your safety is our priority</p>
+                          </div>
+                      </div>
+                      <div class="feature-item">
+                          <div class="feature-icon"><i class="fas fa-map-marker-alt"></i></div>
+                          <div>
+                              <h6>Nationwide Coverage</h6>
+                              <p>We reach you anywhere</p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <div class="left-footer">
+              &copy; 2026 RoadRescue. All rights reserved.
+          </div>
+      </div>
+
+      <!--RIGHT PANEL -->
+      <div class="right-panel">
+
+          <div class="login-card">
+              <div class="login-card-icon">
+                  <i class="fas fa-car-crash"></i>
+              </div>
+              <h4>Welcome Back!</h4>
+              <p class="subtitle">Sign in to continue to your account</p>
+
+              <!-- Alerts -->
+              
+              
+              
+              
+
+              <!-- Login Form -->
+              <form action="/auth/login" method="post"><input type="hidden" name="_csrf" value="u7SFgvPapBP6waKKA1zSIamBIEvShZy9SkGSyMyLB1JtES75g4W2ssq8wnDX95S7ZXHmF8-xDSni5_-QLyegrv6_PmRUKBnL"/>
+                  <input type="hidden" name="_csrf" value="u7SFgvPapBP6waKKA1zSIamBIEvShZy9SkGSyMyLB1JtES75g4W2ssq8wnDX95S7ZXHmF8-xDSni5_-QLyegrv6_PmRUKBnL"/>
+
+                  <label class="form-label">Email Address</label>
+                  <div class="input-wrap">
+                      <i class="fas fa-envelope prefix"></i>
+                      <input type="email" name="email" placeholder="Enter your email" required autofocus>
+                  </div>
+
+                  <label class="form-label">Password</label>
+                  <div class="input-wrap">
+                      <i class="fas fa-lock prefix"></i>
+                      <input type="password" name="password" id="passwordField" placeholder="Enter your password" required>
+                      <i class="fas fa-eye-slash toggle-pw" id="togglePw" onclick="togglePassword()"></i>
+                  </div>
+
+                  <div class="remember-row">
+                      <label>
+                          <input type="checkbox" name="remember-me" checked>
+                          Remember me for 7 days
+                      </label>
+                      <a href="/auth/forgot-password" class="forgot-link">Forgot Password?</a>
+                  </div>
+
+                  <button type="submit" class="btn-signin">
+                      <i class="fas fa-sign-in-alt"></i> Sign In
+                  </button>
+              </form>
+
+              <p class="register-text">
+                  Don't have an account?
+                  <a href="/auth/register">Register here</a>
+              </p>
+          </div>
+      </div>
+
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+      <script>
+          // Cookie consent banner
+          document.addEventListener("DOMContentLoaded", function () {
+              if (!localStorage.getItem("rr_cookie_consent")) {
+                  document.getElementById("cookieBanner").style.display = "flex";
+              }
+          });
+
+          function acceptCookies() {
+              localStorage.setItem("rr_cookie_consent", "accepted");
+              document.getElementById("cookieBanner").style.display = "none";
+          }
+
+          function declineCookies() {
+              localStorage.setItem("rr_cookie_consent", "declined");
+              document.getElementById("cookieBanner").style.display = "none";
+          }
+
+          function togglePassword() {
+              const passwordField = document.getElementById("passwordField");
+              const toggleIcon = document.getElementById("togglePw");
+
+              if (passwordField.type === "password") {
+                  passwordField.type = "text";
+                  toggleIcon.classList.remove("fa-eye-slash");
+                  toggleIcon.classList.add("fa-eye");
+              } else {
+                  passwordField.type = "password";
+                  toggleIcon.classList.remove("fa-eye");
+                  toggleIcon.classList.add("fa-eye-slash");
+              }
+          }
+      </script>
+
+      <!-- Cookie Consent Banner -->
+      <div id="cookieBanner" class="cookie-banner">
+          <div class="cookie-banner-text">
+              <i class="fas fa-cookie-bite"></i>
+              We use cookies to keep you signed in and improve your RoadRescue experience.
+              <a href="/privacy-policy">Learn more</a>
+          </div>
+          <div class="cookie-banner-actions">
+              <button type="button" class="btn-cookie-decline" onclick="declineCookies()">Decline</button>
+              <button type="button" class="btn-cookie-accept" onclick="acceptCookies()">Accept</button>
+          </div>
+      </div>
+
+      <style>
+          .cookie-banner {
+              display: none;
+              position: fixed;
+              left: 0; right: 0; bottom: 0;
+              z-index: 2000;
+              background: #1b1f27;
+              color: #fff;
+              padding: 16px 24px;
+              align-items: center;
+              justify-content: space-between;
+              gap: 16px;
+              flex-wrap: wrap;
+              box-shadow: 0 -4px 20px rgba(0,0,0,.2);
+          }
+          .cookie-banner-text {
+              flex: 1 1 320px;
+              font-size: .9rem;
+              line-height: 1.4;
+          }
+          .cookie-banner-text i { color: #dc3545; margin-right: 6px; }
+          .cookie-banner-text a { color: #ff6b6b; text-decoration: underline; }
+          .cookie-banner-actions { display: flex; gap: 10px; flex-shrink: 0; }
+          .btn-cookie-accept, .btn-cookie-decline {
+              border: none;
+              padding: 8px 18px;
+              border-radius: 8px;
+              font-size: .85rem;
+              font-weight: 600;
+              cursor: pointer;
+          }
+          .btn-cookie-accept { background: #dc3545; color: #fff; }
+          .btn-cookie-accept:hover { background: #b71c2b; }
+          .btn-cookie-decline { background: transparent; color: #ccc; border: 1px solid #555; }
+          .btn-cookie-decline:hover { background: rgba(255,255,255,.08); }
+      </style>
+
+      </body>
+      </html>
+order: 2364952505315839

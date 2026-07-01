@@ -1,0 +1,8 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_ADMIN
+url: "{{baseUrl}}/admin/garages/1/verify"
+method: POST
+order: 6000

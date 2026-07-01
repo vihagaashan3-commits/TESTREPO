@@ -1,0 +1,24 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_GARAGE_OWNER
+url: "{{baseUrl}}/garage-owner/technicians/add"
+method: POST
+headers:
+  Content-Type: application/x-www-form-urlencoded
+body:
+  type: urlencoded
+  content:
+    - key: name
+      value: Sunil Fernando
+    - key: phone
+      value: "0771112222"
+    - key: experienceYears
+      value: "5"
+    - key: garageId
+      value: "1"
+    - key: skills
+      value: FLAT_TIRE
+      description: Repeat key for multiple ServiceType values
+order: 10000

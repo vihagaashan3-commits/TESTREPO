@@ -1,0 +1,5 @@
+$kind: http-request
+description: Renders the login form.
+url: "{{baseUrl}}/auth/login"
+method: GET
+order: 1000

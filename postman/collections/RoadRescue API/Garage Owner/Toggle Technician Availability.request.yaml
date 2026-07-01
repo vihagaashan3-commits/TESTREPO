@@ -1,0 +1,8 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_GARAGE_OWNER
+url: "{{baseUrl}}/garage-owner/technicians/1/toggle"
+method: POST
+order: 12000

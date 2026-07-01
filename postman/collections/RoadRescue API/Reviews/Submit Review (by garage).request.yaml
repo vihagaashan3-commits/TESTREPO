@@ -1,0 +1,18 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_USER
+url: "{{baseUrl}}/reviews/garage/1"
+method: POST
+headers:
+  Content-Type: application/x-www-form-urlencoded
+body:
+  type: urlencoded
+  content:
+    - key: rating
+      value: "5"
+      description: 1-5
+    - key: comment
+      value: Fast and friendly service!
+order: 2000

@@ -1,0 +1,15 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_USER
+url: "{{baseUrl}}/garages/1/contact"
+method: POST
+headers:
+  Content-Type: application/x-www-form-urlencoded
+body:
+  type: urlencoded
+  content:
+    subject: Question about services
+    message: Do you handle brake repairs?
+order: 4000

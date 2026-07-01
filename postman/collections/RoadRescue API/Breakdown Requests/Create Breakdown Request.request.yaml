@@ -1,0 +1,31 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_USER
+url: "{{baseUrl}}/requests/new"
+method: POST
+headers:
+  Content-Type: application/x-www-form-urlencoded
+body:
+  type: urlencoded
+  content:
+    - key: serviceTypes
+      value: FLAT_TIRE
+      description: One of the ServiceType enum values; repeat key for multiple
+    - key: description
+      value: Flat tyre on the highway, need urgent help.
+    - key: latitude
+      value: "6.9271"
+    - key: longitude
+      value: "79.8612"
+    - key: locationAddress
+      value: Colombo, Sri Lanka
+    - key: vehicleId
+      value: "1"
+    - key: garageId
+      value: ""
+      description: Optional - leave blank to let system match nearest garage
+    - key: preferredPaymentMethod
+      value: CASH
+order: 3000

@@ -1,0 +1,3 @@
+$kind: collection
+description: In-app notification inbox.
+order: 10000

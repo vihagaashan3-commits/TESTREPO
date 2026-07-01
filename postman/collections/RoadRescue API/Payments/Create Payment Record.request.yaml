@@ -1,0 +1,15 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_GARAGE_OWNER or ROLE_ADMIN
+url: "{{baseUrl}}/payments/request/1/create"
+method: POST
+headers:
+  Content-Type: application/x-www-form-urlencoded
+body:
+  type: urlencoded
+  content:
+    amount: "3500.00"
+    method: CASH
+order: 3000

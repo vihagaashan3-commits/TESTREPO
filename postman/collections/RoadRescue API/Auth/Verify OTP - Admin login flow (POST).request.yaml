@@ -1,0 +1,11 @@
+$kind: http-request
+description: Second factor after an admin logs in (session key admin_email).
+url: "{{baseUrl}}/auth/verify-otp"
+method: POST
+headers:
+  Content-Type: application/x-www-form-urlencoded
+body:
+  type: urlencoded
+  content:
+    otp: "123456"
+order: 15000

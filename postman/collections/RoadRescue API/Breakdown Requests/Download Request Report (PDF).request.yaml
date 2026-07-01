@@ -1,0 +1,8 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** Authenticated
+url: "{{baseUrl}}/requests/1/report"
+method: GET
+order: 5000

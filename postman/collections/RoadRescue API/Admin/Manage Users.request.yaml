@@ -1,0 +1,16 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_ADMIN
+url: "{{baseUrl}}/admin/users?page=0&size=10&keyword="
+method: GET
+queryParams:
+  - key: page
+    value: "0"
+  - key: size
+    value: "10"
+  - key: keyword
+    value: ""
+    description: Optional search
+order: 2000

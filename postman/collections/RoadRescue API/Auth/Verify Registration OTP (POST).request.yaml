@@ -1,0 +1,14 @@
+$kind: http-request
+description: Completes registration; OTP is emailed by the previous call (check
+  the mailbox configured in application.properties).
+url: "{{baseUrl}}/auth/verify-registration-otp"
+method: POST
+headers:
+  Content-Type: application/x-www-form-urlencoded
+body:
+  type: urlencoded
+  content:
+    - key: otp
+      value: "123456"
+      description: 6-digit code from email
+order: 6000

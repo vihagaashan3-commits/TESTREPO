@@ -1,0 +1,11 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_USER
+url: "{{baseUrl}}/reviews/new?garageId=1&requestId=1"
+method: GET
+queryParams:
+  garageId: "1"
+  requestId: "1"
+order: 3000

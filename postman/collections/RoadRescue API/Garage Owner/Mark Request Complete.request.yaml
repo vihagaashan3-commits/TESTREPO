@@ -1,0 +1,8 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_GARAGE_OWNER
+url: "{{baseUrl}}/garage-owner/requests/1/complete"
+method: POST
+order: 7000

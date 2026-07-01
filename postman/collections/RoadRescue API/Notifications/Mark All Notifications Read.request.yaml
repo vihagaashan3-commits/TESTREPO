@@ -1,0 +1,8 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** Authenticated
+url: "{{baseUrl}}/notifications/read-all"
+method: POST
+order: 4000

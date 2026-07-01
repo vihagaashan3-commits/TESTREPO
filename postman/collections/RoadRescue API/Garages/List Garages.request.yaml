@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/garages?page=0&size=9&keyword=&serviceType="
+method: GET
+queryParams:
+  - key: page
+    value: "0"
+  - key: size
+    value: "9"
+  - key: keyword
+    value: ""
+    description: Optional search
+  - key: serviceType
+    value: ""
+    description: Optional ServiceType filter
+order: 1000

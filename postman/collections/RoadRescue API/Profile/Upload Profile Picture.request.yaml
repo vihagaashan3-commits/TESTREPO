@@ -1,0 +1,15 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** Authenticated
+url: "{{baseUrl}}/profile/upload-picture"
+method: POST
+body:
+  type: formdata
+  content:
+    - type: file
+      key: profileImage
+      src: []
+      description: Image file, <5MB
+order: 4000

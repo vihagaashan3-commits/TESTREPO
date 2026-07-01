@@ -1,0 +1,5 @@
+$kind: http-request
+description: Spring Security default logout endpoint; clears the session and cookies.
+url: "{{baseUrl}}/auth/logout"
+method: POST
+order: 16000

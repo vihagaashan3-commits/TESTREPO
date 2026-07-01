@@ -1,0 +1,16 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_GARAGE_OWNER
+url: "{{baseUrl}}/garage-owner/requests/1/contact-customer"
+method: POST
+headers:
+  Content-Type: application/x-www-form-urlencoded
+body:
+  type: urlencoded
+  content:
+    customerEmail: nimal@gmail.com
+    subject: Update on your request
+    message: We are 10 minutes away.
+order: 8000

@@ -1,0 +1,15 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_GARAGE_OWNER
+url: "{{baseUrl}}/garage-owner/requests/1/send-quote"
+method: POST
+headers:
+  Content-Type: application/x-www-form-urlencoded
+body:
+  type: urlencoded
+  content:
+    quoteAmount: "3500.00"
+    quoteNotes: Includes parts and labor
+order: 5000

@@ -1,0 +1,32 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_USER (owner)
+url: "{{baseUrl}}/vehicles/1/edit"
+method: POST
+body:
+  type: formdata
+  content:
+    - type: text
+      key: vehicleType
+      value: Car
+    - type: text
+      key: brand
+      value: Toyota
+    - type: text
+      key: model
+      value: Corolla
+    - type: text
+      key: plateNumber
+      value: CAB-1234
+    - type: text
+      key: chassisNumber
+      value: CH123456789
+    - type: file
+      key: frontImage
+      src: []
+    - type: file
+      key: backImage
+      src: []
+order: 5000

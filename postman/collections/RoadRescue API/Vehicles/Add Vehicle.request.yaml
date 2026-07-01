@@ -1,0 +1,37 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_USER
+url: "{{baseUrl}}/vehicles/new"
+method: POST
+body:
+  type: formdata
+  content:
+    - type: text
+      key: vehicleType
+      value: Car
+      description: Car | Van | Truck | Bike
+    - type: text
+      key: brand
+      value: Toyota
+    - type: text
+      key: model
+      value: Corolla
+    - type: text
+      key: plateNumber
+      value: CAB-1234
+      description: Unique
+    - type: text
+      key: chassisNumber
+      value: CH123456789
+      description: Unique
+    - type: file
+      key: frontImage
+      src: []
+      description: Required
+    - type: file
+      key: backImage
+      src: []
+      description: Required
+order: 3000

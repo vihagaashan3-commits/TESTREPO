@@ -1,0 +1,8 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** ROLE_GARAGE_OWNER or ROLE_ADMIN
+url: "{{baseUrl}}/payments/request/1/create"
+method: GET
+order: 2000

@@ -1,0 +1,8 @@
+$kind: http-request
+description: |-
+  
+
+  **Auth:** Any authenticated role
+url: "{{baseUrl}}/dashboard"
+method: GET
+order: 3000

@@ -1,0 +1,20 @@
+$kind: http-request
+name: All Requests (Admin/Garage view)
+description: |-
+  
+
+  **Auth:** ROLE_ADMIN or ROLE_GARAGE_OWNER
+url: "{{baseUrl}}/requests/all?page=0&size=10&status=PENDING&serviceType="
+method: GET
+queryParams:
+  - key: page
+    value: "0"
+  - key: size
+    value: "10"
+  - key: status
+    value: PENDING
+    description: Optional RequestStatus
+  - key: serviceType
+    value: ""
+    description: Optional ServiceType
+order: 10000
