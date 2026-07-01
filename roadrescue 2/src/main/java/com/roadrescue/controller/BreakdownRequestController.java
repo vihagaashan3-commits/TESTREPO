@@ -83,7 +83,6 @@ public class BreakdownRequestController {
         BreakdownRequest request = requestService.findById(id);
         User user = userService.findByEmail(userDetails.getUsername());
 
-
         ServiceType firstService = (request.getServiceTypes() != null && !request.getServiceTypes().isEmpty())
                 ? request.getServiceTypes().get(0) : null;
 
@@ -93,6 +92,7 @@ public class BreakdownRequestController {
         Payment payment = paymentService.findByRequestId(id);
 
         model.addAttribute("request", request);
+        model.addAttribute("garage", request.getGarage());   // <-- this line
         model.addAttribute("nearbyGarages", nearbyGarages);
         model.addAttribute("user", user);
         model.addAttribute("payment", payment);
