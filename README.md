@@ -99,7 +99,7 @@ src/main/resources/
 ## ⚙️ Setup & Run
 
 ### Prerequisites
-- Java 17+
+- Java 21+
 - MySQL 8+
 - Maven 3.8+
 - Google Maps API Key ([get one here](https://console.cloud.google.com/))
