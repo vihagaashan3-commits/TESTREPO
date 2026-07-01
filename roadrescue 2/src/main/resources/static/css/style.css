@@ -1010,7 +1010,7 @@ footer{ font-size:.88rem; }
    background so text stays readable)
 =========================== */
 .unread-notification{
-    background:var(--rr);
+    background:var(--rr-bg);
 }
 .unread-notification:hover{
     background:var(--rr-red-soft);

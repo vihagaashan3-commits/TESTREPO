@@ -58,9 +58,25 @@
         .other-garage-card .small-detail {
             font-size: .78rem;
         }
+        body {
+            background:
+                    linear-gradient(rgba(13,15,20,.72), rgba(13,15,20,.72)),
+                    url('https://images.pexels.com/photos/19717574/pexels-photo-19717574/free-photo-of-a-car-in-a-garage.jpeg')
+                    center/cover no-repeat fixed;
+            min-height: 100vh;
+        }
+
+        .container { position: relative; z-index: 1; }
+
+        /* Make cards readable over dark bg */
+        .card { background: rgba(255,255,255,.96) !important; }
+
+        .text-muted { color: #555 !important; }
+
+        h5.fw-bold { color: #fff; }
     </style>
 </head>
-<body class="bg-light">
+<body>
 <th:block th:replace="~{layout :: navbar}"></th:block>
 
 <div class="container my-4">
