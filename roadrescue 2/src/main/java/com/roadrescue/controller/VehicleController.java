@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class VehicleController {
 
     private final VehicleService vehicleService;
     private final UserService userService;
+    private final FileStorageService fileStorageService;
 
     @GetMapping
     public String listVehicles(@AuthenticationPrincipal UserDetails userDetails, Model model) {
@@ -40,15 +42,32 @@ public class VehicleController {
     @PostMapping("/new")
     public String addVehicle(@Valid @ModelAttribute("vehicle") Vehicle vehicle,
                              BindingResult result,
+                             @RequestParam(value = "frontImage", required = false) MultipartFile frontImage,
+                             @RequestParam(value = "backImage", required = false) MultipartFile backImage,
                              @AuthenticationPrincipal UserDetails userDetails,
                              RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) return "vehicle/create";
+
+        if (frontImage == null || frontImage.isEmpty()) {
+            result.rejectValue("frontImagePath", "error.frontImagePath", "Front image is required");
+        }
+        if (backImage == null || backImage.isEmpty()) {
+            result.rejectValue("backImagePath", "error.backImagePath", "Back image is required");
+        }
+        if (result.hasErrors()) return "vehicle/create";
+
         try {
+            vehicle.setFrontImagePath(fileStorageService.store(frontImage));
+            vehicle.setBackImagePath(fileStorageService.store(backImage));
             vehicleService.addVehicle(vehicle, userDetails.getUsername());
             redirectAttributes.addFlashAttribute("success", "Vehicle added successfully!");
             return "redirect:/vehicles";
         } catch (IllegalArgumentException e) {
-            result.rejectValue("plateNumber", "error.plateNumber", e.getMessage());
+            if (e.getMessage().toLowerCase().contains("chassis")) {
+                result.rejectValue("chassisNumber", "error.chassisNumber", e.getMessage());
+            } else {
+                result.rejectValue("plateNumber", "error.plateNumber", e.getMessage());
+            }
             return "vehicle/create";
         }
     }
@@ -63,9 +82,14 @@ public class VehicleController {
     public String updateVehicle(@PathVariable Long id,
                                 @Valid @ModelAttribute("vehicle") Vehicle vehicle,
                                 BindingResult result,
+                                @RequestParam(value = "frontImage", required = false) MultipartFile frontImage,
+                                @RequestParam(value = "backImage", required = false) MultipartFile backImage,
                                 @AuthenticationPrincipal UserDetails userDetails,
                                 RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) return "vehicle/edit";
+
+        vehicle.setFrontImagePath(fileStorageService.store(frontImage));
+        vehicle.setBackImagePath(fileStorageService.store(backImage));
         vehicleService.updateVehicle(id, vehicle, userDetails.getUsername());
         redirectAttributes.addFlashAttribute("success", "Vehicle updated!");
         return "redirect:/vehicles";

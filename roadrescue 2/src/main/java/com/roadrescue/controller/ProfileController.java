@@ -1,6 +1,7 @@
 package com.roadrescue.controller;
 
 import com.roadrescue.entity.User;
+import com.roadrescue.service.GarageService;
 import com.roadrescue.service.UserService;
 import com.roadrescue.service.VehicleService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class ProfileController {
 
     private final UserService userService;
     private final VehicleService vehicleService;
+    private final GarageService garageService;
 
 
     @GetMapping
@@ -31,6 +33,11 @@ public class ProfileController {
         User user = userService.findByEmail(userDetails.getUsername());
         model.addAttribute("user", user);
         model.addAttribute("vehicles", vehicleService.getUserVehicles(user.getId()));
+
+        if (user.getRole().name().equals("ROLE_GARAGE_OWNER")) {
+            model.addAttribute("garageCount", garageService.getOwnerGarages(user.getEmail()).size());
+        }
+
         return "user/profile";
     }
 

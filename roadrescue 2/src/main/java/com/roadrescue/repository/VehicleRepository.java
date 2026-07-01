@@ -15,4 +15,5 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
     Page<Vehicle> findByUserIdAndDeletedFalse(Long userId, Pageable pageable);
     Optional<Vehicle> findByPlateNumberAndDeletedFalse(String plateNumber);
     boolean existsByPlateNumberAndDeletedFalse(String plateNumber);
+    boolean existsByChassisNumberAndDeletedFalse(String chassisNumber);
 }

@@ -274,7 +274,7 @@
         /* ══ Stat strip (top of page) ══ */
         .stat-strip {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 1px;
             margin-bottom: 1.25rem;
             background: var(--line);
@@ -592,6 +592,13 @@
             <div>
                 <div style="color: #119f2f" class="sb-val" th:text="${user.active} ? 'Active' : 'Inactive'">Active</div>
                 <div class="sb-lbl">Account Status</div>
+            </div>
+        </div>
+        <div class="stat-box" th:if="${user.role.name() == 'ROLE_GARAGE_OWNER'}">
+            <div class="sb-icon red"><i class="fas fa-warehouse"></i></div>
+            <div>
+                <div class="sb-val" th:text="${garageCount}">0</div>
+                <div class="sb-lbl">Garages Owned</div>
             </div>
         </div>
     </div>

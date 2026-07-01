@@ -34,11 +34,21 @@ public class Vehicle {
     @Column(name = "plate_number", nullable = false, unique = true)
     private String plateNumber;
 
+    @NotBlank(message = "Chassis number is required")
+    @Column(name = "chassis_number", nullable = false, unique = true)
+    private String chassisNumber;
+
     @Column(name = "year")
     private Integer year;
 
     @Column(name = "color")
     private String color;
+
+    @Column(name = "front_image_path")
+    private String frontImagePath;
+
+    @Column(name = "back_image_path")
+    private String backImagePath;
 
     @Column(name = "is_deleted")
     private boolean deleted = false;
