@@ -2,6 +2,8 @@ package com.roadrescue.repository;
 
 import com.roadrescue.entity.User;
 import com.roadrescue.enums.Role;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,4 +32,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     long countByRoleAndDeletedFalse(Role role);
     boolean existsByRole(Role role);
+
+    boolean existsByEmail(@NotBlank(message = "Email is required") @Email(message = "Invalid email format") String email);
+
+    void deleteById();
 }

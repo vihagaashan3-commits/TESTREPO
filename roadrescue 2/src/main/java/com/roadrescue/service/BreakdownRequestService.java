@@ -29,7 +29,7 @@ public class BreakdownRequestService {
     private final NotificationService notificationService;
     private final SimpMessagingTemplate messagingTemplate;
 
-    // ── STEP 1: DRIVER submits request ───────────────────────────────────
+    // STEP 1: DRIVER submits request
     // No minimum payment shown or calculated here.
     // The garage will send a quote separately after accepting.
     @Transactional
@@ -92,7 +92,7 @@ public class BreakdownRequestService {
         return saved;
     }
 
-    // ── STEP 2: GARAGE accepts the request (PENDING → ACCEPTED) ──────────
+    // STEP 2: GARAGE accepts the request (PENDING → ACCEPTED)
     // After accepting, garage will send a quote to the driver.
     @Transactional
     public BreakdownRequest acceptRequest(Long requestId, Long garageId) {
@@ -138,7 +138,7 @@ public class BreakdownRequestService {
         return saved;
     }
 
-    // ── STEP 2b: GARAGE declines the request (PENDING → CANCELLED) ───────
+    // STEP 2b: GARAGE declines the request (PENDING → CANCELLED)
     @Transactional
     public BreakdownRequest declineRequest(Long requestId, Long garageId) {
         BreakdownRequest request = findById(requestId);
@@ -171,7 +171,7 @@ public class BreakdownRequestService {
         return saved;
     }
 
-    // ── STEP 3: GARAGE sends payment quote to driver (ACCEPTED → QUOTED) ─
+    // STEP 3: GARAGE sends payment quote to driver (ACCEPTED → QUOTED)
     // Amount is fixed. Message warns driver that amount cannot change once accepted.
     @Transactional
     public BreakdownRequest sendQuote(Long requestId, BigDecimal quoteAmount, String quoteNotes) {
@@ -210,7 +210,7 @@ public class BreakdownRequestService {
         return saved;
     }
 
-    // ── STEP 4a: DRIVER approves quote (QUOTED → QUOTE_APPROVED) ─────────
+    // STEP 4a: DRIVER approves quote (QUOTED → QUOTE_APPROVED)
     // Technician is dispatched. Amount is now fully locked.
     @Transactional
     public BreakdownRequest approveQuote(Long requestId, String userEmail) {
@@ -249,7 +249,7 @@ public class BreakdownRequestService {
         return saved;
     }
 
-    // ── STEP 4b: DRIVER rejects quote (QUOTED → CANCELLED) ───────────────
+    // STEP 4b: DRIVER rejects quote (QUOTED → CANCELLED)
     // Driver can now submit a fresh request to a different garage.
     @Transactional
     public BreakdownRequest rejectQuote(Long requestId, String userEmail) {
@@ -321,7 +321,7 @@ public class BreakdownRequestService {
         return saved;
     }
 
-    // ── STEP 6: GARAGE completes the job (IN_PROGRESS → COMPLETED) ───────
+    // STEP 6: GARAGE completes the job (IN_PROGRESS → COMPLETED)
     // Final amount = quote amount (already locked — cannot be changed)
     @Transactional
     public BreakdownRequest completeJob(Long requestId) {
@@ -358,7 +358,7 @@ public class BreakdownRequestService {
         return saved;
     }
 
-    // ── DRIVER: Cancel request ────────────────────────────────────────────
+    // DRIVER: Cancel request
     // Allowed only before QUOTE_APPROVED (once technician dispatched, cannot cancel)
     @Transactional
     public void cancelRequest(Long requestId, String userEmail) {
@@ -378,7 +378,7 @@ public class BreakdownRequestService {
         requestRepository.save(request);
     }
 
-    // ── Queries ───────────────────────────────────────────────────────────
+    // Queries
     public BreakdownRequest findById(Long id) {
         return requestRepository.findById(id)
                 .filter(r -> !r.isDeleted())
