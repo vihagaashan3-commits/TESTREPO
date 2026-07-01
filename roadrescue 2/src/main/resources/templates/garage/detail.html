@@ -93,6 +93,7 @@
                    class="btn btn-danger">
                     <i class="fas fa-exclamation-triangle me-2"></i>Request Help from This Garage
                 </a>
+
                 <!-- On the garage detail page, show Edit button only to the owner -->
                 <a th:if="${#authentication.name == garage.owner.email}"
                    th:href="@{/garages/{id}/edit(id=${garage.id})}"
@@ -119,16 +120,6 @@
 
         <!-- Right -->
         <div class="col-lg-8">
-            <!-- Map -->
-            <div class="card border-0 shadow-sm mb-4" th:if="${garage.latitude != null}">
-                <div class="card-header bg-white fw-bold">
-                    <i class="fas fa-map text-danger me-2"></i>Location on Map
-                </div>
-                <div class="card-body p-2">
-                    <div id="garageMap"></div>
-                </div>
-            </div>
-
             <!-- Technicians -->
             <div class="card border-0 shadow-sm mb-4" th:if="${garage.technicians != null and !garage.technicians.isEmpty()}">
                 <div class="card-header bg-white fw-bold">
