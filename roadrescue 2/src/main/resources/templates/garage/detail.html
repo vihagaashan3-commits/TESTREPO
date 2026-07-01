@@ -144,6 +144,14 @@
                     </button>
                 </form>
 
+                <!-- GARAGE OWNER: Reply to customer emails via Gmail -->
+                <a th:if="${#authentication.name == garage.owner.email}"
+                   href="https://mail.google.com/mail/u/0/#inbox"
+                   target="_blank"
+                   class="btn btn-outline-primary btn-sm w-100">
+                    <i class="fas fa-envelope-open-text me-2"></i>Reply to Customer Messages
+                </a>
+
                 <!-- ADMIN: Verify -->
                 <form th:action="@{/admin/garages/{id}/verify(id=${garage.id})}"
                       method="post" sec:authorize="hasRole('ADMIN')" th:unless="${garage.verified}">
