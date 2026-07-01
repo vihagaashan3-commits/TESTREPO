@@ -703,6 +703,11 @@
             <i class="fas fa-file-alt me-2"></i>
             View Customer &amp; Vehicle Details
         </button>
+        <a th:href="@{/requests/{id}/report(id=${request.id})}"
+           class="rr-btn rr-btn-success">
+            <i class="fas fa-download me-2"></i>
+            Download Report
+        </a>
     </div>
 
     <!-- Collapsible content -->
