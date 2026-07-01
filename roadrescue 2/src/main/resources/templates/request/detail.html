@@ -508,12 +508,34 @@
                 </div>
             </div>
 
+<<<<<<< Updated upstream
             <!-- Waiting for garage Alert -->
             <div class="alert rr-alert rr-alert-info mb-4" th:if="${garage == null}">
                 <i class="fas fa-info-circle fs-5 me-3"></i>
                 <div>
                     <strong>Awaiting Response</strong>
                     <p class="mb-0 small opacity-90">We are waiting for a nearby garage to accept your service request.</p>
+=======
+            <!-- Assigned garage -->
+            <div class="card border-0 shadow-sm mb-4" th:if="${garage != null}">
+                <div class="card-header bg-white fw-bold">
+                    <i class="fas fa-warehouse text-danger me-2"></i>Assigned Garage
+                </div>
+                <div class="card-body">
+                    <div class="fw-bold mb-1" th:text="${garage.garageName}">Garage Name</div>
+                    <div class="small text-muted mb-2" th:text="${garage.address}">Address</div>
+                    <a th:href="'tel:' + ${garage.phone}" class="btn btn-sm btn-outline-success w-100 mb-2">
+                        <i class="fas fa-phone me-2"></i><span th:text="${garage.phone}">Call</span>
+                    </a>
+                    <a th:href="@{/garages/{id}(id=${garage.id})}" class="btn btn-sm btn-outline-secondary w-100">
+                        View Garage Profile
+                    </a>
+                    <a th:href="@{/requests/{id}/report(id=${request.id})}"
+                       class="rr-btn rr-btn-success">
+                        <i class="fas fa-download me-2"></i>
+                        Download Report
+                    </a>
+>>>>>>> Stashed changes
                 </div>
             </div>
 
