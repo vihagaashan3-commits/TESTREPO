@@ -118,10 +118,10 @@ CREATE DATABASE roadrescue_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ### 3. Configure `application.properties`
 ```properties
 # Update these values:
-spring.datasource.username=YOUR_MYSQL_USER
-spring.datasource.password=YOUR_MYSQL_PASSWORD
-spring.mail.username=YOUR_GMAIL
-spring.mail.password=YOUR_APP_PASSWORD
+spring.datasource.username=root
+spring.datasource.password=
+spring.mail.username=nadeeshakalhara685@gmail.com
+spring.mail.password=gzos elrn xgti arhg
 google.maps.api.key=YOUR_GOOGLE_MAPS_KEY
 ```
 
@@ -140,9 +140,8 @@ After first run (tables created), execute `src/main/resources/data.sql` in your 
 
 | Role | Email | Password |
 |---|---|---|
-| Admin | admin@roadrescue.com | admin123 |
-| Garage Owner | kamal@garage.com | owner123 |
-| User (Driver) | nimal@gmail.com | user123 |
+| Admin | nadeeshakalhara685.com | admin123 |
+
 
 ---
 
