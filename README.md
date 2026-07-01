@@ -209,7 +209,7 @@ After first run (tables created), execute `src/main/resources/data.sql` in your 
 
 ## 📬 Postman Collection
 
-Import `postman/RoadRescue.postman_collection.json` for API testing.
+Import `https://documenter.getpostman.com/view/54224256/2sBY4HSiDv` for API testing.
 
 ---
 
