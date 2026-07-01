@@ -87,6 +87,28 @@ public class AuthController {
         return "auth/verify-otp";
     }
 
+    @PostMapping("/resend-registration-otp")
+    public String resendRegistrationOtp(
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        RegisterDTO registerDTO = (RegisterDTO) session.getAttribute("registerDTO");
+
+        if (registerDTO == null) {
+            return "redirect:/auth/register";
+        }
+
+        String otp = otpService.generateOtp(registerDTO.getEmail());
+
+        emailService.sendOtpEmail(registerDTO.getEmail(), otp);
+
+        redirectAttributes.addFlashAttribute(
+                "success",
+                "A new verification code has been sent to your email.");
+
+        return "redirect:/auth/verify-registration-otp";
+    }
+
     @GetMapping("/verify-registration-otp")
     public String registrationOtpPage(Model model) {
 
