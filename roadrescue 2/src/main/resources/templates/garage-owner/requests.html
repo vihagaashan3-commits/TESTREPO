@@ -247,10 +247,12 @@
                                         </a>
 
                                         <!-- Contact customer -->
-                                        <button type="button" class="btn btn-sm btn-outline-primary"
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary d-flex justify-content-center align-items-center"
                                                 th:attr="onclick=${'openContactModal(' + req.id + ', &quot;' + req.user.email + '&quot;, &quot;' + req.user.fullName + '&quot;)'}">
                                             <i class="fas fa-envelope"></i>
                                         </button>
+
                                     </div>
                                 </td>
                             </tr>
