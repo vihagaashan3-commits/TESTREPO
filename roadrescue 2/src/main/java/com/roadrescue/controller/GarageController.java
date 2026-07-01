@@ -35,21 +35,25 @@ public class GarageController {
     private final ReviewService reviewService;
 
     // ── LIST ─────────────────────────────────────────────────────────────────
-
     @GetMapping
     public String listGarages(@RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "9") int size,
                               @RequestParam(required = false) String keyword,
+                              @RequestParam(required = false) String serviceType,
                               @AuthenticationPrincipal UserDetails userDetails,
                               Model model) {
-        Page<Garage> garages = garageService.getAllGarages(page, size, keyword);
+
+        Page<Garage> garages = garageService.getAllGarages(page, size, keyword, serviceType);
+
         model.addAttribute("garages", garages);
         model.addAttribute("keyword", keyword);
+        model.addAttribute("serviceType", serviceType);
         model.addAttribute("currentPage", page);
         model.addAttribute("serviceTypes", ServiceType.values());
 
         if (userDetails != null) {
-            model.addAttribute("ownerHasGarage", garageService.ownerHasGarage(userDetails.getUsername()));
+            model.addAttribute("ownerHasGarage",
+                    garageService.ownerHasGarage(userDetails.getUsername()));
         }
 
         return "garage/list";

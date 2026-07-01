@@ -84,7 +84,7 @@
                 </div>
                 <div class="col-md-4">
                     <label class="form-label small fw-semibold">Filter by Service</label>
-                    <select name="serviceType" class="form-select" onchange="this.form.submit()">
+                    <select name="serviceType" class="form-select">
                         <option value="">All Services</option>
                         <option th:each="svc : ${serviceTypes}"
                                 th:value="${svc.name()}"

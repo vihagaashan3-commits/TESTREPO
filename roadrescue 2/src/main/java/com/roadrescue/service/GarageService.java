@@ -25,16 +25,16 @@ public class GarageService {
     private final ReviewRepository reviewRepository;
     private final UserService userService;
 
+    // CREATE
+
     @Transactional
     @CacheEvict(value = "garages", allEntries = true)
     public Garage createGarage(GarageDTO dto, String ownerEmail) {
+
         User owner = userService.findByEmail(ownerEmail);
 
-        // SECURITY: Enforce one garage per owner account.
-        boolean alreadyHasGarage = garageRepository.existsByOwnerIdAndDeletedFalse(owner.getId());
-        if (alreadyHasGarage) {
-            throw new DuplicateGarageException(
-                    "This account has already registered a garage. Only one garage is allowed per account.");
+        if (garageRepository.existsByOwnerIdAndDeletedFalse(owner.getId())) {
+            throw new DuplicateGarageException("Only one garage per account allowed.");
         }
 
         Garage garage = Garage.builder()
@@ -55,43 +55,75 @@ public class GarageService {
         return garageRepository.save(garage);
     }
 
+    // ================= FIND BY ID =================
+
     public Garage findById(Long id) {
         return garageRepository.findById(id)
                 .filter(g -> !g.isDeleted())
                 .orElseThrow(() -> new ResourceNotFoundException("Garage not found"));
     }
 
+    // ================= MAIN LIST =================
+
+    @Cacheable(value = "garages", key = "#page + '-' + #size + '-' + #keyword + '-' + #serviceType")
+    public Page<Garage> getAllGarages(int page, int size, String keyword, String serviceType) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("garageName").ascending());
+
+        boolean hasKeyword = keyword != null && !keyword.isBlank();
+        boolean hasService = serviceType != null && !serviceType.isBlank();
+
+        if (hasKeyword && hasService) {
+            return garageRepository.searchByKeywordAndService(
+                    keyword,
+                    ServiceType.valueOf(serviceType),
+                    pageable
+            );
+        }
+
+        if (hasService) {
+            return garageRepository.findByServiceType(
+                    ServiceType.valueOf(serviceType),
+                    pageable
+            );
+        }
+
+        if (hasKeyword) {
+            return garageRepository.searchGarages(keyword, pageable);
+        }
+
+        return garageRepository.findByDeletedFalse(pageable);
+    }
+
+    // ================= NEARBY =================
+
     public List<Garage> findNearbyGarages(Double lat, Double lng, Double radiusKm) {
         return garageRepository.findNearbyGarages(lat, lng, radiusKm);
     }
 
-    @Cacheable("garages")
-    public Page<Garage> getAllGarages(int page, int size, String keyword) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("garageName").ascending());
-        if (keyword != null && !keyword.isBlank()) {
-            return garageRepository.searchGarages(keyword, pageable);
-        }
-        return garageRepository.findByDeletedFalse(pageable);
-    }
+    // ================= OWNER =================
 
-    public List<Garage> getOwnerGarages(String ownerEmail) {
-        User owner = userService.findByEmail(ownerEmail);
+    public List<Garage> getOwnerGarages(String email) {
+        User owner = userService.findByEmail(email);
         return garageRepository.findByOwnerIdAndDeletedFalse(owner.getId());
     }
 
-    public boolean ownerHasGarage(String ownerEmail) {
-        User owner = userService.findByEmail(ownerEmail);
+    public boolean ownerHasGarage(String email) {
+        User owner = userService.findByEmail(email);
         return garageRepository.existsByOwnerIdAndDeletedFalse(owner.getId());
     }
 
+    // ================= UPDATE =================
+
     @Transactional
     @CacheEvict(value = "garages", allEntries = true)
-    public Garage updateGarage(Long id, GarageDTO dto, String ownerEmail) {
+    public Garage updateGarage(Long id, GarageDTO dto, String email) {
+
         Garage garage = findById(id);
-        User owner = userService.findByEmail(ownerEmail);
+        User owner = userService.findByEmail(email);
 
         if (!garage.getOwner().getId().equals(owner.getId())) {
-            throw new SecurityException("You don't own this garage");
+            throw new SecurityException("Not your garage");
         }
 
         garage.setGarageName(dto.getGarageName());
@@ -107,6 +139,8 @@ public class GarageService {
         return garageRepository.save(garage);
     }
 
+    // ================= SOFT DELETE =================
+
     @Transactional
     @CacheEvict(value = "garages", allEntries = true)
     public void softDelete(Long id) {
@@ -114,6 +148,8 @@ public class GarageService {
         garage.setDeleted(true);
         garageRepository.save(garage);
     }
+
+    // ================= VERIFY =================
 
     @Transactional
     @CacheEvict(value = "garages", allEntries = true)
@@ -123,6 +159,8 @@ public class GarageService {
         garageRepository.save(garage);
     }
 
+    // ================= TOGGLE =================
+
     @Transactional
     @CacheEvict(value = "garages", allEntries = true)
     public void toggleAvailability(Long id) {
@@ -131,17 +169,13 @@ public class GarageService {
         garageRepository.save(garage);
     }
 
-    public List<Garage> findNearby(Double lat, Double lng, Double radius) {
-        return garageRepository.findNearbyGarages(lat, lng, radius);
-    }
-
-    public List<Garage> findByServiceType(ServiceType serviceType) {
-        return garageRepository.findByServiceType(serviceType);
-    }
+    // ================= REVIEWS =================
 
     public Double getAverageRating(Long garageId) {
         return reviewRepository.getAverageRatingByGarageId(garageId);
     }
 
-    public long getTotalCount() { return garageRepository.countByDeletedFalse(); }
+    public long getTotalCount() {
+        return garageRepository.countByDeletedFalse();
+    }
 }

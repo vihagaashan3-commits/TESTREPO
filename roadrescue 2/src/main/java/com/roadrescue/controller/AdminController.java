@@ -51,9 +51,16 @@ public class AdminController {
     public String manageGarages(@RequestParam(defaultValue = "0") int page,
                                 @RequestParam(defaultValue = "10") int size,
                                 @RequestParam(required = false) String keyword,
+                                @RequestParam(required = false) String serviceType,
                                 Model model) {
-        model.addAttribute("garages", garageService.getAllGarages(page, size, keyword));
+
+        model.addAttribute("garages",
+                garageService.getAllGarages(page, size, keyword, serviceType));
+
         model.addAttribute("currentPage", page);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("serviceType", serviceType);
+
         return "admin/garages";
     }
 
