@@ -151,4 +151,8 @@ public class UserService {
     public boolean emailExists(String email) {
         return userRepository.existsByEmail(email);
     }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteById();
+    }
 }
