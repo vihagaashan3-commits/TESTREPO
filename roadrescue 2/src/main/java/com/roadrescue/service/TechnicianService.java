@@ -25,11 +25,7 @@ public class TechnicianService {
         return technicianRepository.save(technician);
     }
 
-    public Technician findById(Long id) {
-        return technicianRepository.findById(id)
-                .filter(t -> !t.isDeleted())
-                .orElseThrow(() -> new ResourceNotFoundException("Technician not found"));
-    }
+
 
     public List<Technician> getAvailableByGarage(Long garageId) {
         return technicianRepository.findByGarageIdAndAvailableTrueAndDeletedFalse(garageId);
