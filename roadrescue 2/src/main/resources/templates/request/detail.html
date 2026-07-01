@@ -95,7 +95,8 @@
                 </div>
             </div>
 
-            <div class="alert alert-info" th:if="${garage == null}">
+
+            <div class="alert alert-info" th:if="${request.status.name() == 'PENDING'}">
                 <i class="fas fa-info-circle me-2"></i>Waiting for a garage to accept this request.
             </div>
             <!-- Payment Section -->
