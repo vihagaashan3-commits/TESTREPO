@@ -5,373 +5,489 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us | RoadRescue</title>
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
-
     <style>
         :root{
-            --rr-primary:#dc3545;
-            --rr-primary-dark:#b71c2b;
-            --rr-light:#f8f9fa;
-            --rr-dark:#212529;
-            --rr-text:#495057;
-            --rr-border:#e9ecef;
-            --rr-shadow:0 12px 35px rgba(0,0,0,.08);
-            --rr-hover:0 20px 45px rgba(220,53,69,.18);
+            --rv-asphalt:#14161a;
+            --rv-steel:#525a66;
+            --rv-steel-soft:#8a909b;
+            --rv-ember:#d62828;
+            --rv-ember-dark:#a31e1e;
+            --rv-amber:#f1a208;
+            --rv-paper:#f6f4ef;
+            --rv-line:#e4e1d8;
         }
 
-        body{
-            font-family:'Segoe UI',sans-serif;
-            background:linear-gradient(180deg,#ffffff 0%,#f7f8fb 100%);
-            color:var(--rr-dark);
-        }
+        body{ background:var(--rv-paper); font-family:'Inter',sans-serif; }
+        .ra-wrap{ max-width:1140px; }
 
-        .about{
-            padding-top:80px;
-            padding-bottom:80px;
-        }
-
-        /* =======================
-                HERO
-        ======================= */
-
-        .about .text-center{
-            max-width:900px;
-            margin:auto;
-        }
-
-        .about span{
-            letter-spacing:2px;
-            font-size:.9rem;
-        }
-
-        .about h1{
-            font-weight:800;
-            color:#111;
-        }
-
-        .about p{
-            font-size:1.05rem;
-            line-height:1.8;
-            color:var(--rr-text);
-        }
-
-        /* =======================
-                CARDS
-        ======================= */
-
-        .card{
-            background:#fff !important;
-            border:none !important;
-            border-radius:20px;
-            padding:40px 30px;
-            box-shadow:var(--rr-shadow);
-            transition:.35s ease;
-            overflow:hidden;
-            position:relative;
-            height:100%;
-        }
-
-        .card::before{
-            content:"";
-            position:absolute;
-            left:0;
-            top:0;
-            width:100%;
-            height:5px;
-            background:linear-gradient(90deg,#dc3545,#ff7b7b);
-        }
-
-        .card:hover{
-            transform:translateY(-10px);
-            box-shadow:var(--rr-hover);
-        }
-
-        .card i{
-            width:90px;
-            height:90px;
-            line-height:90px;
-            border-radius:50%;
-            background:#fff5f5;
-            color:var(--rr-primary);
-            margin:auto;
-            margin-bottom:25px;
-        }
-
-        .card h2{
-            font-size:1.5rem;
-            font-weight:700;
-            color:#222;
-            margin-bottom:15px;
-        }
-
-        .card p{
-            color:#666;
-            line-height:1.7;
-        }
-
-        /* =======================
-              MISSION / VISION
-        ======================= */
-
-        .box{
-            background:#fff !important;
-            border-radius:20px;
-            border-left:6px solid var(--rr-primary);
-            padding:35px;
-            box-shadow:var(--rr-shadow);
-            transition:.35s;
-            height:100%;
-        }
-
-        .box:hover{
-            transform:translateY(-8px);
-            box-shadow:var(--rr-hover);
-        }
-
-        .box h2{
-            font-size:1.7rem;
-            font-weight:700;
-            margin:20px 0;
-        }
-
-        .box p{
-            color:#666;
-            line-height:1.8;
-        }
-
-        .box i{
-            color:var(--rr-primary);
-        }
-
-        /* =======================
-              WHY CHOOSE
-        ======================= */
-
-        .display-6{
-            font-weight:800;
-            color:#222;
-        }
-
-        .feature{
-            background:#fff !important;
+        /* ============ HEADBAND ============ */
+        .ra-headband{
+            background:var(--rv-asphalt);
             border-radius:18px;
-            padding:35px 20px !important;
-            box-shadow:var(--rr-shadow);
-            transition:.35s;
-            height:100%;
-            font-weight:600;
-            color:#333 !important;
-            border:1px solid transparent;
-        }
-
-        .feature i{
-            display:block;
-            font-size:2.3rem;
-            color:var(--rr-primary);
-            margin-bottom:18px;
-            transition:.35s;
-        }
-
-        .feature:hover{
-            background:linear-gradient(135deg,#dc3545,#ff5a6b)!important;
-            color:#fff!important;
-            transform:translateY(-10px);
-            box-shadow:var(--rr-hover);
-        }
-
-        .feature:hover i{
+            padding:48px 40px;
+            position:relative;
+            overflow:hidden;
             color:#fff;
         }
+        .ra-headband::after{
+            content:"";
+            position:absolute; inset:0;
+            background: repeating-linear-gradient(115deg, rgba(255,255,255,.035) 0 2px, transparent 2px 26px);
+            pointer-events:none;
+        }
+        .ra-eyebrow{
+            font-family:'JetBrains Mono',monospace;
+            font-size:.72rem;
+            letter-spacing:.18em;
+            text-transform:uppercase;
+            color:var(--rv-amber);
+            margin-bottom:10px;
+            position:relative; z-index:1;
+        }
+        .ra-title{
+            color:#fff;
+            font-family:'Sora',sans-serif;
+            font-weight:700;
+            font-size:2.5rem;
+            margin:0 0 16px;
+            letter-spacing:-.01em;
+            max-width:720px;
+            position:relative; z-index:1;
+        }
+        .ra-sub{
+            color:#c7cad1;
+            font-size:.98rem;
+            line-height:1.75;
+            max-width:640px;
+            margin:0;
+            position:relative; z-index:1;
+        }
+        .ra-headband-cta{
+            display:flex;
+            gap:12px;
+            flex-wrap:wrap;
+            margin-top:26px;
+            position:relative; z-index:1;
+        }
+        .btn-rv-add{
+            background:var(--rv-ember);
+            border:none;
+            color:#fff;
+            font-weight:600;
+            font-size:.92rem;
+            padding:.7rem 1.4rem;
+            border-radius:10px;
+            transition:background .15s ease, transform .1s ease;
+            white-space:nowrap;
+            display:inline-flex;
+            align-items:center;
+        }
+        .btn-rv-add:hover{ background:var(--rv-ember-dark); color:#fff; transform:translateY(-1px); }
+        .btn-rv-ghost{
+            background:rgba(255,255,255,.06);
+            border:1px solid rgba(255,255,255,.16);
+            color:#fff;
+            font-weight:600;
+            font-size:.92rem;
+            padding:.7rem 1.4rem;
+            border-radius:10px;
+            transition:.15s ease;
+            display:inline-flex;
+            align-items:center;
+        }
+        .btn-rv-ghost:hover{ background:rgba(255,255,255,.12); color:#fff; transform:translateY(-1px); }
 
-        /* =======================
-              SECTION SPACING
-        ======================= */
+        .ra-chip-row{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            margin-top:28px;
+            position:relative; z-index:1;
+        }
+        .rv-count-chip{
+            font-family:'JetBrains Mono',monospace;
+            font-size:.78rem;
+            background:rgba(255,255,255,.08);
+            border:1px solid rgba(255,255,255,.14);
+            color:#e7e9ec;
+            border-radius:999px;
+            padding:.4rem .9rem;
+            display:inline-block;
+        }
+        .rv-count-chip i{ color:var(--rv-amber); }
 
-        .row{
-            margin-top:20px;
+        /* ============ SECTION HEADER ============ */
+        .ra-section{ padding:56px 0; }
+        .ra-section-label{
+            font-family:'JetBrains Mono',monospace;
+            font-size:.72rem;
+            letter-spacing:.18em;
+            text-transform:uppercase;
+            color:var(--rv-ember);
+        }
+        .ra-section-title{
+            font-family:'Sora',sans-serif;
+            font-weight:700;
+            color:var(--rv-asphalt);
+            font-size:1.7rem;
+            margin-top:8px;
+        }
+        .ra-section-sub{
+            color:var(--rv-steel);
+            font-size:.94rem;
+            line-height:1.7;
+            max-width:600px;
         }
 
-        .mb-5{
-            margin-bottom:4rem!important;
+        /* ============ CARDS ============ */
+        .ra-card{
+            background:#fff;
+            border:1px solid var(--rv-line);
+            border-radius:16px;
+            padding:30px 26px;
+            height:100%;
+            transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+        }
+        .ra-card:hover{
+            transform:translateY(-3px);
+            box-shadow:0 14px 28px rgba(20,22,26,.1);
+            border-color:#d8d4c6;
+        }
+        .ra-icon-badge{
+            width:50px; height:50px;
+            border-radius:12px;
+            background:var(--rv-asphalt);
+            color:var(--rv-amber);
+            display:flex; align-items:center; justify-content:center;
+            font-size:1.3rem;
+            margin-bottom:18px;
+        }
+        .ra-card h3{
+            font-family:'Sora',sans-serif;
+            font-weight:600;
+            font-size:1.08rem;
+            color:var(--rv-asphalt);
+            margin-bottom:10px;
+        }
+        .ra-card p{
+            color:var(--rv-steel);
+            font-size:.9rem;
+            line-height:1.7;
+            margin-bottom:0;
         }
 
-        /* =======================
-                RESPONSIVE
-        ======================= */
-
-        @media(max-width:991px){
-
-            .about h1{
-                font-size:2.3rem;
-            }
-
-            .card,
-            .box,
-            .feature{
-                margin-bottom:10px;
-            }
-
+        /* ============ MISSION / VISION ============ */
+        .ra-box{
+            background:#fff;
+            border:1px solid var(--rv-line);
+            border-left:4px solid var(--rv-ember);
+            border-radius:14px;
+            padding:32px;
+            height:100%;
+        }
+        .ra-box .ra-icon-badge{ background:#fdf0ef; color:var(--rv-ember); }
+        .ra-box h3{
+            font-family:'Sora',sans-serif;
+            font-weight:600;
+            font-size:1.2rem;
+            color:var(--rv-asphalt);
+            margin-bottom:12px;
+        }
+        .ra-box p{
+            color:var(--rv-steel);
+            font-size:.92rem;
+            line-height:1.75;
+            margin-bottom:0;
         }
 
-        @media(max-width:576px){
+        /* ============ HOW IT WORKS ============ */
+        .ra-step{
+            text-align:center;
+            padding:0 10px;
+        }
+        .ra-step-num{
+            width:44px; height:44px;
+            border-radius:50%;
+            background:var(--rv-asphalt);
+            color:var(--rv-amber);
+            font-family:'JetBrains Mono',monospace;
+            font-weight:700;
+            display:flex; align-items:center; justify-content:center;
+            margin:0 auto 16px;
+        }
+        .ra-step h4{
+            font-family:'Sora',sans-serif;
+            font-weight:600;
+            font-size:.98rem;
+            color:var(--rv-asphalt);
+            margin-bottom:8px;
+        }
+        .ra-step p{
+            color:var(--rv-steel);
+            font-size:.85rem;
+            line-height:1.65;
+        }
 
-            .about{
-                padding-top:50px;
-            }
+        /* ============ WHY CHOOSE ============ */
+        .ra-feature{
+            background:#fff;
+            border:1px solid var(--rv-line);
+            border-radius:14px;
+            padding:26px 16px;
+            text-align:center;
+            height:100%;
+            transition:.15s ease;
+        }
+        .ra-feature i{
+            font-size:1.7rem;
+            color:var(--rv-ember);
+            display:block;
+            margin-bottom:14px;
+        }
+        .ra-feature span{
+            font-family:'Sora',sans-serif;
+            font-weight:600;
+            font-size:.88rem;
+            color:var(--rv-asphalt);
+        }
+        .ra-feature:hover{
+            transform:translateY(-4px);
+            box-shadow:0 14px 28px rgba(20,22,26,.1);
+            border-color:#d8d4c6;
+        }
 
-            .about h1{
-                font-size:2rem;
-            }
+        /* ============ CTA BAND ============ */
+        .ra-cta{
+            background:var(--rv-asphalt);
+            border-radius:18px;
+            padding:44px 40px;
+            color:#fff;
+            position:relative;
+            overflow:hidden;
+        }
+        .ra-cta::after{
+            content:"";
+            position:absolute; inset:0;
+            background: repeating-linear-gradient(115deg, rgba(255,255,255,.035) 0 2px, transparent 2px 26px);
+            pointer-events:none;
+        }
+        .ra-cta h3{
+            font-family:'Sora',sans-serif;
+            font-weight:700;
+            font-size:1.4rem;
+            margin-bottom:6px;
+            position:relative; z-index:1;
+        }
+        .ra-cta p{
+            color:#c7cad1;
+            font-size:.92rem;
+            margin-bottom:0;
+            position:relative; z-index:1;
+        }
 
-            .card{
-                padding:30px 20px;
-            }
-
-            .feature{
-                padding:25px 15px!important;
-            }
-
+        @media(max-width:767px){
+            .ra-headband{ padding:34px 24px; }
+            .ra-title{ font-size:1.9rem; }
+            .ra-cta{ text-align:center; padding:36px 24px; }
+            .ra-cta .btn-rv-add{ margin-top:18px; }
         }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
-<!-- Navbar -->
 <th:block th:replace="~{layout :: navbar}"></th:block>
 
-<section class="about py-5">
-    <div class="container">
+<div class="container ra-wrap my-4">
 
-        <!-- Title -->
-        <div class="text-center mb-5">
-            <span class="text-danger fw-bold text-uppercase">ABOUT ROADRESCUE</span>
-            <h1 class="display-4 my-3">Your Trusted Roadside Assistance Partner</h1>
-            <p class="text-secondary mx-auto" style="max-width:850px;">
-                RoadRescue is a smart roadside assistance platform that connects
-                vehicle owners with trusted nearby garages. Whether you experience
-                a vehicle breakdown, flat tire, battery failure, or any emergency,
-                our platform helps you quickly find professional automotive support.
-            </p>
+    <!-- Headband -->
+    <div class="ra-headband">
+        <div class="ra-eyebrow">About RoadRescue</div>
+        <h1 class="ra-title">Your Trusted Roadside Assistance Partner</h1>
+        <p class="ra-sub">
+            RoadRescue is a smart roadside assistance platform that connects vehicle
+            owners with trusted nearby garages. Whether it's a breakdown, flat tire,
+            battery failure, or any emergency, we help you find professional
+            automotive support — fast.
+        </p>
+        <div class="ra-headband-cta">
+            <a th:href="@{/requests/new}" class="btn-rv-add">
+                <i class="fas fa-triangle-exclamation me-2"></i>Request Assistance
+            </a>
+            <a th:href="@{/garages}" class="btn-rv-ghost">
+                <i class="fas fa-tools me-2"></i>Browse Garages
+            </a>
         </div>
-
-        <!-- Cards -->
-        <div class="row g-4 mb-5">
-            <div class="col-md-4">
-                <div class="card text-center">
-                    <i class="fas fa-tools fa-3x text-danger mb-3"></i>
-                    <h2>For Garages</h2>
-                    <p class="text-secondary">
-                        Garage owners can create professional profiles, showcase their
-                        services, technical expertise, operating hours, and attract more
-                        customers through our trusted platform.
-                    </p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-center">
-                    <i class="fas fa-car-side fa-3x text-danger mb-3"></i>
-                    <h2>For Drivers</h2>
-                    <p class="text-secondary">
-                        Drivers can search nearby garages, request roadside assistance,
-                        describe vehicle issues, and receive fast support from qualified
-                        technicians.
-                    </p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-center">
-                    <i class="fas fa-star fa-3x text-danger mb-3"></i>
-                    <h2>Ratings & Reviews</h2>
-                    <p class="text-secondary">
-                        Every completed service can be rated and reviewed by customers,
-                        helping future users identify the most trusted and highest-rated
-                        garages.
-                    </p>
-                </div>
-            </div>
+        <div class="ra-chip-row">
+            <span class="rv-count-chip"><i class="fas fa-warehouse me-1"></i>500+ verified garages</span>
+            <span class="rv-count-chip"><i class="fas fa-car-side me-1"></i>10K+ drivers helped</span>
+            <span class="rv-count-chip"><i class="fas fa-clock me-1"></i>24/7 emergency support</span>
+            <span class="rv-count-chip"><i class="fas fa-star me-1"></i>4.8/5 average rating</span>
         </div>
-
-        <!-- Mission & Vision -->
-        <div class="row g-4 mb-5">
-            <div class="col-md-6">
-                <div class="box">
-                    <i class="fas fa-bullseye fa-2x text-danger mb-3"></i>
-                    <h2>Our Mission</h2>
-                    <p class="text-secondary">
-                        To simplify roadside assistance by connecting vehicle owners
-                        with reliable automotive professionals while promoting quality
-                        service through transparency and customer trust.
-                    </p>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="box">
-                    <i class="fas fa-eye fa-2x text-danger mb-3"></i>
-                    <h2>Our Vision</h2>
-                    <p class="text-secondary">
-                        To become the leading roadside assistance platform by building
-                        a trusted community of garages and ensuring every driver receives
-                        timely, professional help whenever needed.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Why Choose -->
-        <div class="text-center mb-5">
-            <h2 class="display-6 mb-4">Why Choose RoadRescue?</h2>
-            <div class="row g-4">
-                <div class="col-md-4 col-lg-2">
-                    <div class="feature bg-white text-dark rounded p-4 fw-bold">
-                        <i class="fas fa-location-dot fa-2x mb-2"></i>
-                        Nearby Garage Search
-                    </div>
-                </div>
-                <div class="col-md-4 col-lg-2">
-                    <div class="feature bg-white text-dark rounded p-4 fw-bold">
-                        <i class="fas fa-bolt fa-2x mb-2"></i>
-                        Quick Emergency Requests
-                    </div>
-                </div>
-                <div class="col-md-4 col-lg-2">
-                    <div class="feature bg-white text-dark rounded p-4 fw-bold">
-                        <i class="fas fa-user-check fa-2x mb-2"></i>
-                        Verified Garage Profiles
-                    </div>
-                </div>
-                <div class="col-md-4 col-lg-2">
-                    <div class="feature bg-white text-dark rounded p-4 fw-bold">
-                        <i class="fas fa-medal fa-2x mb-2"></i>
-                        Customer Ratings
-                    </div>
-                </div>
-                <div class="col-md-4 col-lg-2">
-                    <div class="feature bg-white text-dark rounded p-4 fw-bold">
-                        <i class="fas fa-screwdriver-wrench fa-2x mb-2"></i>
-                        Expert Technicians
-                    </div>
-                </div>
-                <div class="col-md-4 col-lg-2">
-                    <div class="feature bg-white text-dark rounded p-4 fw-bold">
-                        <i class="fas fa-handshake fa-2x mb-2"></i>
-                        Trusted Communities
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
-</section>
-<!-- Footer -->
+
+    <!-- Who we serve -->
+    <div class="ra-section">
+        <div class="ra-section-label">Who We Serve</div>
+        <h2 class="ra-section-title">Built for drivers and garages alike</h2>
+        <p class="ra-section-sub mb-4">RoadRescue brings both sides of roadside assistance onto a single, trusted platform.</p>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="ra-card">
+                    <div class="ra-icon-badge"><i class="fas fa-tools"></i></div>
+                    <h3>For Garages</h3>
+                    <p>Garage owners can create professional profiles, showcase services and
+                        technical expertise, set operating hours, and attract more customers
+                        through our trusted platform.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="ra-card">
+                    <div class="ra-icon-badge"><i class="fas fa-car-side"></i></div>
+                    <h3>For Drivers</h3>
+                    <p>Drivers can search nearby garages, request roadside assistance, describe
+                        vehicle issues, and receive fast support from qualified technicians.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="ra-card">
+                    <div class="ra-icon-badge"><i class="fas fa-star"></i></div>
+                    <h3>Ratings &amp; Reviews</h3>
+                    <p>Every completed service can be rated and reviewed by customers, helping
+                        future users identify the most trusted and highest-rated garages.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How it works -->
+    <div class="ra-section pt-0">
+        <div class="ra-section-label">The Process</div>
+        <h2 class="ra-section-title">How RoadRescue works</h2>
+        <p class="ra-section-sub mb-4">From breakdown to back on the road — in four simple steps.</p>
+
+        <div class="row g-4">
+            <div class="col-6 col-md-3">
+                <div class="ra-step">
+                    <div class="ra-step-num">1</div>
+                    <h4>Submit a request</h4>
+                    <p>Describe your issue and share your vehicle details in seconds.</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="ra-step">
+                    <div class="ra-step-num">2</div>
+                    <h4>Get matched</h4>
+                    <p>We connect you with verified, nearby garages ready to help.</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="ra-step">
+                    <div class="ra-step-num">3</div>
+                    <h4>Get assisted</h4>
+                    <p>A qualified technician reaches you and resolves the issue.</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="ra-step">
+                    <div class="ra-step-num">4</div>
+                    <h4>Rate the service</h4>
+                    <p>Share feedback to help other drivers choose with confidence.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mission / Vision -->
+    <div class="ra-section pt-0">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="ra-box">
+                    <div class="ra-icon-badge"><i class="fas fa-bullseye"></i></div>
+                    <h3>Our Mission</h3>
+                    <p>To simplify roadside assistance by connecting vehicle owners with
+                        reliable automotive professionals while promoting quality service
+                        through transparency and customer trust.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="ra-box">
+                    <div class="ra-icon-badge"><i class="fas fa-eye"></i></div>
+                    <h3>Our Vision</h3>
+                    <p>To become the leading roadside assistance platform by building a
+                        trusted community of garages and ensuring every driver receives
+                        timely, professional help whenever needed.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Why choose -->
+    <div class="ra-section pt-0">
+        <div class="ra-section-label">Our Advantage</div>
+        <h2 class="ra-section-title mb-4">Why choose RoadRescue?</h2>
+
+        <div class="row g-3">
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="ra-feature">
+                    <i class="fas fa-location-dot"></i>
+                    <span>Nearby Garage Search</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="ra-feature">
+                    <i class="fas fa-bolt"></i>
+                    <span>Quick Emergency Requests</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="ra-feature">
+                    <i class="fas fa-user-check"></i>
+                    <span>Verified Garage Profiles</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="ra-feature">
+                    <i class="fas fa-medal"></i>
+                    <span>Customer Ratings</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="ra-feature">
+                    <i class="fas fa-screwdriver-wrench"></i>
+                    <span>Expert Technicians</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="ra-feature">
+                    <i class="fas fa-handshake"></i>
+                    <span>Trusted Communities</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="ra-section pt-0">
+        <div class="ra-cta d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h3>Ready to get back on the road?</h3>
+                <p>Join thousands of drivers who trust RoadRescue for fast, reliable help.</p>
+            </div>
+            <a th:href="@{/requests/new}" class="btn-rv-add">
+                <i class="fas fa-triangle-exclamation me-2"></i>Request Assistance Now
+            </a>
+        </div>
+    </div>
+
+</div>
+
 <th:block th:replace="~{layout :: footer}"></th:block>
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>
