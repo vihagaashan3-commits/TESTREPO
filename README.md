@@ -193,18 +193,18 @@ After first run (tables created), execute `src/main/resources/data.sql` in your 
 
 ## 👨‍💻 Team Module Split
 
-| Member | Module |
-|---|---|
-| Member 1 | User Auth & Profile (UserService, AuthController, SecurityConfig) |
-| Member 2 | Garage Management (GarageService, GarageController) |
-| Member 3 | Vehicle CRUD (VehicleService, VehicleController) |
-| Member 4 | Breakdown Request (BreakdownRequestService, BreakdownRequestController) |
-| Member 5 | Service Types & Smart Matching (GarageRepository queries, filtering) |
-| Member 6 | Technician Management (TechnicianService, GarageOwnerController) |
-| Member 7 | Assignment / Booking (AssignmentRepository, request flow) |
-| Member 8 | Payment Module (PaymentService, PaymentController) |
-| Member 9 | Reviews & Ratings (ReviewService, ReviewController) |
-| Member 10 | Notifications + Admin Dashboard (NotificationService, AdminController) |
+| Member | 
+|---|
+| Nadeesha Kalhara - 38932 | 
+| Tharuka Nimsara - 39764 | 
+| Vimukthi Udara - 39313 | 
+| R T Lakshan - 39058 | 
+| Ishan Shalitha - 39401 | 
+| Vihanga Ashan - 39245 | 
+| Bhagya Ranaweera - 39333 | 
+| Chamodya Diwyanjalee - 39338 | 
+| Navodi Dharshika - 39227 | 
+| Senanthi Hirunima - 39762 | 
 
 ---
 
@@ -214,4 +214,4 @@ Import `postman/RoadRescue.postman_collection.json` for API testing.
 
 ---
 
-*Built with ❤️ by Team RoadRescue*
+
