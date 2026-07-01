@@ -53,7 +53,6 @@ public class PaymentService {
         payment.setPaidAt(LocalDateTime.now());
         Payment saved = paymentRepository.save(payment);
 
-        // Mark request as PAID
         BreakdownRequest request = payment.getBreakdownRequest();
         request.setStatus(RequestStatus.PAID);
 
@@ -63,6 +62,50 @@ public class PaymentService {
                 "PAYMENT_SUCCESS", request);
 
         return saved;
+    }
+
+
+    @Transactional
+    public Payment processPayment(Long requestId, String paymentMethod, User user) {
+
+        BreakdownRequest request = requestService.findById(requestId);
+
+        if (request.getStatus() != RequestStatus.IN_PROGRESS) {
+            throw new RuntimeException("Payment not allowed at this stage.");
+        }
+
+        if (request.getQuoteAmount() == null) {
+            throw new RuntimeException("No quote amount found.");
+        }
+
+        Payment existingPayment = paymentRepository.findByBreakdownRequestId(requestId).orElse(null);
+        if (existingPayment != null) {
+            throw new RuntimeException("Payment already made for this request.");
+        }
+
+        Payment payment = Payment.builder()
+                .breakdownRequest(request)
+                .user(user)
+                .amount(request.getQuoteAmount())
+                .paymentMethod(paymentMethod)
+                .status(PaymentStatus.PAID)
+                .paidAt(LocalDateTime.now())
+                .build();
+
+        paymentRepository.save(payment);
+
+        request.setStatus(RequestStatus.PAID);
+        request.setFinalAmount(request.getQuoteAmount());
+
+        notificationService.createNotification(
+                request.getGarage().getOwner(),
+                "Payment Received",
+                "Payment of Rs. " + request.getQuoteAmount() + " received via " + paymentMethod + ". You can now complete the job.",
+                "PAYMENT_SUCCESS",
+                request
+        );
+
+        return payment;
     }
 
     public Payment findById(Long id) {

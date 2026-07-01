@@ -143,6 +143,36 @@ public class BreakdownRequestController {
         }
         return "redirect:/requests";
     }
+    @PostMapping("/{id}/pay")
+    public String payRequest(@PathVariable Long id,
+                             @RequestParam String paymentMethod,
+                             @AuthenticationPrincipal UserDetails userDetails,
+                             RedirectAttributes redirectAttributes) {
+        try {
+            User user = userService.findByEmail(userDetails.getUsername());
+            BreakdownRequest request = requestService.findById(id);
+
+            if (!request.getUser().getId().equals(user.getId())) {
+                redirectAttributes.addFlashAttribute("error", "Unauthorized.");
+                return "redirect:/requests/" + id;
+            }
+
+            if (request.getStatus() != RequestStatus.IN_PROGRESS) {
+                redirectAttributes.addFlashAttribute("error", "Payment not allowed at this stage.");
+                return "redirect:/requests/" + id;
+            }
+
+            paymentService.processPayment(id, paymentMethod, user);
+
+            redirectAttributes.addFlashAttribute("success",
+                    "Payment successful! Rs. " + request.getQuoteAmount() + " paid via " + paymentMethod);
+            return "redirect:/requests/" + id;
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Payment failed: " + e.getMessage());
+            return "redirect:/requests/" + id;
+        }
+    }
 
 
     @GetMapping("/all")
