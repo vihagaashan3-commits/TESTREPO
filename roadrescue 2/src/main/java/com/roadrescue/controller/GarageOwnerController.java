@@ -46,6 +46,7 @@ public class GarageOwnerController {
             model.addAttribute("pendingRequests", pending);
             Double avgRating = garageService.getAverageRating(garageId);
             model.addAttribute("avgRating", avgRating != null ? String.format("%.1f", avgRating) : "N/A");
+            model.addAttribute("averageRating", avgRating);
             model.addAttribute("reviews", reviewService.getGarageReviews(garageId, 0, 5));
         }
         return "garage-owner/dashboard";
