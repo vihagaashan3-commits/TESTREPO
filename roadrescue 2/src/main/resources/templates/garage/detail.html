@@ -134,8 +134,9 @@
                 </a>
 
                 <!-- GARAGE OWNER: Toggle availability -->
-                <form th:action="@{/garages/{id}/toggle-availability(id=${garage.id})}"
-                      method="post" sec:authorize="hasRole('GARAGE_OWNER')">
+                <form th:if="${#authentication.name == garage.owner.email}"
+                      th:action="@{/garages/{id}/toggle-availability(id=${garage.id})}"
+                      method="post">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button type="submit" class="btn btn-outline-secondary w-100">
                         <i class="fas fa-toggle-on me-2"></i>
