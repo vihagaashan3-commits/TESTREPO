@@ -11,6 +11,5 @@ import java.util.List;
 @Repository
 public interface TechnicianRepository extends JpaRepository<Technician, Long> {
     List<Technician> findByGarageIdAndDeletedFalse(Long garageId);
-    List<Technician> findByGarageIdAndAvailableTrueAndDeletedFalse(Long garageId);
-    Page<Technician> findByGarageIdAndDeletedFalse(Long garageId, Pageable pageable);
+
 }
