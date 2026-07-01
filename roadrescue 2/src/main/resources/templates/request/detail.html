@@ -5,13 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="_csrf" th:content="${_csrf.token}"/>
-    <title th:text="${garage.garageName + ' | RoadRescue'}">Garage | RoadRescue</title>
+    <title th:text="'Request #' + ${request.id} + ' | RoadRescue'">Request | RoadRescue</title>
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
     <style>
-        #garageMap { height: 250px; border-radius: 12px; }
         .star-filled { color: #ffc107; }
         .star-empty { color: #dee2e6; }
     </style>
@@ -21,15 +20,24 @@
 
 <div class="container my-4">
     <div class="d-flex align-items-center mb-4 gap-2">
-        <a th:href="@{/garages}" class="btn btn-outline-secondary btn-sm">
+        <a th:href="@{/requests}" class="btn btn-outline-secondary btn-sm">
             <i class="fas fa-arrow-left"></i>
         </a>
-        <h5 class="mb-0 fw-bold" th:text="${garage.garageName}">Garage</h5>
-        <span th:if="${garage.verified}" class="badge bg-success">
-            <i class="fas fa-check-circle me-1"></i>Verified
+        <h5 class="mb-0 fw-bold">Request #<span th:text="${request.id}">1</span></h5>
+
+        <span th:switch="${request.status}">
+            <span th:case="${RequestStatus.PENDING}" class="badge bg-warning text-dark">Pending</span>
+            <span th:case="${RequestStatus.ACCEPTED}" class="badge bg-info">Accepted</span>
+            <span th:case="${RequestStatus.QUOTED}" class="badge bg-primary">Quoted</span>
+            <span th:case="${RequestStatus.QUOTE_APPROVED}" class="badge bg-success">Quote Approved</span>
+            <span th:case="${RequestStatus.IN_PROGRESS}" class="badge bg-dark">In Progress</span>
+            <span th:case="${RequestStatus.COMPLETED}" class="badge bg-success">Completed</span>
+            <span th:case="${RequestStatus.PAID}" class="badge" style="background-color:#198754;">Paid</span>
+            <span th:case="${RequestStatus.CANCELLED}" class="badge bg-secondary">Cancelled</span>
+            <span th:case="*" class="badge bg-dark" th:text="${request.status}">Status</span>
         </span>
-        <span th:unless="${garage.verified}" class="badge bg-warning text-dark">Pending Verification</span>
     </div>
+
     <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
         <i class="fas fa-check-circle me-2"></i><span th:text="${success}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -40,235 +48,109 @@
     </div>
 
     <div class="row g-4">
-        <!-- Left -->
+        <!-- Left: Request details -->
         <div class="col-lg-4">
-            <!-- Info Card -->
             <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header rr-hero text-white py-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="rounded-circle bg-white bg-opacity-25 p-3">
-                            <i class="fas fa-warehouse fs-4"></i>
-                        </div>
-                        <div>
-                            <div class="fw-bold" th:text="${garage.garageName}">Name</div>
-                            <div class="small opacity-75">
-                                <span class="me-2">⭐ <span th:text="${avgRating}">N/A</span></span>
-                                <span th:class="${garage.available} ? 'text-success' : 'text-warning'"
-                                      th:text="${garage.available} ? '● Available' : '● Busy'">Status</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="card-header rr-hero text-white py-3 fw-bold">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Breakdown Details
                 </div>
                 <div class="card-body">
                     <ul class="list-unstyled mb-0">
-                        <li class="mb-2">
-                            <i class="fas fa-map-marker-alt text-danger me-2"></i>
-                            <span th:text="${garage.address}">Address</span>
+                        <li class="mb-2" th:if="${request.serviceTypes != null and !request.serviceTypes.isEmpty()}">
+                            <i class="fas fa-tools text-danger me-2"></i>
+                            <span th:each="svc, iter : ${request.serviceTypes}">
+                                <span th:text="${#strings.replace(svc.name(), '_', ' ')}">Service</span><span th:if="${!iter.last}">, </span>
+                            </span>
                         </li>
-                        <li class="mb-2">
-                            <i class="fas fa-phone text-success me-2"></i>
-                            <a th:href="'tel:' + ${garage.phone}" th:text="${garage.phone}" class="text-decoration-none">Phone</a>
+                        <li class="mb-2" th:if="${request.description}">
+                            <i class="fas fa-align-left text-info me-2"></i>
+                            <span th:text="${request.description}">Description</span>
                         </li>
-                        <li class="mb-2" th:if="${garage.email}">
-                            <i class="fas fa-envelope text-info me-2"></i>
-                            <span th:text="${garage.email}">Email</span>
-                        </li>
-                        <li class="mb-2" th:if="${garage.openingTime}">
+                        <li class="mb-2" th:if="${request.createdAt}">
                             <i class="fas fa-clock text-warning me-2"></i>
-                            <span th:text="${garage.openingTime + ' – ' + garage.closingTime}">Hours</span>
+                            <span th:text="${#temporals.format(request.createdAt, 'dd MMM yyyy, hh:mm a')}">Date</span>
+                        </li>
+                        <li class="mb-2" th:if="${request.latitude != null and request.longitude != null}">
+                            <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                            <span th:text="${request.latitude + ', ' + request.longitude}">Location</span>
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Services -->
-            <div class="card border-0 shadow-sm mb-4">
+            <!-- Assigned garage -->
+            <div class="card border-0 shadow-sm mb-4" th:if="${garage != null}">
                 <div class="card-header bg-white fw-bold">
-                    <i class="fas fa-tools text-danger me-2"></i>Services Offered
+                    <i class="fas fa-warehouse text-danger me-2"></i>Assigned Garage
                 </div>
                 <div class="card-body">
-                    <div class="d-flex flex-wrap gap-2">
-                        <span th:each="svc : ${garage.services}"
-                              class="badge bg-danger bg-opacity-10 text-danger border border-danger-subtle px-3 py-2"
-                              th:text="${#strings.replace(svc.name(), '_', ' ')}">Service</span>
-                    </div>
+                    <div class="fw-bold mb-1" th:text="${garage.garageName}">Garage Name</div>
+                    <div class="small text-muted mb-2" th:text="${garage.address}">Address</div>
+                    <a th:href="'tel:' + ${garage.phone}" class="btn btn-sm btn-outline-success w-100 mb-2">
+                        <i class="fas fa-phone me-2"></i><span th:text="${garage.phone}">Call</span>
+                    </a>
+                    <a th:href="@{/garages/{id}(id=${garage.id})}" class="btn btn-sm btn-outline-secondary w-100">
+                        View Garage Profile
+                    </a>
                 </div>
             </div>
 
-            <!-- Actions -->
-            <div class="d-grid gap-2">
-                <a th:href="@{/requests/new}" sec:authorize="hasRole('USER')"
-                   class="btn btn-danger">
-                    <i class="fas fa-exclamation-triangle me-2"></i>Request Help from This Garage
-                </a>
+            <div class="alert alert-info" th:if="${garage == null}">
+                <i class="fas fa-info-circle me-2"></i>Waiting for a garage to accept this request.
+            </div>
 
-                <button type="button" sec:authorize="hasRole('USER')"
-                        class="btn btn-outline-primary"
-                        data-bs-toggle="modal" data-bs-target="#contactGarageModal">
-                    <i class="fas fa-envelope me-2"></i>Contact Garage
-                </button>
-
-                <!-- On the garage detail page, show Edit button only to the owner -->
-                <a th:if="${#authentication.name == garage.owner.email}"
-                   th:href="@{/garages/{id}/edit(id=${garage.id})}"
-                   class="btn btn-outline-danger btn-sm">
-                    <i class="fas fa-edit"></i>Edit Garage
-                </a>
-                <a th:if="${#authentication.name == garage.owner.email}"
-                   href="https://mail.google.com/mail/u/0/#inbox"
-                   target="_blank"
-                   class="btn btn-outline-primary btn-sm">
-                    <i class="fas fa-envelope-open-text me-2"></i>Reply to Customer Messages
-                </a>
-                <form th:action="@{/garages/{id}/toggle-availability(id=${garage.id})}"
-                      method="post" sec:authorize="hasRole('GARAGE_OWNER')">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <button type="submit" class="btn btn-outline-secondary w-100">
-                        <i class="fas fa-toggle-on me-2"></i>
-                        <span th:text="${garage.available} ? 'Mark as Busy' : 'Mark as Available'">Toggle</span>
-                    </button>
-                </form>
-                <form th:action="@{/admin/garages/{id}/verify(id=${garage.id})}"
-                      method="post" sec:authorize="hasRole('ADMIN')" th:unless="${garage.verified}">
+            <!-- Quote approval -->
+            <div class="d-grid gap-2" sec:authorize="hasRole('USER')" th:if="${request.status == RequestStatus.QUOTED}">
+                <div class="alert alert-primary py-2 mb-1" th:if="${payment != null}">
+                    <i class="fas fa-file-invoice-dollar me-2"></i>
+                    Quote received: <strong th:text="'Rs. ' + ${payment.amount}">0.00</strong>
+                </div>
+                <form th:action="@{/requests/{id}/approve-quote(id=${request.id})}" method="post">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button type="submit" class="btn btn-success w-100">
-                        <i class="fas fa-check-circle me-2"></i>Verify Garage
+                        <i class="fas fa-check-circle me-2"></i>Approve Quote
+                    </button>
+                </form>
+                <form th:action="@{/requests/{id}/reject-quote(id=${request.id})}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn btn-outline-danger w-100">
+                        <i class="fas fa-times-circle me-2"></i>Reject Quote
                     </button>
                 </form>
             </div>
         </div>
+        <!-- ^^^ THIS closing div was missing — it closes col-lg-4 -->
 
-        <!-- Right -->
+        <!-- Right: Nearby garages (shown while pending / unassigned) -->
         <div class="col-lg-8">
-            <!-- Technicians -->
-            <div class="card border-0 shadow-sm mb-4" th:if="${garage.technicians != null and !garage.technicians.isEmpty()}">
+            <div class="card border-0 shadow-sm" th:if="${garage == null and nearbyGarages != null and !nearbyGarages.isEmpty()}">
                 <div class="card-header bg-white fw-bold">
-                    <i class="fas fa-hard-hat text-warning me-2"></i>Our Technicians
+                    <i class="fas fa-map-marked-alt text-danger me-2"></i>Nearby Garages
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
-                        <div class="col-md-6" th:each="tech : ${garage.technicians}" th:unless="${tech.deleted}">
-                            <div class="d-flex align-items-center gap-3 p-3 rounded bg-light">
-                                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
-                                     style="width:45px;height:45px;font-size:1.2rem">
-                                    <i class="fas fa-user-hard-hat"></i>
-                                </div>
-                                <div>
-                                    <div class="fw-semibold small" th:text="${tech.name}">Name</div>
-                                    <small class="text-muted" th:text="${tech.experienceYears + ' years exp.'}">Exp</small>
-                                    <div>
-                                        <span th:class="${tech.available} ? 'badge bg-success' : 'badge bg-secondary'"
-                                              th:text="${tech.available} ? 'Available' : 'Busy'">Status</span>
-                                    </div>
-                                </div>
+                        <div class="col-md-6" th:each="g : ${nearbyGarages}">
+                            <div class="border rounded p-3 h-100">
+                                <div class="fw-semibold" th:text="${g.garageName}">Name</div>
+                                <div class="small text-muted mb-2" th:text="${g.address}">Address</div>
+                                <a th:href="@{/garages/{id}(id=${g.id})}" class="btn btn-sm btn-outline-danger">View</a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Reviews -->
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-star text-warning me-2"></i>Customer Reviews</span>
-                    <a th:href="@{/reviews/garage/{id}(id=${garage.id})}"
-                       th:if="${loggedUserUsername != null && loggedUserUsername != garage.user.username}"
-                       class="btn btn-sm btn-outline-warning">
-                        Write a Review
-                    </a>
-                </div>
-                <div class="card-body">
-                    <!-- Average rating summary -->
-                    <div class="d-flex align-items-center gap-2 mb-3" th:if="${reviewCount > 0}">
-                        <div>
-                            <i th:each="s : ${#numbers.sequence(1, 5)}"
-                               th:class="${s <= avgRatingRounded} ? 'fas fa-star star-filled' : 'fas fa-star star-empty'"></i>
-                        </div>
-                        <span class="fw-bold" th:text="${avgRating}">0.0</span>
-                        <span class="text-muted small"
-                              th:text="'(' + ${reviewCount} + ' review' + (${reviewCount} > 1 ? 's' : '') + ')'">(0 reviews)</span>
-                    </div>
-
-                    <div th:if="${reviews == null or reviews.isEmpty()}"
-                         class="text-center text-muted py-3">
-                        <i class="fas fa-comment-slash mb-2 d-block"></i>
-                        No reviews yet. Be the first!
-                    </div>
-                    <div th:each="review : ${reviews}"
-                         class="border-bottom pb-3 mb-3">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <div class="fw-semibold" th:text="${review.user.fullName}">User</div>
-                                <div>
-                                    <i th:each="s : ${#numbers.sequence(1, 5)}"
-                                       th:class="${s <= review.rating} ? 'fas fa-star star-filled' : 'fas fa-star star-empty'"></i>
-                                </div>
-                            </div>
-                            <small class="text-muted"
-                                   th:text="${#temporals.format(review.createdAt, 'dd MMM yyyy')}">Date</small>
-                        </div>
-                        <p class="small mt-2 mb-0 text-muted" th:text="${review.comment}">Comment</p>
-                    </div>
+            <div class="card border-0 shadow-sm" th:if="${garage == null and (nearbyGarages == null or nearbyGarages.isEmpty())}">
+                <div class="card-body text-center text-muted py-5">
+                    <i class="fas fa-search-location mb-2 d-block fs-3"></i>
+                    No nearby garages found yet. We'll notify you as soon as one is available.
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Contact Garage Modal -->
-<div class="modal fade" id="contactGarageModal" tabindex="-1" sec:authorize="hasRole('USER')">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h6 class="modal-title fw-bold">
-                    <i class="fas fa-envelope me-2"></i>Contact <span th:text="${garage.garageName}">Garage</span>
-                </h6>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form th:action="@{/garages/{id}/contact(id=${garage.id})}" method="post">
-                <div class="modal-body">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Subject *</label>
-                        <input type="text" name="subject" class="form-control" maxlength="150" required
-                               placeholder="e.g. Question about your towing service">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Message *</label>
-                        <textarea name="message" class="form-control" rows="5" maxlength="2000" required
-                                  placeholder="Type your message here..."></textarea>
-                    </div>
-                    <div class="alert alert-light small mb-0 border">
-                        <i class="fas fa-info-circle me-1"></i>
-                        This will be sent directly to the garage's email. They can reply to you directly.
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary fw-bold">
-                        <i class="fas fa-paper-plane me-2"></i>Send Message
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
 
 <th:block th:replace="~{layout :: footer}"></th:block>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script th:inline="javascript">
-    const garageLat = /*[[${garage.latitude}]]*/ null;
-    const garageLng = /*[[${garage.longitude}]]*/ null;
-    const garageName = /*[[${garage.garageName}]]*/ 'Garage';
-
-    function initMap() {
-        if (!garageLat || !garageLng) return;
-        const pos = { lat: garageLat, lng: garageLng };
-        const map = new google.maps.Map(document.getElementById('garageMap'), { zoom: 15, center: pos });
-        new google.maps.Marker({ position: pos, map, title: garageName });
-    }
-</script>
-<script th:src="@{'https://maps.googleapis.com/maps/api/js?key=' + ${@environment.getProperty('google.maps.api.key')} + '&callback=initMap'}"
-        async defer></script>
 </body>
 </html>
