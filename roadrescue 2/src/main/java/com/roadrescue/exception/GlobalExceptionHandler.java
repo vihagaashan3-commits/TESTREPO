@@ -49,6 +49,19 @@ public class GlobalExceptionHandler {
         return mav;
     }
 
+    // NEW: handles things like "Request is no longer pending", "No quote to approve", etc.
+    // Previously these fell through to the generic Exception handler below and showed
+    // a confusing "500 Server Error" page instead of a clear, actionable message.
+    @ExceptionHandler(IllegalStateException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ModelAndView handleIllegalState(IllegalStateException ex, HttpServletRequest request) {
+        log.warn("Invalid state transition at {}: {}", request.getRequestURI(), ex.getMessage());
+        ModelAndView mav = new ModelAndView("error/400");
+        mav.addObject("message", ex.getMessage());
+        mav.addObject("path", request.getRequestURI());
+        return mav;
+    }
+
     @ExceptionHandler(SecurityException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ModelAndView handleSecurity(SecurityException ex) {
