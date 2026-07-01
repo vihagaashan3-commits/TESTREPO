@@ -9,12 +9,12 @@
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link th:href="@{/css/style.css}" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link th:href="@{/css/style.css}" rel="stylesheet">
     <style>
         #garageMap { height: 250px; width: 100%; border-radius: 12px; z-index: 0; }
         .star-filled { color: #ffc107; }
-        .star-empty { color: #dee2e6; }
+        .star-empty  { color: #dee2e6; }
     </style>
 </head>
 <body class="bg-light">
@@ -23,15 +23,16 @@
 <div class="container my-4">
 
     <!-- Flash messages -->
-    <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="fas fa-check-circle me-2"></i><span th:text="${success}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
         <i class="fas fa-exclamation-circle me-2"></i><span th:text="${error}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
+    <!-- Page header -->
     <div class="d-flex align-items-center mb-4 gap-2">
         <a th:href="@{/garages}" class="btn btn-outline-secondary btn-sm">
             <i class="fas fa-arrow-left"></i>
@@ -44,8 +45,10 @@
     </div>
 
     <div class="row g-4">
-        <!-- Left -->
+
+        <!-- ══ LEFT COLUMN ══ -->
         <div class="col-lg-4">
+
             <!-- Info Card -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header rr-hero text-white py-3">
@@ -70,15 +73,16 @@
                             <span th:text="${garage.address}">Address</span>
                         </li>
                         <li class="mb-2">
-                            <i class="fas fa-phone text-success me-2"></i>
-                            <a th:href="'tel:' + ${garage.phone}" th:text="${garage.phone}" class="text-decoration-none">Phone</a>
+                            <i class="fas fa-phone text-danger me-2"></i>
+                            <a th:href="'tel:' + ${garage.phone}" th:text="${garage.phone}"
+                               class="text-decoration-none text-dark">Phone</a>
                         </li>
                         <li class="mb-2" th:if="${garage.email}">
-                            <i class="fas fa-envelope text-info me-2"></i>
+                            <i class="fas fa-envelope text-danger me-2"></i>
                             <span th:text="${garage.email}">Email</span>
                         </li>
                         <li class="mb-2" th:if="${garage.openingTime}">
-                            <i class="fas fa-clock text-warning me-2"></i>
+                            <i class="fas fa-clock text-danger me-2"></i>
                             <span th:text="${garage.openingTime + ' – ' + garage.closingTime}">Hours</span>
                         </li>
                     </ul>
@@ -102,34 +106,31 @@
             <!-- Actions -->
             <div class="d-grid gap-2">
 
-                <!-- USER: Request help -->
-                <a th:href="@{/requests/new}" sec:authorize="hasRole('USER')"
+                <!-- USER: Request Help -->
+                <a th:href="@{/requests/new}"
+                   sec:authorize="hasRole('USER')"
                    class="btn btn-danger">
                     <i class="fas fa-exclamation-triangle me-2"></i>Request Help from This Garage
                 </a>
 
-                <!-- USER: Contact Garage button — triggers modal -->
-                <button type="button"
-                        sec:authorize="hasRole('USER')"
-                        class="btn btn-outline-primary"
-                        data-bs-toggle="modal"
-                        data-bs-target="#contactGarageModal">
+                <!--
+                    USER: Contact Garage
+                    FIX: Changed from Bootstrap modal button (unreliable with sec:authorize)
+                         to a plain <a> link to the dedicated /garages/{id}/contact page.
+                         The contact page already exists (contact.html) and the GET handler
+                         is in GarageController — this is the simplest and most reliable approach.
+                -->
+                <a th:href="@{/garages/{id}/contact(id=${garage.id})}"
+                   sec:authorize="hasRole('USER')"
+                   class="btn btn-outline-danger">
                     <i class="fas fa-envelope me-2"></i>Contact Garage
-                </button>
+                </a>
 
                 <!-- GARAGE OWNER: Edit -->
                 <a th:if="${#authentication.name == garage.owner.email}"
                    th:href="@{/garages/{id}/edit(id=${garage.id})}"
-                   class="btn btn-outline-danger btn-sm">
-                    <i class="fas fa-edit me-1"></i>Edit Garage
-                </a>
-
-                <!-- GARAGE OWNER: Reply to messages shortcut -->
-                <a th:if="${#authentication.name == garage.owner.email}"
-                   href="https://mail.google.com/mail/u/0/#inbox"
-                   target="_blank"
                    class="btn btn-outline-secondary btn-sm">
-                    <i class="fas fa-envelope-open-text me-1"></i>Reply to Customer Messages
+                    <i class="fas fa-edit me-1"></i>Edit Garage
                 </a>
 
                 <!-- GARAGE OWNER: Toggle availability -->
@@ -150,11 +151,13 @@
                         <i class="fas fa-check-circle me-2"></i>Verify Garage
                     </button>
                 </form>
+
             </div>
         </div>
 
-        <!-- Right -->
+        <!-- ══ RIGHT COLUMN ══ -->
         <div class="col-lg-8">
+
             <!-- Map -->
             <div class="card border-0 shadow-sm mb-4" th:if="${garage.latitude != null}">
                 <div class="card-header bg-white fw-bold">
@@ -205,11 +208,28 @@
                     </a>
                 </div>
                 <div class="card-body">
+
+                    <!-- Average rating summary -->
+                    <div class="d-flex align-items-center gap-2 mb-3" th:if="${reviewCount > 0}">
+                        <div>
+                            <i th:each="s : ${#numbers.sequence(1, 5)}"
+                               th:class="${s <= avgRatingRounded} ? 'fas fa-star star-filled' : 'fas fa-star star-empty'"></i>
+                        </div>
+                        <span class="fw-bold" th:text="${avgRating}">0.0</span>
+                        <span class="text-muted small"
+                              th:text="'(' + ${reviewCount} + ' review' + (${reviewCount} > 1 ? 's' : '') + ')'">
+                            (0 reviews)
+                        </span>
+                    </div>
+
+                    <!-- Empty state -->
                     <div th:if="${garage.reviews == null or garage.reviews.isEmpty()}"
                          class="text-center text-muted py-3">
                         <i class="fas fa-comment-slash mb-2 d-block"></i>
                         No reviews yet. Be the first!
                     </div>
+
+                    <!-- Review list -->
                     <div th:each="review : ${garage.reviews}" th:unless="${review.deleted}"
                          class="border-bottom pb-3 mb-3">
                         <div class="d-flex justify-content-between align-items-start">
@@ -225,59 +245,19 @@
                         </div>
                         <p class="small mt-2 mb-0 text-muted" th:text="${review.comment}">Comment</p>
                     </div>
+
                 </div>
             </div>
+
         </div>
     </div>
 </div>
 
-<!-- Contact Garage Modal -->
-<div class="modal fade" id="contactGarageModal" tabindex="-1" aria-labelledby="contactGarageModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h6 class="modal-title fw-bold" id="contactGarageModalLabel">
-                    <i class="fas fa-envelope me-2"></i>Contact <span th:text="${garage.garageName}">Garage</span>
-                </h6>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form th:action="@{/garages/{id}/contact(id=${garage.id})}" method="post">
-                <div class="modal-body">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Subject *</label>
-                        <input type="text" name="subject" class="form-control" maxlength="150" required
-                               placeholder="e.g. Question about your towing service">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Message *</label>
-                        <textarea name="message" class="form-control" rows="5" maxlength="2000" required
-                                  placeholder="Type your message here..."></textarea>
-                    </div>
-                    <div class="alert alert-light small mb-0 border">
-                        <i class="fas fa-info-circle me-1"></i>
-                        This will be sent directly to the garage's email. They can reply to you directly.
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary fw-bold">
-                        <i class="fas fa-paper-plane me-2"></i>Send Message
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- footer fragment (includes Bootstrap JS from layout.html) -->
 <th:block th:replace="~{layout :: footer}"></th:block>
-
-<!-- Leaflet JS — must come AFTER Bootstrap -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script th:inline="javascript">
-    const garageLat = /*[[${garage.latitude}]]*/ null;
-    const garageLng = /*[[${garage.longitude}]]*/ null;
+    const garageLat  = /*[[${garage.latitude}]]*/ null;
+    const garageLng  = /*[[${garage.longitude}]]*/ null;
     const garageName = /*[[${garage.garageName}]]*/ 'Garage';
 
     if (garageLat && garageLng) {
@@ -288,7 +268,6 @@
         L.marker([garageLat, garageLng]).addTo(map)
             .bindPopup('<b>' + garageName + '</b>').openPopup();
         setTimeout(function () { map.invalidateSize(); }, 200);
-        window.addEventListener('load', function () { map.invalidateSize(); });
     }
 </script>
 </body>

@@ -30,12 +30,11 @@ import java.util.List;
 public class GarageController {
 
     private final GarageService garageService;
-
     private final UserService userService;
     private final EmailService emailService;
-
     private final ReviewService reviewService;
 
+    // ── LIST ─────────────────────────────────────────────────────────────────
 
     @GetMapping
     public String listGarages(@RequestParam(defaultValue = "0") int page,
@@ -55,6 +54,8 @@ public class GarageController {
 
         return "garage/list";
     }
+
+    // ── DETAIL ───────────────────────────────────────────────────────────────
 
     @GetMapping("/{id}")
     public String viewGarage(@PathVariable Long id,
@@ -76,6 +77,55 @@ public class GarageController {
 
         return "garage/detail";
     }
+
+    // ── CONTACT GARAGE ────────────────────────────────────────────────────────
+    // GET: renders the dedicated contact page (contact.html)
+    // POST: sends the email to garage.getEmail() and redirects back with flash
+
+    @GetMapping("/{id}/contact")
+    @PreAuthorize("hasRole('USER')")
+    public String contactGarageForm(@PathVariable Long id, Model model) {
+        Garage garage = garageService.findById(id);
+        model.addAttribute("garage", garage);
+        model.addAttribute("contactDTO", new ContactGarageDTO());
+        return "garage/contact";
+    }
+
+    @PostMapping("/{id}/contact")
+    @PreAuthorize("hasRole('USER')")
+    public String contactGarage(@PathVariable Long id,
+                                @Valid @ModelAttribute("contactDTO") ContactGarageDTO dto,
+                                BindingResult result,
+                                @AuthenticationPrincipal UserDetails userDetails,
+                                RedirectAttributes redirectAttributes) {
+
+        if (result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", "Please fill in both subject and message.");
+            return "redirect:/garages/" + id + "/contact";
+        }
+
+        Garage garage = garageService.findById(id);
+
+        if (garage.getEmail() == null || garage.getEmail().isBlank()) {
+            redirectAttributes.addFlashAttribute("error", "This garage has not provided a contact email.");
+            return "redirect:/garages/" + id + "/contact";
+        }
+
+        User sender = userService.findByEmail(userDetails.getUsername());
+
+        emailService.sendContactGarageEmail(
+                garage.getEmail(),
+                sender.getFullName(),
+                sender.getEmail(),
+                dto.getSubject(),
+                dto.getMessage()
+        );
+
+        redirectAttributes.addFlashAttribute("success", "Your message has been sent to " + garage.getGarageName() + ".");
+        return "redirect:/garages/" + id + "/contact";
+    }
+
+    // ── CREATE GARAGE ────────────────────────────────────────────────────────
 
     @GetMapping("/new")
     @PreAuthorize("hasRole('GARAGE_OWNER')")
@@ -121,11 +171,15 @@ public class GarageController {
         }
     }
 
+    // ── NEARBY (JSON) ────────────────────────────────────────────────────────
+
     @GetMapping("/nearby")
     @ResponseBody
     public List<Garage> getNearbyGarages(@RequestParam Double lat, @RequestParam Double lng) {
         return garageService.findNearbyGarages(lat, lng, 15.0);
     }
+
+    // ── EDIT ─────────────────────────────────────────────────────────────────
 
     @GetMapping("/{id}/edit")
     @PreAuthorize("hasAnyRole('GARAGE_OWNER', 'ADMIN')")
@@ -173,44 +227,14 @@ public class GarageController {
         }
     }
 
+    // ── DELETE / TOGGLE / VERIFY ─────────────────────────────────────────────
+
     @PostMapping("/{id}/delete")
     @PreAuthorize("hasAnyRole('GARAGE_OWNER', 'ADMIN')")
     public String deleteGarage(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         garageService.softDelete(id);
         redirectAttributes.addFlashAttribute("success", "Garage deleted.");
         return "redirect:/garages";
-    }
-
-    @PostMapping("/{id}/contact")
-    @PreAuthorize("hasRole('USER')")
-    public String contactGarage(@PathVariable Long id,
-                                @Valid @ModelAttribute("contactGarageDTO") ContactGarageDTO dto,
-                                BindingResult result,
-                                @AuthenticationPrincipal UserDetails userDetails,
-                                RedirectAttributes redirectAttributes) {
-        if (result.hasErrors()) {
-            redirectAttributes.addFlashAttribute("error", "Please fill in a subject and message.");
-            return "redirect:/garages/" + id;
-        }
-
-        Garage garage = garageService.findById(id);
-        if (garage.getEmail() == null || garage.getEmail().isBlank()) {
-            redirectAttributes.addFlashAttribute("error", "This garage hasn't provided a contact email yet.");
-            return "redirect:/garages/" + id;
-        }
-
-        User sender = userService.findByEmail(userDetails.getUsername());
-
-        emailService.sendContactGarageEmail(
-                garage.getEmail(),
-                sender.getFullName(),
-                sender.getEmail(),
-                dto.getSubject(),
-                dto.getMessage()
-        );
-
-        redirectAttributes.addFlashAttribute("success", "Your message has been sent to the garage.");
-        return "redirect:/garages/" + id;
     }
 
     @PostMapping("/{id}/toggle-availability")
