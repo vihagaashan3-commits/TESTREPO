@@ -24,6 +24,11 @@ public class TechnicianService {
         technician.setGarage(garage);
         return technicianRepository.save(technician);
     }
+    public Technician findById(Long id) {
+        return technicianRepository.findById(id)
+                .filter(t -> !t.isDeleted())
+                .orElseThrow(() -> new ResourceNotFoundException("Technician not found"));
+    }
 
 
 
