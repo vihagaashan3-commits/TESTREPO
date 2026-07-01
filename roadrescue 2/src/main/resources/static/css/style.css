@@ -75,6 +75,23 @@ body{
     overflow-x:hidden;
     -webkit-font-smoothing:antialiased;
 }
+body{
+    background:
+            linear-gradient(rgba(13,15,20,.72), rgba(13,15,20,.72)),
+            url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSj3lDFW-HOii9vroHPynwEOO0KxZqE0EzUYzjNNOmCQQ&s=10')
+            center/cover no-repeat fixed !important;
+    min-height:100vh;
+}
+
+.card, .modal-content, .rr-navbar, .dropdown-menu{
+    background-color:rgba(255,255,255,.96) !important;
+}
+.text-muted{ color:#555 !important; }
+h1,h2,h3,h4,h5,h6{ color:#fff; }
+.card h1,.card h2,.card h3,.card h4,.card h5,.card h6,
+.modal-content h1,.modal-content h2,.modal-content h3,.modal-content h4,.modal-content h5,.modal-content h6{
+    color:var(--rr-charcoal);
+}
 
 h1,h2,h3,h4,h5,h6{
     font-family:var(--rr-font-display);
@@ -531,11 +548,15 @@ a{
     background:var(--rr-charcoal);
 }
 
+.table thead{
+    background:#f8f9fc;
+}
+
 .table thead th{
     font-size:.72rem;
     font-weight:700;
     letter-spacing:.1em;
-    color:var(--rr-silver);
+    color:var(--rr-charcoal);
     border-bottom:2px solid var(--rr-red);
     text-transform:uppercase;
     padding:.9rem 1rem;
@@ -989,7 +1010,7 @@ footer{ font-size:.88rem; }
    background so text stays readable)
 =========================== */
 .unread-notification{
-    background:var(--rr-white);
+    background:var(--rr);
 }
 .unread-notification:hover{
     background:var(--rr-red-soft);
