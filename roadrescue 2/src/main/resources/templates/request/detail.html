@@ -118,6 +118,22 @@
                     </button>
                 </form>
             </div>
+
+            <!-- Rate Your Experience: shown once the job is done -->
+            <div class="card border-0 shadow-sm mb-4"
+                 th:if="${garage != null and (request.status == RequestStatus.COMPLETED or request.status == RequestStatus.PAID)}">
+                <div class="card-header bg-white fw-bold">
+                    <i class="fas fa-star text-warning me-2"></i>Rate Your Experience
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-3">
+                        How was your experience with <strong th:text="${garage.garageName}">this garage</strong>?
+                    </p>
+                    <a th:href="@{/reviews/garage/{id}(id=${garage.id})}" class="btn btn-warning w-100 fw-bold">
+                        <i class="fas fa-star me-2"></i>Write a Review
+                    </a>
+                </div>
+            </div>
         </div>
         <!-- ^^^ THIS closing div was missing — it closes col-lg-4 -->
 
