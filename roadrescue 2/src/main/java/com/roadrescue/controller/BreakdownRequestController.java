@@ -5,6 +5,7 @@ import com.roadrescue.entity.*;
 import com.roadrescue.enums.RequestStatus;
 import com.roadrescue.enums.ServiceType;
 import com.roadrescue.service.*;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,8 @@ public class BreakdownRequestController {
     private final UserService userService;
     private final VehicleService vehicleService;
     private final PaymentService paymentService;
+    private final BreakdownRequestService breakdownRequestService;
+    private final ReportService reportService;
 
 
     @GetMapping
@@ -98,6 +101,24 @@ public class BreakdownRequestController {
         model.addAttribute("payment", payment);
         model.addAttribute("RequestStatus", RequestStatus.class);
         return "request/detail";
+    }
+
+    @GetMapping("/{id}/report")
+    public void downloadReport(@PathVariable Long id,
+                               HttpServletResponse response) throws Exception {
+
+        BreakdownRequest request = breakdownRequestService.findById(id);
+
+        response.setContentType("application/pdf");
+        response.setHeader(
+                "Content-Disposition",
+                "attachment; filename=Request_" + request.getId() + ".pdf"
+        );
+
+        reportService.generateRequestReport(
+                request,
+                response.getOutputStream()
+        );
     }
 
 
