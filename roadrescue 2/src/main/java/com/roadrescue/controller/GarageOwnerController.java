@@ -13,6 +13,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.roadrescue.dto.ContactCustomerDTO;
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -29,7 +32,7 @@ public class GarageOwnerController {
     private final TechnicianService technicianService;
     private final UserService userService;
     private final EmailService emailService;
-
+    private final ReviewService reviewService;
 
 
     @GetMapping("/dashboard")
@@ -41,6 +44,9 @@ public class GarageOwnerController {
             Long garageId = myGarages.get(0).getId();
             Page<BreakdownRequest> pending = requestService.getRequestsByGarage(garageId, 0, 10);
             model.addAttribute("pendingRequests", pending);
+            Double avgRating = garageService.getAverageRating(garageId);
+            model.addAttribute("avgRating", avgRating != null ? String.format("%.1f", avgRating) : "N/A");
+            model.addAttribute("reviews", reviewService.getGarageReviews(garageId, 0, 5));
         }
         return "garage-owner/dashboard";
     }
@@ -141,6 +147,35 @@ public class GarageOwnerController {
                 "Request #" + id + " marked as Completed! Driver can now rate your service."
         );
 
+        return "redirect:/garage-owner/requests";
+    }
+    @PostMapping("/requests/{id}/contact-customer")
+    public String contactCustomer(@PathVariable Long id,
+                                  @Valid @ModelAttribute("contactCustomerDTO") ContactCustomerDTO dto,
+                                  BindingResult result,
+                                  @AuthenticationPrincipal UserDetails userDetails,
+                                  RedirectAttributes ra) {
+        if (result.hasErrors()) {
+            ra.addFlashAttribute("error", "Please provide a valid email, subject and message.");
+            return "redirect:/garage-owner/requests";
+        }
+
+        List<Garage> garages = garageService.getOwnerGarages(userDetails.getUsername());
+        if (garages.isEmpty()) {
+            ra.addFlashAttribute("error", "You don't have a registered garage.");
+            return "redirect:/garage-owner/requests";
+        }
+        Garage garage = garages.get(0);
+
+        emailService.sendGarageToCustomerEmail(
+                dto.getCustomerEmail(),
+                garage.getGarageName(),
+                garage.getEmail(),
+                dto.getSubject(),
+                dto.getMessage()
+        );
+
+        ra.addFlashAttribute("success", "Your message has been sent to the customer.");
         return "redirect:/garage-owner/requests";
     }
 

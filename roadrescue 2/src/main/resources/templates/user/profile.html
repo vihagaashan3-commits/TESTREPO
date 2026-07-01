@@ -10,62 +10,107 @@
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
     <style>
-        body { background: #f1f3f6; }
+        :root {
+            --black: #111111;
+            --black-soft: #1F1F1F;
+            --white: #FFFFFF;
+            --paper: #F7F7F8;
+            --line: #E8E8EA;
+            --red: #DC2626;
+            --red-dark: #B91C1C;
+            --red-soft: #FDECEC;
+            --muted: #767A82;
+            --amber: #f1a208;
+        }
 
-        /* ══ Hero Banner ══ */
+        body {
+            background: var(--paper);
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--black);
+        }
+
+        /* ══ Header Strip ══ */
         .profile-hero {
-            background: linear-gradient(135deg, #c0392b 0%, #e74c3c 60%, #c0392b 100%);
-            padding: 2.5rem 0 4.5rem;
+            background: var(--black);
+            padding: 2.25rem 0;
             color: #fff;
+            border-bottom: 3px solid var(--red);
             position: relative;
             overflow: hidden;
         }
-        .profile-hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: url("/product-category-img.jpg") centr/cover no-repeat;
+        .profile-hero::after{
+            content:"";
+            position:absolute; inset:0;
+            background: repeating-linear-gradient(115deg, rgba(255,255,255,.03) 0 2px, transparent 2px 26px);
+            pointer-events:none;
         }
-        .hero-car-icon {
-            position: absolute;
-            right: 5%;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 8rem;
-            opacity: 0.06;
-            color: #fff;
+        .profile-hero .container{ position:relative; z-index:1; }
+
+        .hero-eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--amber);
+            margin-bottom: 0.6rem;
         }
+
+        .hero-meta-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+        }
+        .hero-meta-divider {
+            width: 1px;
+            height: 14px;
+            background: rgba(255,255,255,0.18);
+            display: inline-block;
+        }
+        .hero-meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.75);
+            white-space: nowrap;
+        }
+        .hero-meta-item i { font-size: 0.78rem; color: rgba(255,255,255,0.5); }
 
         /* ══ Avatar ══ */
         .avatar-wrap {
+            color: green;
             position: relative;
             display: inline-block;
         }
         .avatar-ring {
-            width: 100px;
-            height: 100px;
+            width: 88px;
+            height: 88px;
             border-radius: 50%;
-            border: 3px solid rgba(255,255,255,0.5);
+            border: 3px solid rgba(255,255,255,0.25);
             padding: 3px;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.06);
             flex-shrink: 0;
         }
         .avatar-inner {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            background: rgba(255,255,255,0.2);
+            background: var(--black-soft);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
         }
         .avatar-initials {
-            font-size: 2.2rem;
+            font-family: 'Sora', sans-serif;
+            font-size: 2rem;
             font-weight: 700;
-            color: #fff;
+            color: var(--red);
         }
         .avatar-img {
             width: 100%;
@@ -74,44 +119,43 @@
         }
         .avatar-edit-btn {
             position: absolute;
-            bottom: 4px;
-            right: 4px;
+            bottom: 3px;
+            right: 3px;
             width: 28px;
             height: 28px;
             border-radius: 50%;
-            background: #fff;
-            border: none;
-            color: #dc2626;
+            background: var(--red);
+            border: 2px solid var(--black);
+            color: #fff;
             font-size: 0.7rem;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            transition: background 0.2s;
+            transition: background 0.15s;
         }
-        .avatar-edit-btn:hover { background: #fef2f2; }
+        .avatar-edit-btn:hover { background: var(--red-dark); }
 
         /* ══ Lift cards above hero ══ */
         .content-lift {
-            margin-top: -3rem;
+            margin-top: 1.75rem;
             position: relative;
             z-index: 10;
         }
 
         /* ══ Section cards ══ */
         .profile-card {
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            background: var(--white);
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
             overflow: hidden;
             margin-bottom: 1.25rem;
-            border: none;
         }
         .profile-card-header {
-            background: #fff;
-            border-bottom: 1px solid #f0f0f0;
-            padding: 1rem 1.4rem;
+            background: var(--white);
+            border-bottom: 1px solid var(--line);
+            padding: 0.95rem 1.35rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -119,89 +163,97 @@
         .profile-card-header .header-left {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 11px;
         }
         .card-icon {
-            width: 34px;
-            height: 34px;
-            border-radius: 9px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            background: var(--red-soft);
+            color: var(--red);
         }
-        .card-icon.red    { background: #fef2f2; color: #dc2626; }
-        .card-icon.blue   { background: #eff6ff; color: #2563eb; }
-        .card-icon.green  { background: #f0fdf4; color: #16a34a; }
-        .card-icon.purple { background: #faf5ff; color: #7c3aed; }
-        .card-icon.amber  { background: #fffbeb; color: #d97706; }
+        .card-icon.red    { background: var(--red-soft); color: var(--red); }
+        .card-icon.blue   { background: var(--paper);    color: var(--black); border: 1px solid var(--line); }
+        .card-icon.green  { background: var(--red-soft); color: var(--red); }
+        .card-icon.purple { background: var(--paper);    color: var(--black); border: 1px solid var(--line); }
+        .card-icon.amber  { background: var(--paper);    color: var(--black); border: 1px solid var(--line); }
         .profile-card-header h6 {
             margin: 0;
-            font-weight: 700;
-            font-size: 0.9rem;
-            color: #111;
+            font-family: 'Sora', sans-serif;
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: var(--black);
         }
 
         /* ══ Info rows (read-only display) ══ */
         .info-row {
             display: flex;
             align-items: flex-start;
-            gap: 14px;
-            padding: 0.9rem 1.4rem;
-            border-bottom: 1px solid #f5f5f5;
+            gap: 13px;
+            padding: 0.85rem 1.35rem;
+            border-bottom: 1px solid #F2F2F3;
         }
         .info-row:last-child { border-bottom: none; }
         .info-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 9px;
-            background: #fef2f2;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--paper);
+            border: 1px solid var(--line);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #dc2626;
-            font-size: 0.82rem;
+            color: var(--red);
+            font-size: 0.78rem;
             flex-shrink: 0;
             margin-top: 1px;
         }
         .info-label {
-            font-size: 0.68rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.64rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            color: #9ca3af;
-            margin-bottom: 2px;
+            color: var(--muted);
+            margin-bottom: 3px;
         }
         .info-value {
-            font-size: 0.92rem;
-            color: #111;
+            font-size: 0.9rem;
+            color: var(--black);
             font-weight: 500;
         }
 
         /* ══ Edit form fields ══ */
-        .edit-section { padding: 1.25rem 1.4rem; }
+        .edit-section { padding: 1.2rem 1.35rem; }
         .edit-section .form-label {
-            font-size: 0.72rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.07em;
-            color: #6b7280;
-            margin-bottom: 0.35rem;
+            color: var(--muted);
+            margin-bottom: 0.4rem;
         }
         .edit-section .form-control {
-            border-radius: 9px;
-            border: 1.5px solid #e5e7eb;
-            font-size: 0.9rem;
+            border-radius: 8px;
+            border: 1.5px solid var(--line);
+            font-size: 0.88rem;
             padding: 0.55rem 0.9rem;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            background: var(--paper);
+            transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
         }
         .edit-section .form-control:focus {
-            border-color: #dc2626;
-            box-shadow: 0 0 0 3px rgba(220,38,38,0.1);
+            border-color: var(--red);
+            background: #fff;
+            box-shadow: 0 0 0 3px var(--red-soft);
         }
         .edit-section .form-control[readonly] {
-            background: #f9fafb;
-            color: #9ca3af;
+            background: #F0F0F1;
+            color: #9CA3AF;
             cursor: not-allowed;
         }
         .input-icon-wrap {
@@ -215,139 +267,140 @@
             left: 0.85rem;
             top: 50%;
             transform: translateY(-50%);
-            color: #9ca3af;
-            font-size: 0.82rem;
+            color: var(--muted);
+            font-size: 0.8rem;
         }
 
         /* ══ Stat strip (top of page) ══ */
         .stat-strip {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
+            gap: 1px;
             margin-bottom: 1.25rem;
+            background: var(--line);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            overflow: hidden;
         }
         .stat-box {
-            background: #fff;
-            border-radius: 14px;
+            background: var(--white);
             padding: 1.1rem 1.25rem;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
             display: flex;
             align-items: center;
             gap: 12px;
         }
         .stat-box .sb-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 11px;
+            width: 40px;
+            height: 40px;
+            border-radius: 9px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.1rem;
+            font-size: 1rem;
             flex-shrink: 0;
         }
-        .sb-icon.red    { background: #fef2f2; color: #dc2626; }
-        .sb-icon.blue   { background: #eff6ff; color: #2563eb; }
-        .sb-icon.green  { background: #f0fdf4; color: #16a34a; }
-        .stat-box .sb-val  { font-size: 1.5rem; font-weight: 700; color: #111; line-height: 1; }
-        .stat-box .sb-lbl  { font-size: 0.72rem; color: #9ca3af; font-weight: 500; margin-top: 2px; }
+        .sb-icon.red    { background: var(--red-soft); color: var(--red); }
+        .sb-icon.blue   { background: var(--paper); color: var(--black); border: 1px solid var(--line); }
+        .sb-icon.green  { background: var(--red-soft); color: var(--red); }
+        .stat-box .sb-val  { font-family: 'Sora', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--black); line-height: 1; }
+        .stat-box .sb-lbl  { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; margin-top: 4px; }
 
         /* ══ Vehicle cards ══ */
         .vehicle-card {
-            background: #fff;
-            border: 1.5px solid #f0f0f0;
-            border-radius: 12px;
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: 10px;
             padding: 1rem;
-            transition: all 0.2s;
+            transition: border-color 0.15s, box-shadow 0.15s;
         }
         .vehicle-card:hover {
-            border-color: #fca5a5;
-            box-shadow: 0 4px 14px rgba(220,38,38,0.1);
-            transform: translateY(-2px);
+            border-color: var(--red);
+            box-shadow: 0 3px 10px rgba(220,38,38,0.10);
         }
         .vtype-badge {
             display: inline-flex;
             align-items: center;
             gap: 4px;
             padding: 2px 8px;
-            background: #fef2f2;
-            border: 1px solid #fecaca;
+            background: var(--red-soft);
+            border: 1px solid #FBD2D2;
             border-radius: 6px;
-            font-size: 0.68rem;
+            font-size: 0.66rem;
             font-weight: 700;
-            color: #dc2626;
+            color: var(--red);
             text-transform: uppercase;
             letter-spacing: 0.06em;
             margin-bottom: 0.55rem;
         }
-        .vehicle-name  { font-size: 0.95rem; font-weight: 700; color: #111; margin-bottom: 0.2rem; }
+        .vehicle-name  { font-family: 'Sora', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--black); margin-bottom: 0.4rem; }
         .vehicle-plate {
-            font-family: 'Courier New', monospace;
-            font-size: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
             font-weight: 700;
-            color: #dc2626;
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 4px;
-            padding: 2px 7px;
+            color: var(--black);
+            background: linear-gradient(180deg,#fdf6df, #ffe95c);
+            border: 1.5px solid var(--black);
+            border-radius: 5px;
+            padding: 3px 10px;
             display: inline-block;
             letter-spacing: 0.1em;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
         }
         .v-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; }
-        .v-meta span { font-size: 0.72rem; color: #6b7280; display: flex; align-items: center; gap: 3px; }
-        .v-meta span i { color: #dc2626; font-size: 0.65rem; }
+        .v-meta span { font-size: 0.72rem; color: var(--muted); display: flex; align-items: center; gap: 3px; }
+        .v-meta span i { color: var(--red); font-size: 0.65rem; }
 
         /* ══ Buttons ══ */
         .btn-rr {
-            background: #dc2626;
+            background: var(--red);
             color: #fff;
             font-weight: 600;
             font-size: 0.83rem;
             border: none;
             border-radius: 8px;
-            padding: 0.45rem 1.1rem;
-            transition: background 0.2s, transform 0.1s;
+            padding: 0.5rem 1.1rem;
+            transition: background 0.15s;
             display: inline-flex;
             align-items: center;
             gap: 6px;
         }
-        .btn-rr:hover { background: #b91c1c; color: #fff; transform: translateY(-1px); }
-        .btn-rr:active { transform: scale(0.97); }
+        .btn-rr:hover { background: var(--red-dark); color: #fff; }
 
         .btn-rr-outline {
             background: transparent;
-            color: #dc2626;
-            border: 1.5px solid #dc2626;
+            color: var(--black);
+            border: 1.5px solid var(--line);
             font-weight: 600;
             font-size: 0.83rem;
             border-radius: 8px;
-            padding: 0.45rem 1.1rem;
-            transition: all 0.2s;
+            padding: 0.5rem 1.1rem;
+            transition: all 0.15s;
             display: inline-flex;
             align-items: center;
             gap: 6px;
             text-decoration: none;
         }
-        .btn-rr-outline:hover { background: #fef2f2; color: #dc2626; }
+        .btn-rr-outline:hover { border-color: var(--red); color: var(--red); background: var(--red-soft); }
 
         .btn-rr-ghost {
             background: transparent;
-            color: #6b7280;
-            border: 1.5px solid #e5e7eb;
+            color: var(--muted);
+            border: 1.5px solid var(--line);
             font-weight: 600;
             font-size: 0.83rem;
             border-radius: 8px;
-            padding: 0.45rem 1.1rem;
-            transition: all 0.2s;
+            padding: 0.5rem 1.1rem;
+            transition: all 0.15s;
             display: inline-flex;
             align-items: center;
             gap: 6px;
         }
-        .btn-rr-ghost:hover { border-color: #9ca3af; color: #374151; }
+        .btn-rr-ghost:hover { border-color: #9ca3af; color: var(--black); }
 
         /* ══ Add vehicle dashed ══ */
         .add-vehicle-card {
-            border: 2px dashed #e5e7eb;
-            border-radius: 12px;
+            border: 1.5px dashed var(--line);
+            border-radius: 10px;
             padding: 1rem;
             min-height: 140px;
             display: flex;
@@ -355,13 +408,13 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            transition: all 0.2s;
-            color: #9ca3af;
+            transition: all 0.15s;
+            color: var(--muted);
         }
-        .add-vehicle-card:hover { border-color: #fca5a5; color: #dc2626; background: #fef2f2; }
+        .add-vehicle-card:hover { border-color: var(--red); color: var(--red); background: var(--red-soft); }
 
         /* ══ Password strength ══ */
-        .strength-bar { height: 4px; border-radius: 2px; background: #e5e7eb; margin-top: 6px; overflow: hidden; }
+        .strength-bar { height: 4px; border-radius: 2px; background: var(--line); margin-top: 6px; overflow: hidden; }
         .strength-fill { height: 100%; border-radius: 2px; transition: width 0.3s, background 0.3s; width: 0%; }
 
         /* ══ Badge ══ */
@@ -371,58 +424,59 @@
             gap: 5px;
             padding: 3px 10px;
             border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.06em;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.35);
-            color: #fff;
+            background: rgba(220,38,38,0.18);
+            border: 1px solid rgba(220,38,38,0.4);
+            color: #FF8A8A;
         }
         .status-dot {
-            width: 8px; height: 8px;
+            width: 7px; height: 7px;
             border-radius: 50%;
-            background: #22c55e;
-            box-shadow: 0 0 5px #22c55e;
+            background: #fff;
             display: inline-block;
         }
-        .status-dot.inactive { background: #9ca3af; box-shadow: none; }
-        .member-since { font-size: 0.8rem; opacity: 0.85; }
+        .status-dot.inactive { background: rgba(255,255,255,0.35); }
 
         /* Picture upload overlay */
         .pic-upload-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(17,17,17,0.6);
             z-index: 1000;
             align-items: center;
             justify-content: center;
         }
         .pic-upload-overlay.show { display: flex; }
         .pic-modal {
-            background: #fff;
-            border-radius: 16px;
-            padding: 2rem;
+            background: var(--white);
+            border-radius: 14px;
+            padding: 1.75rem;
             width: 100%;
             max-width: 420px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-            animation: modalIn 0.25s ease;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+            border: 1px solid var(--line);
+            animation: modalIn 0.2s ease;
         }
         @keyframes modalIn {
-            from { opacity:0; transform: scale(0.95) translateY(10px); }
-            to   { opacity:1; transform: scale(1) translateY(0); }
+            from { opacity:0; transform: translateY(8px); }
+            to   { opacity:1; transform: translateY(0); }
         }
         .drop-zone {
-            border: 2px dashed #e5e7eb;
-            border-radius: 12px;
+            border: 1.5px dashed var(--line);
+            border-radius: 10px;
             padding: 2rem;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s;
             position: relative;
+            background: var(--paper);
         }
-        .drop-zone:hover, .drop-zone.dragover { border-color: #dc2626; background: #fef2f2; }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--red); background: var(--red-soft); }
         .drop-zone input[type=file] {
             position: absolute;
             inset: 0;
@@ -430,18 +484,21 @@
             cursor: pointer;
         }
         .preview-img {
-            width: 80px;
-            height: 80px;
+            width: 76px;
+            height: 76px;
             border-radius: 50%;
             object-fit: cover;
             display: none;
             margin: 0.75rem auto 0;
-            border: 3px solid #dc2626;
+            border: 2px solid var(--red);
         }
+
+        h2.fw-bold { font-family: 'Sora', sans-serif; }
 
         @media (max-width: 768px) {
             .stat-strip { grid-template-columns: 1fr; }
-            .hero-car-icon { display: none; }
+            .hero-meta-row { gap: 0.5rem; }
+            .hero-meta-divider { display: none; }
         }
     </style>
 </head>
@@ -461,10 +518,10 @@
     </div>
 </div>
 
-<!-- ══ Hero Banner ══ -->
+<!-- ══ Header Strip ══ -->
 <div class="profile-hero">
-    <i class="fas fa-car hero-car-icon"></i>
     <div class="container">
+        <div class="hero-eyebrow">ACCOUNT / PROFILE</div>
         <div class="d-flex align-items-center gap-4 flex-wrap">
 
             <!-- Avatar with edit button -->
@@ -486,8 +543,8 @@
 
             <!-- Name / role / status -->
             <div>
-                <h2 class="fw-bold mb-1" th:text="${user.fullName}">Full Name</h2>
-                <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                <h2 style="color: white" class="fw-bold mb-2" th:text="${user.fullName}">Full Name</h2>
+                <div class="hero-meta-row">
                     <span class="role-badge">
                         <i class="fas"
                            th:classappend="${user.role.name() == 'ROLE_ADMIN'} ? 'fa-shield-alt' :
@@ -495,15 +552,17 @@
                         <span th:text="${user.role.name() == 'ROLE_ADMIN'} ? 'Admin' :
                                        (${user.role.name() == 'ROLE_GARAGE_OWNER'} ? 'Garage Owner' : 'Member')">Role</span>
                     </span>
-                    <span class="d-flex align-items-center gap-1 member-since">
+                    <span class="hero-meta-divider"></span>
+                    <span class="hero-meta-item">
                         <span th:class="${user.active} ? 'status-dot' : 'status-dot inactive'"></span>
                         <span th:text="${user.active} ? 'Active' : 'Inactive'">Active</span>
                     </span>
+                    <span class="hero-meta-divider"></span>
+                    <span class="hero-meta-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Member since&nbsp;<span th:text="${#temporals.format(user.createdAt, 'MMMM yyyy')}">Jan 2024</span></span>
+                    </span>
                 </div>
-                <span class="member-since">
-                    <i class="fas fa-calendar-alt me-1"></i>Member since
-                    <span th:text="${#temporals.format(user.createdAt, 'MMMM yyyy')}">Jan 2024</span>
-                </span>
             </div>
         </div>
     </div>
@@ -514,7 +573,7 @@
 
     <!-- Stat strip -->
     <div class="stat-strip">
-        <div class="stat-box">
+        <div class="stat-box" th:if="${user.role.name() != 'ROLE_GARAGE_OWNER'}">
             <div class="sb-icon red"><i class="fas fa-tools"></i></div>
             <div>
                 <div class="sb-val" th:text="${vehicles.size()}">0</div>
@@ -529,9 +588,9 @@
             </div>
         </div>
         <div class="stat-box">
-            <div class="sb-icon green"><i class="fas fa-shield-check"></i></div>
+            <div style="color: #0c800c" class="sb-icon green"><i class="fas fa-shield-check"></i></div>
             <div>
-                <div class="sb-val" th:text="${user.active} ? 'Active' : 'Inactive'">Active</div>
+                <div style="color: #119f2f" class="sb-val" th:text="${user.active} ? 'Active' : 'Inactive'">Active</div>
                 <div class="sb-lbl">Account Status</div>
             </div>
         </div>
@@ -744,8 +803,8 @@
                 </div>
                 <div class="row g-0">
                     <div class="col-6">
-                        <div class="info-row" style="border-right:1px solid #f5f5f5">
-                            <div class="info-icon" style="background:#fffbeb;color:#d97706"><i class="fas fa-user-tag"></i></div>
+                        <div class="info-row" style="border-right:1px solid #E8E8EA">
+                            <div class="info-icon"><i class="fas fa-user-tag"></i></div>
                             <div>
                                 <div class="info-label">Role</div>
                                 <div class="info-value"
@@ -756,14 +815,14 @@
                     </div>
                     <div class="col-6">
                         <div class="info-row">
-                            <div class="info-icon" style="background:#f0fdf4;color:#16a34a"><i class="fas fa-toggle-on"></i></div>
+                            <div class="info-icon"><i class="fas fa-toggle-on"></i></div>
                             <div>
                                 <div class="info-label">Status</div>
                                 <div class="info-value">
-                                    <span th:if="${user.active}" class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style="font-size:0.78rem">
+                                    <span th:if="${user.active}" class="badge" style="font-size:0.78rem;background:#ecfdef;color:#26dc5d;border:1px solid #26891e">
                                         <i class="fas fa-circle me-1" style="font-size:0.5rem"></i>Active
                                     </span>
-                                    <span th:unless="${user.active}" class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25" style="font-size:0.78rem">
+                                    <span th:unless="${user.active}" class="badge" style="font-size:0.78rem;background:#F0F0F1;color:#767A82;border:1px solid #E8E8EA">
                                         Inactive
                                     </span>
                                 </div>
@@ -771,8 +830,8 @@
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="info-row" style="border-right:1px solid #f5f5f5;border-top:1px solid #f5f5f5">
-                            <div class="info-icon" style="background:#eff6ff;color:#2563eb"><i class="fas fa-calendar-plus"></i></div>
+                        <div class="info-row" style="border-right:1px solid #E8E8EA;border-top:1px solid #E8E8EA">
+                            <div class="info-icon"><i class="fas fa-calendar-plus"></i></div>
                             <div>
                                 <div class="info-label">Joined</div>
                                 <div class="info-value" th:text="${#temporals.format(user.createdAt, 'dd MMM yyyy')}">—</div>
@@ -780,15 +839,15 @@
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="info-row" style="border-top:1px solid #f5f5f5">
-                            <div class="info-icon" style="background:#faf5ff;color:#7c3aed"><i class="fas fa-shield-alt"></i></div>
+                        <div class="info-row" style="border-top:1px solid #E8E8EA">
+                            <div class="info-icon"><i class="fas fa-shield-alt"></i></div>
                             <div>
                                 <div class="info-label">2-Factor Auth</div>
                                 <div class="info-value">
-                                    <span th:if="${user.twoFactorEnabled}" class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style="font-size:0.78rem">
+                                    <span th:if="${user.twoFactorEnabled}" class="badge" style="font-size:0.78rem;background:#edfdec;color:#26dc5d;border:1px solid #0c800c">
                                         <i class="fas fa-check me-1"></i>Enabled
                                     </span>
-                                    <span th:unless="${user.twoFactorEnabled}" class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25" style="font-size:0.78rem">
+                                    <span th:unless="${user.twoFactorEnabled}" class="badge" style="font-size:0.78rem;background:#F0F0F1;color:#767A82;border:1px solid #E8E8EA">
                                         Disabled
                                     </span>
                                 </div>
@@ -799,10 +858,10 @@
             </div>
 
             <!-- 5. Registered Vehicles -->
-            <div class="profile-card">
+            <div class="profile-card" th:if="${user.role.name() != 'ROLE_GARAGE_OWNER'}">
                 <div class="profile-card-header">
                     <div class="header-left">
-                        <div class="card-icon green"><i class="fas fa-car"></i></div>
+                        <div class="card-icon green"><i  class="fas fa-car"></i></div>
                         <h6>Registered Vehicles</h6>
                         <span class="badge bg-danger bg-opacity-10 text-danger ms-1" style="font-size:0.72rem"
                               th:text="${vehicles.size()}">0</span>
@@ -826,12 +885,12 @@
                     <div th:unless="${vehicles.isEmpty()}" class="row g-3">
                         <div th:each="v : ${vehicles}" class="col-sm-6">
                             <div class="vehicle-card">
-                                <div class="vtype-badge">
-                                    <i class="fas"
+                                <div class="vtype-badge" style="color: #9aa1ac">
+                                    <i style="color: #6B7280" class="fas"
                                        th:classappend="${v.vehicleType == 'Bike'} ? 'fa-motorcycle' :
                                                        (${v.vehicleType == 'Truck'} ? 'fa-truck' :
                                                        (${v.vehicleType == 'Van'} ? 'fa-shuttle-van' : 'fa-car'))"></i>
-                                    <span th:text="${v.vehicleType}">Car</span>
+                                    <span style="color: black" th:text="${v.vehicleType}">Car</span>
                                 </div>
                                 <div class="vehicle-name">
                                     <span th:text="${v.brand}">Brand</span>&nbsp;<span th:text="${v.model}">Model</span>

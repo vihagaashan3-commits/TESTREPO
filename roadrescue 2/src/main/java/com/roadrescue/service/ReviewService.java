@@ -8,6 +8,8 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
@@ -35,6 +37,16 @@ public class ReviewService {
     public Page<Review> getGarageReviews(Long garageId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return reviewRepository.findByGarageIdAndDeletedFalse(garageId, pageable);
+    }
+
+    /**
+     * Fetches all non-deleted reviews for a garage, newest first.
+     * Used on the garage detail page so the list is loaded eagerly
+     * inside this transactional method instead of lazily off the entity.
+     */
+    public List<Review> getAllGarageReviews(Long garageId) {
+        Pageable pageable = PageRequest.of(0, 100, Sort.by("createdAt").descending());
+        return reviewRepository.findByGarageIdAndDeletedFalse(garageId, pageable).getContent();
     }
 
     public Review findById(Long id) {

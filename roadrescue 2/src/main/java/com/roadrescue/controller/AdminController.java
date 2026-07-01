@@ -38,7 +38,7 @@ public class AdminController {
 
     @PostMapping("/users/{id}/delete")
     public String deleteUser(@PathVariable Long id, RedirectAttributes ra) {
-        userService.softDelete(id);
+        userService.deleteUser(id);
         ra.addFlashAttribute("success", "User deleted.");
         return "redirect:/admin/users";
     }
@@ -63,6 +63,7 @@ public class AdminController {
         ra.addFlashAttribute("success", "Garage verified!");
         return "redirect:/admin/garages";
     }
+
 
     @PostMapping("/garages/{id}/delete")
     public String deleteGarage(@PathVariable Long id, RedirectAttributes ra) {
