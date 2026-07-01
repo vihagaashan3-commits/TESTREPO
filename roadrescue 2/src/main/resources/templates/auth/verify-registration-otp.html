@@ -122,6 +122,14 @@
 
         </div>
 
+        <div th:if="${success}" class="alert-success">
+
+            <i class="fas fa-circle-check"></i>
+
+            <span th:text="${success}"></span>
+
+        </div>
+
         <form
                 th:action="@{/auth/verify-registration-otp}"
                 th:object="${otpDTO}"
@@ -164,15 +172,92 @@
 
             <i class="fas fa-clock"></i>
 
-            Didn't receive the code?
+            <div>
+                Didn't receive the code?
+                Please check your spam folder or request a new OTP.
 
-            Please check your spam folder or request a new OTP.
+                <form
+                        id="resendForm"
+                        th:action="@{/auth/resend-registration-otp}"
+                        method="post">
+
+                    <input
+                            type="hidden"
+                            th:name="${_csrf.parameterName}"
+                            th:value="${_csrf.token}" />
+
+                    <button
+                            type="submit"
+                            id="resendBtn"
+                            class="resend-btn">
+                        <i class="fas fa-rotate-right"></i>
+                        <span id="resendLabel">Resend OTP</span>
+                    </button>
+
+                </form>
+            </div>
 
         </div>
 
     </div>
 
 </div>
+
+<script th:inline="javascript">
+
+    (function () {
+
+        var COOLDOWN_SECONDS = 60;
+        var storageKey = "rr_registration_otp_resend_until";
+
+        var btn = document.getElementById("resendBtn");
+        var label = document.getElementById("resendLabel");
+        var form = document.getElementById("resendForm");
+
+        function startCooldown(untilTimestamp) {
+
+            localStorage.setItem(storageKey, String(untilTimestamp));
+
+            function tick() {
+
+                var remaining = Math.ceil((untilTimestamp - Date.now()) / 1000);
+
+                if (remaining <= 0) {
+                    btn.disabled = false;
+                    label.textContent = "Resend OTP";
+                    localStorage.removeItem(storageKey);
+                    return;
+                }
+
+                btn.disabled = true;
+                label.textContent = "Resend in " + remaining + "s";
+
+                setTimeout(tick, 1000);
+            }
+
+            tick();
+        }
+
+        var savedUntil = parseInt(localStorage.getItem(storageKey), 10);
+
+        if (!isNaN(savedUntil) && savedUntil > Date.now()) {
+            startCooldown(savedUntil);
+        }
+
+        var justResent = /*[[${success}]]*/ null;
+
+        if (justResent) {
+            startCooldown(Date.now() + COOLDOWN_SECONDS * 1000);
+        }
+
+        form.addEventListener("submit", function () {
+            btn.disabled = true;
+            label.textContent = "Sending...";
+        });
+
+    })();
+
+</script>
 
 </body>
 </html>
