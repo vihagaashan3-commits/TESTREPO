@@ -28,7 +28,7 @@
         <div class="list-group list-group-flush"
              th:if="${notifications != null and !notifications.isEmpty()}">
             <div th:each="n : ${notifications}"
-                 th:class="${'list-group-item list-group-item-action py-3 ' + (!n.read ? 'bg-danger bg-opacity-5 border-start border-danger border-3' : '')}">
+                 th:class="${'list-group-item list-group-item-action py-3 position-relative ' + (!n.read ? 'unread-notification' : '')}">
                 <div class="d-flex justify-content-between align-items-start">
                     <div class="d-flex gap-3">
                         <div th:class="${'rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 ' +
@@ -42,7 +42,10 @@
                                           'fas fa-bell'}"></i>
                         </div>
                         <div>
-                            <div class="fw-semibold" th:text="${n.title}">Title</div>
+                            <div class="fw-semibold d-flex align-items-center gap-2">
+                                <span th:unless="${n.read}" class="unread-dot" aria-label="Unread"></span>
+                                <span th:text="${n.title}">Title</span>
+                            </div>
                             <div class="small text-muted" th:text="${n.message}">Message</div>
                             <div th:if="${n.breakdownRequest != null}" class="mt-1">
                                 <a th:href="@{/requests/{id}(id=${n.breakdownRequest.id})}"
