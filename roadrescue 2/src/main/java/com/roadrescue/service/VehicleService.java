@@ -22,6 +22,9 @@ public class VehicleService {
         if (vehicleRepository.existsByPlateNumberAndDeletedFalse(vehicle.getPlateNumber())) {
             throw new IllegalArgumentException("Plate number already registered");
         }
+        if (vehicleRepository.existsByChassisNumberAndDeletedFalse(vehicle.getChassisNumber())) {
+            throw new IllegalArgumentException("Chassis number already registered");
+        }
         User user = userService.findByEmail(ownerEmail);
         vehicle.setUser(user);
         return vehicleRepository.save(vehicle);
@@ -49,6 +52,14 @@ public class VehicleService {
         vehicle.setVehicleType(updated.getVehicleType());
         vehicle.setYear(updated.getYear());
         vehicle.setColor(updated.getColor());
+
+        // Only overwrite images if a new file was actually uploaded
+        if (updated.getFrontImagePath() != null) {
+            vehicle.setFrontImagePath(updated.getFrontImagePath());
+        }
+        if (updated.getBackImagePath() != null) {
+            vehicle.setBackImagePath(updated.getBackImagePath());
+        }
         return vehicleRepository.save(vehicle);
     }
 

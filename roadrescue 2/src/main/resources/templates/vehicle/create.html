@@ -24,7 +24,8 @@
 
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <form th:action="@{/vehicles/new}" th:object="${vehicle}" method="post" novalidate>
+                    <form th:action="@{/vehicles/new}" th:object="${vehicle}" method="post"
+                          enctype="multipart/form-data" novalidate>
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                         <div class="mb-3">
@@ -65,7 +66,15 @@
                             <div class="invalid-feedback" th:errors="*{plateNumber}"></div>
                         </div>
 
-                        <div class="row g-3 mb-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Chassis Number *</label>
+                            <input type="text" th:field="*{chassisNumber}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('chassisNumber')} ? 'is-invalid'"
+                                   placeholder="e.g. MHFXX1234K123456" style="text-transform:uppercase">
+                            <div class="invalid-feedback" th:errors="*{chassisNumber}"></div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
                             <div class="col-6">
                                 <label class="form-label fw-semibold">Year</label>
                                 <input type="number" th:field="*{year}" class="form-control"
@@ -75,6 +84,23 @@
                                 <label class="form-label fw-semibold">Color</label>
                                 <input type="text" th:field="*{color}" class="form-control"
                                        placeholder="e.g. White, Blue">
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <label class="form-label fw-semibold">Front Image *</label>
+                                <input type="file" name="frontImage" class="form-control"
+                                       th:classappend="${#fields.hasErrors('frontImagePath')} ? 'is-invalid'"
+                                       accept="image/*" required>
+                                <div class="invalid-feedback" th:errors="*{frontImagePath}"></div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-semibold">Back Image *</label>
+                                <input type="file" name="backImage" class="form-control"
+                                       th:classappend="${#fields.hasErrors('backImagePath')} ? 'is-invalid'"
+                                       accept="image/*" required>
+                                <div class="invalid-feedback" th:errors="*{backImagePath}"></div>
                             </div>
                         </div>
 
