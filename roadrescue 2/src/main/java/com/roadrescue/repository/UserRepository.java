@@ -31,9 +31,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> searchUsers(String keyword, Pageable pageable);
 
     long countByRoleAndDeletedFalse(Role role);
+
     boolean existsByRole(Role role);
 
     boolean existsByEmail(@NotBlank(message = "Email is required") @Email(message = "Invalid email format") String email);
-
-    void deleteById();
 }
